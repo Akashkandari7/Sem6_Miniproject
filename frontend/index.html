@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QPaper AI - Automated Question Paper Generator</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Custom scrollbar for a polished look */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #c7c7cc; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a1a1aa; }
+        
+        .view-section { display: none; }
+        .view-section.active { display: block; animation: fadeIn 0.3s ease-in-out; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .nav-item.active { background-color: rgba(55, 48, 163, 1); color: white; }
+    </style>
+</head>
+<body class="bg-gray-50 h-screen flex overflow-hidden font-sans text-gray-800">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-indigo-900 text-white flex flex-col shadow-xl z-20">
+        <div class="p-6 flex items-center gap-3 border-b border-indigo-800">
+            <div class="bg-white p-2 rounded-lg text-indigo-900">
+                <i data-lucide="brain-circuit"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold tracking-tight">QPaper AI</h1>
+                <p class="text-indigo-300 text-xs">Project 26E3173</p>
+            </div>
+        </div>
+        
+        <nav class="flex-1 px-4 py-6 space-y-2" id="sidebar-nav">
+            <button onclick="switchView('dashboard')" class="nav-item active w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors hover:bg-indigo-800" data-target="dashboard">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard
+            </button>
+            <button onclick="switchView('questions')" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors text-indigo-200 hover:bg-indigo-800 hover:text-white" data-target="questions">
+                <i data-lucide="database" class="w-5 h-5"></i> Question Bank
+            </button>
+            <button onclick="switchView('generate')" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors text-indigo-200 hover:bg-indigo-800 hover:text-white" data-target="generate">
+                <i data-lucide="file-text" class="w-5 h-5"></i> Generate Paper
+            </button>
+        </nav>
+        
+        <div class="p-4 border-t border-indigo-800">
+            <div class="flex items-center gap-3 px-4 py-2">
+                <div class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-sm font-bold">
+                    MK
+                </div>
+                <div>
+                    <p class="text-sm font-medium">Dr. Manish Kumar</p>
+                    <p class="text-xs text-indigo-300">Administrator</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col h-screen overflow-hidden">
+        <!-- Header -->
+        <header class="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-8 shrink-0 z-10 shadow-sm">
+            <h2 id="page-title" class="text-xl font-semibold text-gray-800 capitalize">Dashboard</h2>
+            <div class="flex items-center gap-4">
+                <span class="flex items-center gap-2 text-sm font-medium text-green-600 bg-green-50 px-3 py-1 rounded-full border border-green-100">
+                    <span class="relative flex h-2 w-2">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                    </span>
+                    API Connected
+                </span>
+            </div>
+        </header>
+
+        <!-- Scrollable Content -->
+        <div class="flex-1 overflow-y-auto p-8 bg-gray-50/50">
+            
+            <!-- DASHBOARD VIEW -->
+            <div id="dashboard" class="view-section active max-w-6xl mx-auto space-y-8">
+                <!-- Stats Row -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex items-center gap-4">
+                        <div class="p-3 bg-blue-50 text-blue-600 rounded-lg"><i data-lucide="database"></i></div>
+                        <div>
+                            <p class="text-gray-500 text-sm font-medium">Total Questions</p>
+                            <p class="text-2xl font-bold" id="stat-total-q">1,245</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex items-center gap-4">
+                        <div class="p-3 bg-indigo-50 text-indigo-600 rounded-lg"><i data-lucide="file-text"></i></div>
+                        <div>
+                            <p class="text-gray-500 text-sm font-medium">Papers Generated</p>
+                            <p class="text-2xl font-bold" id="stat-papers">84</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex items-center gap-4">
+                        <div class="p-3 bg-emerald-50 text-emerald-600 rounded-lg"><i data-lucide="book-open"></i></div>
+                        <div>
+                            <p class="text-gray-500 text-sm font-medium">Subjects Covered</p>
+                            <p class="text-2xl font-bold">12</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex items-center gap-4">
+                        <div class="p-3 bg-purple-50 text-purple-600 rounded-lg"><i data-lucide="bar-chart-3"></i></div>
+                        <div>
+                            <p class="text-gray-500 text-sm font-medium">Avg. Difficulty</p>
+                            <p class="text-2xl font-bold">Medium</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity & AI Insights -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                        <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                            <h3 class="text-lg font-semibold text-gray-800">Recent Generations</h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead class="bg-gray-50 text-gray-500 text-sm">
+                                    <tr>
+                                        <th class="px-6 py-3 font-medium">Subject</th>
+                                        <th class="px-6 py-3 font-medium">Date</th>
+                                        <th class="px-6 py-3 font-medium">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100 text-sm" id="recent-papers-list">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl text-white p-6 shadow-md h-fit">
+                        <div class="flex items-center gap-2 mb-4">
+                            <i data-lucide="brain-circuit" class="text-indigo-200"></i>
+                            <h3 class="text-lg font-semibold">NLP Engine Status</h3>
+                        </div>
+                        <p class="text-indigo-100 text-sm mb-6 leading-relaxed">
+                            The SpaCy and NLTK pipeline is active. Automatically classifying newly added questions by their Bloom's Taxonomy cognitive levels based on action verbs.
+                        </p>
+                        <button class="bg-white/20 hover:bg-white/30 transition-colors w-full py-2 rounded-lg text-sm font-medium border border-white/10 backdrop-blur-sm">
+                            View Classifier Logs
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- QUESTION BANK VIEW -->
+            <div id="questions" class="view-section max-w-6xl mx-auto space-y-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">Question Repository</h2>
+                        <p class="text-gray-500 text-sm mt-1">Manage and classify questions using your Flask backend</p>
+                    </div>
+                    <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium transition-colors shadow-sm">
+                        <i data-lucide="plus" class="w-4 h-4"></i> Add Question
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+                    <div class="p-4 border-b border-gray-100 flex gap-4">
+                        <div class="flex-1 relative">
+                            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4"></i>
+                            <input type="text" placeholder="Search questions..." class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider">
+                                <tr>
+                                    <th class="px-6 py-4 font-semibold">ID</th>
+                                    <th class="px-6 py-4 font-semibold w-1/2">Question Text</th>
+                                    <th class="px-6 py-4 font-semibold">Bloom's Level</th>
+                                    <th class="px-6 py-4 font-semibold">Difficulty</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 text-sm" id="questions-table-body">
+                                <tr><td colspan="4" class="px-6 py-8 text-center text-gray-400">Loading questions from backend...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GENERATE PAPER VIEW -->
+            <div id="generate" class="view-section max-w-4xl mx-auto space-y-8">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-800">Generate Assessment</h2>
+                    <p class="text-gray-500 text-sm mt-1">Configure parameters and let the AI generate a balanced paper</p>
+                </div>
+
+                <form id="generate-form" onsubmit="handleGenerate(event)" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    
+                    <!-- Basic Info -->
+                    <div class="p-6 border-b border-gray-100 bg-gray-50/50">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">1. Basic Information</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Subject</label>
+                                <select id="gen-subject" class="w-full p-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" required>
+                                    <option value="Computer Science">Computer Science</option>
+                                    <option value="Physics">Physics</option>
+                                    <option value="Mathematics">Mathematics</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Exam Title</label>
+                                <input type="text" id="gen-title" class="w-full p-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g., Mid-Term Exam" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Total Marks</label>
+                                <input type="number" id="gen-marks" value="100" class="w-full p-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Duration</label>
+                                <input type="text" id="gen-duration" value="3 Hours" class="w-full p-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bloom's Taxonomy -->
+                    <div class="p-6 border-b border-gray-100">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800">2. Bloom's Taxonomy Distribution (%)</h3>
+                            <span id="blooms-total-badge" class="text-sm font-bold px-3 py-1 rounded-full bg-green-100 text-green-700">Total: 100%</span>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
+                            <div class="flex flex-col gap-1">
+                                <label class="flex justify-between text-sm font-medium text-gray-700">Remember <span id="val-rem">15%</span></label>
+                                <input type="range" id="b-rem" class="blooms-slider accent-indigo-600" min="0" max="100" value="15">
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <label class="flex justify-between text-sm font-medium text-gray-700">Understand <span id="val-und">25%</span></label>
+                                <input type="range" id="b-und" class="blooms-slider accent-indigo-600" min="0" max="100" value="25">
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <label class="flex justify-between text-sm font-medium text-gray-700">Apply <span id="val-app">20%</span></label>
+                                <input type="range" id="b-app" class="blooms-slider accent-indigo-600" min="0" max="100" value="20">
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <label class="flex justify-between text-sm font-medium text-gray-700">Analyze <span id="val-ana">20%</span></label>
+                                <input type="range" id="b-ana" class="blooms-slider accent-indigo-600" min="0" max="100" value="20">
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <label class="flex justify-between text-sm font-medium text-gray-700">Evaluate <span id="val-eva">10%</span></label>
+                                <input type="range" id="b-eva" class="blooms-slider accent-indigo-600" min="0" max="100" value="10">
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <label class="flex justify-between text-sm font-medium text-gray-700">Create <span id="val-cre">10%</span></label>
+                                <input type="range" id="b-cre" class="blooms-slider accent-indigo-600" min="0" max="100" value="10">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Difficulty -->
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800">3. Difficulty Distribution (%)</h3>
+                            <span id="diff-total-badge" class="text-sm font-bold px-3 py-1 rounded-full bg-green-100 text-green-700">Total: 100%</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="flex flex-col gap-1">
+                                <label class="flex justify-between text-sm font-medium text-gray-700">Easy <span id="val-easy">30%</span></label>
+                                <input type="range" id="d-easy" class="diff-slider accent-green-500" min="0" max="100" value="30">
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <label class="flex justify-between text-sm font-medium text-gray-700">Medium <span id="val-med">50%</span></label>
+                                <input type="range" id="d-med" class="diff-slider accent-yellow-500" min="0" max="100" value="50">
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <label class="flex justify-between text-sm font-medium text-gray-700">Hard <span id="val-hard">20%</span></label>
+                                <input type="range" id="d-hard" class="diff-slider accent-red-500" min="0" max="100" value="20">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 p-6 flex justify-between items-center border-t border-gray-200">
+                        <p id="validation-error" class="text-red-600 text-sm font-medium hidden">
+                            <i data-lucide="alert-circle" class="inline w-4 h-4 mr-1"></i> Totals must equal 100%
+                        </p>
+                        <button type="submit" id="generate-btn" class="ml-auto bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-semibold shadow-md transition-all flex items-center gap-2">
+                            <i data-lucide="brain-circuit" class="w-5 h-5"></i> Generate Paper
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- LOADING SPINNER VIEW -->
+            <div id="loading" class="view-section h-full flex flex-col items-center justify-center">
+                <div class="relative w-24 h-24 mb-6">
+                    <div class="absolute inset-0 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+                    <i data-lucide="brain-circuit" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-indigo-600 w-8 h-8"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">AI is Processing...</h2>
+                <p class="text-gray-500 text-center max-w-sm">Querying database, applying NLP rules, and formatting your final paper.</p>
+            </div>
+
+            <!-- RESULT VIEW -->
+            <div id="result" class="view-section max-w-4xl mx-auto space-y-6">
+                <div class="flex justify-between items-center">
+                    <button onclick="switchView('generate')" class="text-gray-600 hover:text-gray-900 font-medium text-sm flex items-center gap-1">
+                        &larr; Back
+                    </button>
+                    <div class="flex gap-2">
+                        <button class="bg-indigo-50 text-indigo-700 px-4 py-2 rounded border border-indigo-200 text-sm font-medium hover:bg-indigo-100 flex items-center gap-2">
+                            <i data-lucide="download" class="w-4 h-4"></i> Export PDF
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white p-12 shadow-lg border border-gray-200 min-h-[800px] font-serif" id="paper-preview-content">
+                    <!-- Injected by JS -->
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // 1. Initialize Icons
+        lucide.createIcons();
+
+        // 2. Configuration for your Flask Backend
+        // IMPORTANT: Change this if your Flask app runs on a different port/host
+        const FLASK_API_BASE_URL = 'http://127.0.0.1:5000/api'; 
+
+        // 3. Navigation Logic
+        function switchView(viewId) {
+            // Hide all views
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            // Show target view
+            document.getElementById(viewId).classList.add('active');
+            
+            // Update sidebar active states
+            if (['dashboard', 'questions', 'generate'].includes(viewId)) {
+                document.querySelectorAll('.nav-item').forEach(el => {
+                    el.classList.remove('active', 'text-white', 'bg-indigo-800');
+                    el.classList.add('text-indigo-200');
+                });
+                const activeBtn = document.querySelector(`.nav-item[data-target="${viewId}"]`);
+                if(activeBtn) {
+                    activeBtn.classList.add('active', 'text-white', 'bg-indigo-800');
+                    activeBtn.classList.remove('text-indigo-200');
+                }
+
+                // Update Header Title
+                document.getElementById('page-title').innerText = viewId.replace('-', ' ');
+            }
+
+            // Trigger specific load actions based on view
+            if (viewId === 'questions') loadQuestions();
+            if (viewId === 'dashboard') loadDashboardStats();
+        }
+
+        // 4. Data Fetching (Connecting to your Flask Routes)
+        
+        // Mock fallback data just in case Flask is down
+        const MOCK_DATA = [
+            { id: 1, text: "Explain the architecture of a REST API.", blooms: "Understand", difficulty: "Medium", subject: "Computer Science" },
+            { id: 2, text: "Design a relational schema for a library management system.", blooms: "Create", difficulty: "Hard", subject: "Computer Science" },
+            { id: 3, text: "Calculate the time complexity of the quicksort algorithm.", blooms: "Analyze", difficulty: "Medium", subject: "Computer Science" }
+        ];
+
+        async function loadQuestions() {
+            const tbody = document.getElementById('questions-table-body');
+            try {
+                // Assuming you have a route like @app.route('/api/questions') in your app/routes/questions.py
+                const response = await fetch(`${FLASK_API_BASE_URL}/questions`);
+                
+                if (!response.ok) throw new Error('Backend not reachable');
+                
+                const questions = await response.json();
+                renderQuestionsTable(questions);
+            } catch (error) {
+                console.warn("Flask API not reachable. Using mock data for preview.", error);
+                renderQuestionsTable(MOCK_DATA);
+            }
+        }
+
+        function getBadgeColor(level) {
+            const colors = {
+                'Remember': 'bg-gray-100 text-gray-800',
+                'Understand': 'bg-blue-100 text-blue-800',
+                'Apply': 'bg-green-100 text-green-800',
+                'Analyze': 'bg-yellow-100 text-yellow-800',
+                'Evaluate': 'bg-purple-100 text-purple-800',
+                'Create': 'bg-red-100 text-red-800',
+                'Easy': 'bg-green-100 text-green-800',
+                'Medium': 'bg-yellow-100 text-yellow-800',
+                'Hard': 'bg-red-100 text-red-800'
+            };
+            return colors[level] || 'bg-gray-100 text-gray-800';
+        }
+
+        function renderQuestionsTable(questions) {
+            const tbody = document.getElementById('questions-table-body');
+            tbody.innerHTML = '';
+            
+            questions.forEach(q => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 font-medium text-gray-500">Q-${q.id}</td>
+                        <td class="px-6 py-4 text-gray-800 pr-8">${q.text}</td>
+                        <td class="px-6 py-4"><span class="px-2.5 py-0.5 rounded-full text-xs font-medium ${getBadgeColor(q.blooms)}">${q.blooms}</span></td>
+                        <td class="px-6 py-4"><span class="px-2.5 py-0.5 rounded-full text-xs font-medium ${getBadgeColor(q.difficulty)}">${q.difficulty}</span></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function loadDashboardStats() {
+            // Mocking recent papers for dashboard
+            const recent = document.getElementById('recent-papers-list');
+            if(recent.children.length === 0) {
+                recent.innerHTML = `
+                    <tr><td class="px-6 py-4 font-medium">Computer Science - Mid Term</td><td class="px-6 py-4 text-gray-500">Today, 10:30 AM</td><td class="px-6 py-4 text-green-600"><i data-lucide="check-circle-2" class="inline w-4 h-4 mr-1"></i>Completed</td></tr>
+                    <tr><td class="px-6 py-4 font-medium">Physics - Unit Test</td><td class="px-6 py-4 text-gray-500">Yesterday</td><td class="px-6 py-4 text-green-600"><i data-lucide="check-circle-2" class="inline w-4 h-4 mr-1"></i>Completed</td></tr>
+                `;
+                lucide.createIcons();
+            }
+        }
+
+        // 5. Form Logic & Validation (Sliders)
+        function setupSliders(selector, totalBadgeId, validationErrorId) {
+            const sliders = document.querySelectorAll(selector);
+            const totalBadge = document.getElementById(totalBadgeId);
+            const errorMsg = document.getElementById('validation-error');
+            const submitBtn = document.getElementById('generate-btn');
+
+            sliders.forEach(slider => {
+                slider.addEventListener('input', (e) => {
+                    // Update immediate text label next to slider
+                    const textSpan = document.getElementById(`val-${e.target.id.split('-')[1]}`);
+                    if(textSpan) textSpan.innerText = `${e.target.value}%`;
+
+                    // Calculate total
+                    let total = 0;
+                    sliders.forEach(s => total += parseInt(s.value));
+                    
+                    // Update badge
+                    totalBadge.innerText = `Total: ${total}%`;
+                    if (total === 100) {
+                        totalBadge.className = 'text-sm font-bold px-3 py-1 rounded-full bg-green-100 text-green-700';
+                        errorMsg.classList.add('hidden');
+                        submitBtn.disabled = false;
+                        submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    } else {
+                        totalBadge.className = 'text-sm font-bold px-3 py-1 rounded-full bg-red-100 text-red-700';
+                        errorMsg.classList.remove('hidden');
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    }
+                });
+            });
+        }
+
+        setupSliders('.blooms-slider', 'blooms-total-badge');
+        setupSliders('.diff-slider', 'diff-total-badge');
+
+        // 6. Form Submission to Flask API
+        async function handleGenerate(e) {
+            e.preventDefault();
+            
+            // Collect Form Data
+            const payload = {
+                subject: document.getElementById('gen-subject').value,
+                title: document.getElementById('gen-title').value,
+                marks: document.getElementById('gen-marks').value,
+                duration: document.getElementById('gen-duration').value,
+                blooms_distribution: {
+                    remember: parseInt(document.getElementById('b-rem').value),
+                    understand: parseInt(document.getElementById('b-und').value),
+                    apply: parseInt(document.getElementById('b-app').value),
+                    analyze: parseInt(document.getElementById('b-ana').value),
+                    evaluate: parseInt(document.getElementById('b-eva').value),
+                    create: parseInt(document.getElementById('b-cre').value),
+                },
+                difficulty_distribution: {
+                    easy: parseInt(document.getElementById('d-easy').value),
+                    medium: parseInt(document.getElementById('d-med').value),
+                    hard: parseInt(document.getElementById('d-hard').value),
+                }
+            };
+
+            // Switch to Loading Screen
+            switchView('loading');
+
+            try {
+                // Assuming you have an endpoint @app.route('/api/papers/generate', methods=['POST'])
+                // inside your app/routes/papers.py file.
+                
+                /* --- UNCOMMENT THIS IN PRODUCTION ---
+                const response = await fetch(`${FLASK_API_BASE_URL}/papers/generate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const generatedPaper = await response.json();
+                */
+                
+                // Simulate Network/Processing Delay for preview purposes
+                setTimeout(() => {
+                    renderPaperPreview(payload, MOCK_DATA);
+                    switchView('result');
+                }, 2500);
+
+            } catch (error) {
+                console.error("Error generating paper:", error);
+                alert("Failed to connect to Flask backend. Make sure app.py is running!");
+                switchView('generate');
+            }
+        }
+
+        function renderPaperPreview(config, questions) {
+            const container = document.getElementById('paper-preview-content');
+            
+            let html = `
+                <div class="text-center border-b-2 border-gray-800 pb-6 mb-8">
+                    <h1 class="text-2xl font-bold uppercase tracking-wider mb-2">K.R Mangalam University</h1>
+                    <h2 class="text-xl font-semibold mb-1">${config.title}</h2>
+                    <h3 class="text-lg text-gray-700 mb-4">${config.subject}</h3>
+                    <div class="flex justify-between text-sm font-medium mt-6 px-4">
+                        <span>Date: ${new Date().toLocaleDateString()}</span>
+                        <span>Duration: ${config.duration}</span>
+                        <span>Max Marks: ${config.marks}</span>
+                    </div>
+                </div>
+                <div class="font-bold text-lg border-b border-gray-300 pb-2 mb-6">
+                    SECTION A - All Questions are Compulsory
+                </div>
+                <div class="space-y-6">
+            `;
+
+            questions.forEach((q, idx) => {
+                html += `
+                    <div class="flex gap-4">
+                        <span class="font-bold">Q${idx + 1}.</span>
+                        <div class="flex-1">
+                            <p class="text-gray-900 leading-relaxed">${q.text}</p>
+                            <div class="mt-2 text-[10px] opacity-50 flex gap-2">
+                                <span class="bg-gray-100 px-2 py-0.5 border border-gray-200">[${q.blooms}]</span>
+                                <span class="bg-gray-100 px-2 py-0.5 border border-gray-200">[${q.difficulty}]</span>
+                            </div>
+                        </div>
+                        <span class="font-bold text-gray-600">[${q.difficulty === 'Hard' ? 10 : q.difficulty === 'Medium' ? 5 : 2}]</span>
+                    </div>
+                `;
+            });
+
+            html += `
+                </div>
+                <div class="mt-16 text-center text-sm font-bold italic border-t border-gray-300 pt-4">
+                    *** END OF QUESTION PAPER ***
+                </div>
+            `;
+            container.innerHTML = html;
+        }
+
+        // Initialize App
+        loadDashboardStats();
+    </script>
+</body>
+</html>

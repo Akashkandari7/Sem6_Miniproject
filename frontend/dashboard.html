@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QPGen — Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --bg: #f3f3f0; --white: #fff; --border: #e5e5e0; --accent: #2563eb; --text: #111; --muted: #888; --sw: 220px; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: var(--sw); min-height: 100vh;
+            background: #fff; border-right: 1px solid var(--border);
+            padding: 20px 12px; display: flex; flex-direction: column;
+            position: fixed; top: 0; left: 0; bottom: 0;
+        }
+
+        .sidebar-logo { display: flex; align-items: center; gap: 10px; padding: 6px 10px; margin-bottom: 28px; }
+        .logo-box { width: 30px; height: 30px; background: #111; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+        .logo-text { font-weight: 900; font-size: 1em; color: #111; letter-spacing: -0.5px; }
+
+        .nav-section-label { font-size: 0.65em; font-weight: 700; color: #bbb; text-transform: uppercase; letter-spacing: 1px; padding: 0 10px; margin-bottom: 4px; margin-top: 16px; }
+
+        .nav-item { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 6px; font-size: 0.85em; font-weight: 500; color: #555; cursor: pointer; transition: all 0.15s; text-decoration: none; margin-bottom: 1px; }
+        .nav-item:hover { background: #f5f5f3; color: #111; }
+        .nav-item.active { background: #f0f0ee; color: #111; font-weight: 600; }
+        .nav-item .icon { width: 18px; text-align: center; font-size: 0.95em; }
+
+        .sidebar-bottom { margin-top: auto; border-top: 1px solid var(--border); padding-top: 16px; }
+        .user-row { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 6px; cursor: pointer; transition: background 0.15s; }
+        .user-row:hover { background: #f5f5f3; }
+        .avatar { width: 28px; height: 28px; border-radius: 50%; background: #111; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.72em; font-weight: 700; flex-shrink: 0; }
+        .user-name { font-size: 0.82em; font-weight: 600; }
+        .user-sub { font-size: 0.7em; color: var(--muted); }
+
+        /* MAIN */
+        .main { margin-left: var(--sw); flex: 1; }
+
+        /* Hero banner */
+        .hero-banner {
+            background: #111;
+            padding: 52px 52px 40px;
+            position: relative; overflow: hidden;
+        }
+
+        .hero-banner::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .hero-tag {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 20px; padding: 4px 12px;
+            font-size: 0.72em; font-weight: 600; color: rgba(255,255,255,0.6);
+            margin-bottom: 16px; letter-spacing: 0.3px;
+        }
+
+        .hero-banner h1 {
+            font-size: 2.8em; font-weight: 900;
+            color: white; letter-spacing: -2px;
+            line-height: 1.05; margin-bottom: 12px;
+            position: relative; z-index: 1;
+        }
+
+        .hero-banner p { color: rgba(255,255,255,0.45); font-size: 0.88em; position: relative; z-index: 1; }
+
+        .hero-deco {
+            position: absolute; right: 52px; top: 50%; transform: translateY(-50%);
+            font-size: 7em; opacity: 0.06; user-select: none; pointer-events: none;
+        }
+
+        /* Content */
+        .content { padding: 36px 52px; }
+
+        /* Stats */
+        .stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 32px; }
+
+        .stat-card {
+            border-radius: 12px; padding: 22px 20px;
+            position: relative; overflow: hidden;
+            cursor: default; transition: transform 0.2s;
+            border: 1px solid transparent;
+        }
+        .stat-card:hover { transform: translateY(-3px); }
+
+        .sc-1 { background: #fef3c7; border-color: #fde68a; }
+        .sc-2 { background: #dbeafe; border-color: #bfdbfe; }
+        .sc-3 { background: #dcfce7; border-color: #bbf7d0; }
+        .sc-4 { background: #fce7f3; border-color: #fbcfe8; }
+
+        .stat-label { font-size: 0.72em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; opacity: 0.6; }
+        .stat-value { font-size: 2.6em; font-weight: 900; letter-spacing: -2px; line-height: 1; margin-bottom: 4px; }
+        .stat-sub { font-size: 0.75em; opacity: 0.5; font-weight: 500; }
+        .stat-icon { position: absolute; right: 16px; top: 16px; font-size: 1.6em; opacity: 0.3; }
+
+        /* Feature cards grid */
+        .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+
+        /* Big action cards like Notion */
+        .action-card {
+            border-radius: 12px; padding: 28px;
+            cursor: pointer; text-decoration: none;
+            display: block; transition: transform 0.2s;
+            position: relative; overflow: hidden;
+            border: 1px solid transparent;
+        }
+        .action-card:hover { transform: translateY(-3px); }
+
+        .ac-1 {
+            background: #1e1b4b;
+            border-color: #312e81;
+        }
+
+        .ac-2 {
+            background: #7f1d1d;
+            border-color: #991b1b;
+        }
+
+        .ac-arrow {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1em; margin-bottom: 20px;
+            color: white;
+        }
+
+        .ac-label { font-size: 0.72em; font-weight: 700; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+        .ac-title { font-size: 1.4em; font-weight: 900; color: white; letter-spacing: -0.8px; line-height: 1.2; }
+        .ac-deco { position: absolute; right: 20px; bottom: 20px; font-size: 4em; opacity: 0.12; }
+
+        /* Papers + blooms side by side */
+        .bottom-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px; }
+
+        .section-card { background: white; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+
+        .section-head { padding: 18px 22px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .section-head-title { font-size: 0.88em; font-weight: 800; }
+        .btn-new { padding: 6px 14px; border-radius: 6px; font-size: 0.78em; font-weight: 700; cursor: pointer; border: none; background: #111; color: white; font-family: 'Inter', sans-serif; transition: opacity 0.2s; text-decoration: none; display: inline-block; }
+        .btn-new:hover { opacity: 0.75; }
+
+        .paper-item { display: flex; align-items: center; gap: 14px; padding: 14px 22px; border-bottom: 1px solid #f8f8f6; }
+        .paper-item:last-child { border-bottom: none; }
+        .paper-icon { width: 36px; height: 36px; border-radius: 8px; background: #f5f5f3; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+        .paper-title { font-size: 0.86em; font-weight: 600; margin-bottom: 2px; }
+        .paper-meta { font-size: 0.73em; color: var(--muted); }
+        .badge { font-size: 0.7em; padding: 3px 8px; border-radius: 4px; font-weight: 700; }
+        .bd { background: #f5f5f3; color: #888; }
+        .bf { background: #dcfce7; color: #16a34a; }
+
+        .empty-state { text-align: center; padding: 40px; color: var(--muted); font-size: 0.84em; }
+        .empty-icon { font-size: 2.5em; margin-bottom: 10px; }
+
+        /* Bloom bars */
+        .bloom-section { padding: 16px 22px; }
+        .bloom-row { display: flex; align-items: center; gap: 10px; margin-bottom: 13px; }
+        .bloom-lbl { font-size: 0.76em; font-weight: 700; width: 72px; flex-shrink: 0; }
+        .bloom-track { flex: 1; height: 7px; background: #f5f5f3; border-radius: 10px; overflow: hidden; }
+        .bloom-fill { height: 100%; border-radius: 10px; }
+        .bloom-n { font-size: 0.74em; font-weight: 800; width: 18px; text-align: right; }
+
+        @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+        .stat-card { animation: fadeUp 0.4s ease both; }
+        .stat-card:nth-child(1){animation-delay:0.05s}
+        .stat-card:nth-child(2){animation-delay:0.1s}
+        .stat-card:nth-child(3){animation-delay:0.15s}
+        .stat-card:nth-child(4){animation-delay:0.2s}
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="sidebar-logo">
+        <div class="logo-box">🎓</div>
+        <span class="logo-text">QPGen</span>
+    </div>
+    <div class="nav-section-label">Workspace</div>
+    <a class="nav-item active" href="dashboard.html"><span class="icon">🏠</span> Home</a>
+    <a class="nav-item" href="questions.html"><span class="icon">📚</span> Question Bank</a>
+    <a class="nav-item" href="generate.html"><span class="icon">⚡</span> Generate Paper</a>
+    <div class="sidebar-bottom">
+        <div class="user-row" onclick="logout()">
+            <div class="avatar" id="av">N</div>
+            <div>
+                <div class="user-name" id="uName">User</div>
+                <div class="user-sub">Sign out</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="main">
+    <!-- Hero -->
+    <div class="hero-banner">
+        <div class="hero-tag">✦ AI-Powered · Bloom's Taxonomy</div>
+        <h1 id="greeting">Good evening,<br>Nitesh.</h1>
+        <p>Your question bank and paper generation hub.</p>
+        <div class="hero-deco">🎓</div>
+    </div>
+
+    <div class="content">
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card sc-1">
+                <div class="stat-icon">📚</div>
+                <div class="stat-label">Questions</div>
+                <div class="stat-value" id="sQ">—</div>
+                <div class="stat-sub">In question bank</div>
+            </div>
+            <div class="stat-card sc-2">
+                <div class="stat-icon">📁</div>
+                <div class="stat-label">Subjects</div>
+                <div class="stat-value" id="sS">—</div>
+                <div class="stat-sub">Active subjects</div>
+            </div>
+            <div class="stat-card sc-3">
+                <div class="stat-icon">📄</div>
+                <div class="stat-label">Papers</div>
+                <div class="stat-value" id="sP">—</div>
+                <div class="stat-sub">Generated so far</div>
+            </div>
+            <div class="stat-card sc-4">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-label">Bloom's</div>
+                <div class="stat-value">6</div>
+                <div class="stat-sub">Cognitive levels</div>
+            </div>
+        </div>
+
+        <!-- Notion-style feature cards -->
+        <div class="feature-grid">
+            <a class="action-card ac-1" href="questions.html">
+                <div class="ac-arrow">→</div>
+                <div class="ac-label">Question Bank</div>
+                <div class="ac-title">Add and manage<br>your questions.</div>
+                <div class="ac-deco">📚</div>
+            </a>
+            <a class="action-card ac-2" href="generate.html">
+                <div class="ac-arrow">→</div>
+                <div class="ac-label">AI Generation</div>
+                <div class="ac-title">Generate a smart<br>exam paper.</div>
+                <div class="ac-deco">⚡</div>
+            </a>
+        </div>
+
+        <!-- Papers + Bloom's -->
+        <div class="bottom-grid">
+            <div class="section-card">
+                <div class="section-head">
+                    <span class="section-head-title">Recent Papers</span>
+                    <a href="generate.html" class="btn-new">+ New</a>
+                </div>
+                <div id="papersList"><div class="empty-state"><div class="empty-icon">📄</div>Loading...</div></div>
+            </div>
+
+            <div class="section-card">
+                <div class="section-head">
+                    <span class="section-head-title">Bloom's Distribution</span>
+                </div>
+                <div class="bloom-section" id="bloomChart">
+                    <div class="empty-state"><div class="empty-icon">📊</div>Loading...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API = 'http://127.0.0.1:5000/api';
+    const token = localStorage.getItem('token');
+    if (!token) window.location.href = 'index.html';
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const hr = new Date().getHours();
+    document.getElementById('greeting').innerHTML = `${hr<12?'Good morning':hr<17?'Good afternoon':'Good evening'},<br>${user.username||'there'}.`;
+    document.getElementById('uName').textContent = user.username || 'User';
+    document.getElementById('av').textContent = (user.username||'U')[0].toUpperCase();
+    const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+    const bColors = { remember:'#6366f1', understand:'#3b82f6', apply:'#10b981', analyze:'#f59e0b', evaluate:'#ef4444', create:'#ec4899' };
+
+    async function load() {
+        try {
+            const [qR, sR, pR] = await Promise.all([
+                fetch(`${API}/questions/`, { headers }),
+                fetch(`${API}/subjects/`, { headers }),
+                fetch(`${API}/papers/`, { headers })
+            ]);
+            const qD = await qR.json(), sD = await sR.json(), pD = await pR.json();
+            document.getElementById('sQ').textContent = qD.count || 0;
+            document.getElementById('sS').textContent = sD.count || 0;
+            document.getElementById('sP').textContent = pD.count || 0;
+
+            const papers = pD.papers || [];
+            document.getElementById('papersList').innerHTML = papers.length === 0
+                ? `<div class="empty-state"><div class="empty-icon">📄</div>No papers yet. <a href="generate.html" style="color:#111;font-weight:700">Generate one →</a></div>`
+                : papers.slice(0,5).map(p => `
+                    <div class="paper-item">
+                        <div class="paper-icon">📄</div>
+                        <div style="flex:1">
+                            <div class="paper-title">${p.title}</div>
+                            <div class="paper-meta">${p.total_marks} marks · ${p.question_count} questions</div>
+                        </div>
+                        <span class="badge ${p.status==='final'?'bf':'bd'}">${p.status}</span>
+                    </div>`).join('');
+
+            const qs = qD.questions || [];
+            const counts = { remember:0, understand:0, apply:0, analyze:0, evaluate:0, create:0 };
+            qs.forEach(q => { if (counts[q.blooms_level]!==undefined) counts[q.blooms_level]++; });
+            const max = Math.max(...Object.values(counts), 1);
+            document.getElementById('bloomChart').innerHTML = Object.entries(counts).map(([l,c]) => `
+                <div class="bloom-row">
+                    <div class="bloom-lbl">${l.charAt(0).toUpperCase()+l.slice(1)}</div>
+                    <div class="bloom-track"><div class="bloom-fill" style="width:${(c/max)*100}%;background:${bColors[l]}"></div></div>
+                    <div class="bloom-n">${c}</div>
+                </div>`).join('');
+        } catch(e) { console.error(e); }
+    }
+    function logout() { localStorage.clear(); window.location.href='index.html'; }
+    load();
+</script>
+</body>
+</html>

@@ -470,58 +470,44 @@
 
         // 6. Form Submission to Flask API
         async function handleGenerate(e) {
-            e.preventDefault();
-            
-            // Collect Form Data
-            const payload = {
-                subject: document.getElementById('gen-subject').value,
-                title: document.getElementById('gen-title').value,
-                marks: document.getElementById('gen-marks').value,
-                duration: document.getElementById('gen-duration').value,
-                blooms_distribution: {
-                    remember: parseInt(document.getElementById('b-rem').value),
-                    understand: parseInt(document.getElementById('b-und').value),
-                    apply: parseInt(document.getElementById('b-app').value),
-                    analyze: parseInt(document.getElementById('b-ana').value),
-                    evaluate: parseInt(document.getElementById('b-eva').value),
-                    create: parseInt(document.getElementById('b-cre').value),
-                },
-                difficulty_distribution: {
-                    easy: parseInt(document.getElementById('d-easy').value),
-                    medium: parseInt(document.getElementById('d-med').value),
-                    hard: parseInt(document.getElementById('d-hard').value),
-                }
-            };
+    e.preventDefault();
+    
+    // 1. Gather the data from your form
+    const payload = {
+        subject: document.getElementById('gen-subject').value,
+        title: document.getElementById('gen-title').value,
+        marks: document.getElementById('gen-marks').value,
+        duration: document.getElementById('gen-duration').value,
+    };
 
-            // Switch to Loading Screen
-            switchView('loading');
+    // 2. Show the loading spinner
+    switchView('loading');
 
-            try {
-                // Assuming you have an endpoint @app.route('/api/papers/generate', methods=['POST'])
-                // inside your app/routes/papers.py file.
-                
-                /* --- UNCOMMENT THIS IN PRODUCTION ---
-                const response = await fetch(`${FLASK_API_BASE_URL}/papers/generate`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const generatedPaper = await response.json();
-                */
-                
-                // Simulate Network/Processing Delay for preview purposes
-                setTimeout(() => {
-                    renderPaperPreview(payload, MOCK_DATA);
-                    switchView('result');
-                }, 2500);
+    try {
+        // 3. Make the actual request to your Flask backend
+        const response = await fetch(`${FLASK_API_BASE_URL}/papers/generate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
 
-            } catch (error) {
-                console.error("Error generating paper:", error);
-                alert("Failed to connect to Flask backend. Make sure app.py is running!");
-                switchView('generate');
-            }
+        if (!response.ok) {
+            throw new Error(`Backend returned status ${response.status}`);
         }
 
+        const generatedPaper = await response.json();
+
+        // 4. Render the paper (assuming your backend returns a list of 'questions')
+        renderPaperPreview(payload, generatedPaper.questions || []);
+        switchView('result');
+
+    } catch (error) {
+        // 5. IF IT FAILS: Catch the error, stop the spinner, and go back to the form
+        console.error("API Error:", error);
+        alert("Failed to connect to the backend! Error: " + error.message + "\n\nMake sure your Flask server is running and CORS is enabled.");
+        switchView('generate'); // Takes you out of the loading screen
+    }
+}
         function renderPaperPreview(config, questions) {
             const container = document.getElementById('paper-preview-content');
             

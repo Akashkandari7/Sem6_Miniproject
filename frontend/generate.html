@@ -1,99 +1,641 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QPGen — Generate Paper</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root { --bg: #f3f3f0; --white: #fff; --border: #e5e5e0; --text: #111; --muted: #888; --sw: 220px; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-        .sidebar { width: var(--sw); min-height: 100vh; background: #fff; border-right: 1px solid var(--border); padding: 20px 12px; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; }
-        .sidebar-logo { display: flex; align-items: center; gap: 10px; padding: 6px 10px; margin-bottom: 28px; }
-        .logo-box { width: 30px; height: 30px; background: #111; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
-        .logo-text { font-weight: 900; font-size: 1em; color: #111; }
-        .nav-section-label { font-size: 0.65em; font-weight: 700; color: #bbb; text-transform: uppercase; letter-spacing: 1px; padding: 0 10px; margin-bottom: 4px; margin-top: 16px; }
-        .nav-item { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 6px; font-size: 0.85em; font-weight: 500; color: #555; cursor: pointer; transition: all 0.15s; text-decoration: none; margin-bottom: 1px; }
-        .nav-item:hover { background: #f5f5f3; color: #111; }
-        .nav-item.active { background: #f0f0ee; color: #111; font-weight: 600; }
-        .nav-item .icon { width: 18px; text-align: center; }
-        .sidebar-bottom { margin-top: auto; border-top: 1px solid var(--border); padding-top: 16px; }
-        .user-row { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 6px; cursor: pointer; transition: background 0.15s; }
-        .user-row:hover { background: #f5f5f3; }
-        .avatar { width: 28px; height: 28px; border-radius: 50%; background: #111; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.72em; font-weight: 700; flex-shrink: 0; }
-        .user-name { font-size: 0.82em; font-weight: 600; }
-        .user-sub { font-size: 0.7em; color: var(--muted); }
+        :root {
+            --bg: #f8fafc;
+            --white: #ffffff;
+            --border: #e2e8f0;
+            --accent: #4f46e5;
+            --accent-hover: #4338ca;
+            --text: #0f172a;
+            --muted: #64748b;
+            --sw: 240px;
+            --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --hover-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
 
-        .main { margin-left: var(--sw); flex: 1; }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            min-height: 100vh;
+        }
 
-        .page-banner { background: #7f1d1d; padding: 36px 48px; position: relative; overflow: hidden; }
-        .page-banner::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 32px 32px; }
-        .page-banner h1 { font-size: 2em; font-weight: 900; color: white; letter-spacing: -1px; margin-bottom: 4px; position: relative; z-index: 1; }
-        .page-banner p { color: rgba(255,255,255,0.4); font-size: 0.86em; position: relative; z-index: 1; }
-        .page-banner-deco { position: absolute; right: 48px; top: 50%; transform: translateY(-50%); font-size: 5em; opacity: 0.08; }
+        /* SIDEBAR */
+        .sidebar {
+            width: var(--sw);
+            min-height: 100vh;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border-right: 1px solid var(--border);
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            z-index: 10;
+        }
 
-        .content { padding: 32px 48px; }
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 6px 10px;
+            margin-bottom: 32px;
+        }
 
-        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .logo-box {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent), #818cf8);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: white;
+            box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);
+        }
 
-        .card { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 26px; margin-bottom: 16px; }
-        .card-title { font-size: 0.88em; font-weight: 800; margin-bottom: 20px; letter-spacing: -0.3px; display: flex; align-items: center; gap: 8px; }
+        .logo-text {
+            font-weight: 800;
+            font-size: 1.1em;
+            color: var(--text);
+            letter-spacing: -0.5px;
+        }
 
-        .form-group { margin-bottom: 16px; }
-        label { display: block; font-size: 0.73em; font-weight: 700; color: #666; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-        input[type="text"], input[type="number"], select { width: 100%; padding: 10px 12px; border: 1.5px solid #e5e5e0; border-radius: 7px; font-family: 'Inter', sans-serif; font-size: 0.88em; color: #111; background: #fafaf8; outline: none; transition: all 0.2s; font-weight: 500; }
-        input:focus, select:focus { border-color: #111; background: white; }
+        .nav-section-label {
+            font-size: 0.7em;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 0 10px;
+            margin-bottom: 8px;
+            margin-top: 16px;
+        }
 
-        .slider-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
-        .slider-lbl { width: 92px; font-size: 0.8em; font-weight: 700; color: #111; flex-shrink: 0; }
-        input[type="range"] { flex: 1; height: 4px; background: #e5e5e0; border-radius: 10px; outline: none; -webkit-appearance: none; border: none; padding: 0; cursor: pointer; }
-        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #111; cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
-        .slider-val { width: 40px; text-align: right; font-size: 0.82em; font-weight: 800; color: #111; }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-weight: 500;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            margin-bottom: 4px;
+            border: 1px solid transparent;
+        }
 
-        .total-pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 20px; font-size: 0.76em; font-weight: 800; margin-top: 6px; }
-        .tok { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
-        .terr { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+        .nav-item:hover {
+            background: #f1f5f9;
+            color: var(--text);
+            transform: translateX(2px);
+        }
 
-        .btn-gen { width: 100%; padding: 14px; background: #111; color: white; border: none; border-radius: 9px; font-family: 'Inter', sans-serif; font-weight: 900; font-size: 1em; cursor: pointer; letter-spacing: -0.3px; transition: opacity 0.2s; margin-top: 4px; }
-        .btn-gen:hover { opacity: 0.75; }
-        .btn-gen:disabled { opacity: 0.4; cursor: not-allowed; }
+        .nav-item.active {
+            background: #eef2ff;
+            color: var(--accent);
+            font-weight: 600;
+            border-color: #e0e7ff;
+        }
 
-        .msg { padding: 11px 14px; border-radius: 8px; font-size: 0.83em; margin-bottom: 16px; display: none; font-weight: 700; }
-        .msg.error { background: #fef2f2; border: 1.5px solid #fecaca; color: #dc2626; }
-        .msg.success { background: #f0fdf4; border: 1.5px solid #bbf7d0; color: #16a34a; }
+        .nav-item .icon {
+            width: 20px;
+            text-align: center;
+            font-size: 1.1em;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            border-top: 1px solid var(--border);
+            padding-top: 16px;
+        }
+
+        .user-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+
+        .user-row:hover {
+            background: #f1f5f9;
+            border-color: var(--border);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1e293b, #334155);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            font-weight: 700;
+            flex-shrink: 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-name {
+            font-size: 0.85em;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .user-sub {
+            font-size: 0.75em;
+            color: var(--muted);
+        }
+
+        /* MAIN */
+        .main {
+            margin-left: var(--sw);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Page banner */
+        .page-banner {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            padding: 48px 52px;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .page-banner::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 24px 24px;
+            opacity: 0.5;
+        }
+
+        .page-banner::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(79, 70, 229, 0.3) 0%, transparent 70%);
+            top: -50px;
+            right: -50px;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .page-banner h1 {
+            font-size: 2.4em;
+            font-weight: 900;
+            color: white;
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .page-banner p {
+            color: #94a3b8;
+            font-size: 1em;
+            position: relative;
+            z-index: 1;
+            line-height: 1.5;
+            max-width: 600px;
+        }
+
+        .page-banner-deco {
+            position: absolute;
+            right: 52px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 6em;
+            opacity: 0.08;
+            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.2));
+        }
+
+        .content {
+            padding: 40px 52px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: var(--hover-shadow);
+        }
+
+        .card-title {
+            font-size: 1.1em;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 24px;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.8em;
+            font-weight: 600;
+            color: var(--muted);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9em;
+            color: var(--text);
+            background: #f8fafc;
+            outline: none;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
+        }
+
+        input:focus,
+        select:focus {
+            border-color: var(--accent);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2364748b%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px top 50%;
+            background-size: 12px auto;
+            padding-right: 40px;
+        }
+
+        .slider-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .slider-lbl {
+            width: 110px;
+            font-size: 0.85em;
+            font-weight: 600;
+            color: var(--text);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            outline: none;
+            -webkit-appearance: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(79, 70, 229, 0.4);
+            border: 2px solid white;
+            transition: transform 0.1s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+
+        .slider-val {
+            width: 48px;
+            text-align: right;
+            font-size: 0.9em;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .total-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 99px;
+            font-size: 0.8em;
+            font-weight: 700;
+            margin-top: 8px;
+        }
+
+        .tok {
+            background: #ecfdf5;
+            color: #059669;
+            border: 1px solid #d1fae5;
+        }
+
+        .terr {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        .btn-gen {
+            width: 100%;
+            padding: 16px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 800;
+            font-size: 1.1em;
+            cursor: pointer;
+            letter-spacing: -0.3px;
+            transition: all 0.2s ease;
+            margin-top: 8px;
+            box-shadow: 0 4px 6px rgba(79, 70, 229, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-gen:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(79, 70, 229, 0.4);
+        }
+
+        .btn-gen:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .msg {
+            padding: 14px 18px;
+            border-radius: 10px;
+            font-size: 0.9em;
+            margin-bottom: 24px;
+            display: none;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .msg.error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+        }
+
+        .msg.success {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #16a34a;
+        }
 
         /* Result */
-        .result-card { background: white; border: 1px solid var(--border); border-radius: 12px; margin-top: 20px; display: none; overflow: hidden; }
-        .result-banner { background: #111; padding: 24px 28px; display: flex; justify-content: space-between; align-items: center; }
-        .r-title { font-size: 1.1em; font-weight: 900; color: white; letter-spacing: -0.5px; margin-bottom: 3px; }
-        .r-sub { font-size: 0.76em; color: rgba(255,255,255,0.4); }
-        .result-stats { display: grid; grid-template-columns: repeat(3,1fr); border-bottom: 1px solid var(--border); }
-        .rstat { padding: 20px; text-align: center; border-right: 1px solid var(--border); }
-        .rstat:last-child { border-right: none; }
-        .rstat-val { font-size: 1.8em; font-weight: 900; letter-spacing: -1px; margin-bottom: 2px; }
-        .rstat-lbl { font-size: 0.72em; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .result-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            margin-top: 32px;
+            display: none;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+        }
 
-        .result-qs { padding: 8px 0; }
-        .rq { display: flex; align-items: flex-start; gap: 16px; padding: 14px 24px; border-bottom: 1px solid #f8f8f5; }
-        .rq:last-child { border-bottom: none; }
-        .rq-num { font-size: 0.72em; font-weight: 800; color: var(--muted); width: 28px; flex-shrink: 0; padding-top: 3px; }
-        .rq-text { font-size: 0.86em; font-weight: 500; flex: 1; line-height: 1.6; }
-        .rq-pts { font-size: 0.78em; font-weight: 800; color: #111; flex-shrink: 0; white-space: nowrap; }
+        .result-banner {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            padding: 32px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-        .badge { display: inline-flex; align-items: center; padding: 2px 7px; border-radius: 4px; font-size: 0.68em; font-weight: 800; margin-left: 7px; }
-        .br { background: #eef2ff; color: #4338ca; }
-        .bu { background: #eff6ff; color: #1d4ed8; }
-        .ba { background: #f0fdf4; color: #15803d; }
-        .ban { background: #fffbeb; color: #b45309; }
-        .be { background: #fef2f2; color: #b91c1c; }
-        .bc { background: #fdf2f8; color: #be185d; }
+        .r-title {
+            font-size: 1.4em;
+            font-weight: 900;
+            color: white;
+            letter-spacing: -0.5px;
+            margin-bottom: 6px;
+        }
+
+        .r-sub {
+            font-size: 0.85em;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .result-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            border-bottom: 1px solid var(--border);
+            background: #fafaf9;
+        }
+
+        .rstat {
+            padding: 24px;
+            text-align: center;
+            border-right: 1px solid var(--border);
+        }
+
+        .rstat:last-child {
+            border-right: none;
+        }
+
+        .rstat-val {
+            font-size: 2em;
+            font-weight: 900;
+            letter-spacing: -1px;
+            margin-bottom: 4px;
+            color: var(--text);
+        }
+
+        .rstat-lbl {
+            font-size: 0.75em;
+            color: var(--muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .result-qs {
+            padding: 16px 0;
+        }
+
+        .rq {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            padding: 20px 40px;
+            border-bottom: 1px solid #f1f5f9;
+            transition: background 0.2s;
+        }
+
+        .rq:last-child {
+            border-bottom: none;
+        }
+
+        .rq:hover {
+            background: #f8fafc;
+        }
+
+        .rq-num {
+            font-size: 0.8em;
+            font-weight: 800;
+            color: var(--muted);
+            width: 32px;
+            flex-shrink: 0;
+            padding-top: 2px;
+        }
+
+        .rq-text {
+            font-size: 0.95em;
+            font-weight: 500;
+            flex: 1;
+            line-height: 1.6;
+            color: var(--text);
+        }
+
+        .rq-pts {
+            font-size: 0.85em;
+            font-weight: 800;
+            color: var(--accent);
+            flex-shrink: 0;
+            white-space: nowrap;
+            background: #eef2ff;
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.7em;
+            font-weight: 700;
+            margin-left: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            vertical-align: middle;
+        }
+
+        .br {
+            background: #eef2ff;
+            color: #4f46e5;
+            border: 1px solid #e0e7ff;
+        }
+
+        .bu {
+            background: #eff6ff;
+            color: #2563eb;
+            border: 1px solid #dbeafe;
+        }
+
+        .ba {
+            background: #ecfdf5;
+            color: #059669;
+            border: 1px solid #d1fae5;
+        }
+
+        .ban {
+            background: #fffbeb;
+            color: #d97706;
+            border: 1px solid #fef3c7;
+        }
+
+        .be {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fee2e2;
+        }
+
+        .bc {
+            background: #fdf2f8;
+            color: #db2777;
+            border: 1px solid #fce7f3;
+        }
     </style>
 </head>
+
 <body>
     <div class="sidebar">
-        <div class="sidebar-logo"><div class="logo-box">🎓</div><span class="logo-text">QPGen</span></div>
+        <div class="sidebar-logo">
+            <div class="logo-box">🎓</div><span class="logo-text">QPGen</span>
+        </div>
         <div class="nav-section-label">Workspace</div>
         <a class="nav-item" href="dashboard.html"><span class="icon">🏠</span> Home</a>
         <a class="nav-item" href="questions.html"><span class="icon">📚</span> Question Bank</a>
@@ -101,14 +643,17 @@
         <div class="sidebar-bottom">
             <div class="user-row" onclick="logout()">
                 <div class="avatar" id="av">N</div>
-                <div><div class="user-name" id="uName">User</div><div class="user-sub">Sign out</div></div>
+                <div>
+                    <div class="user-name" id="uName">User</div>
+                    <div class="user-sub">Sign out</div>
+                </div>
             </div>
         </div>
     </div>
 
     <div class="main">
         <div class="page-banner">
-            <h1>⚡ Generate Paper</h1>
+            <h1><span style="font-size: 1.2em;">⚡</span> Generate Paper</h1>
             <p>Configure Bloom's distribution · AI selects the best questions automatically</p>
             <div class="page-banner-deco">⚡</div>
         </div>
@@ -121,10 +666,15 @@
                 <div>
                     <div class="card">
                         <div class="card-title">📋 Paper Details</div>
-                        <div class="form-group"><label>Paper Title</label><input type="text" id="title" placeholder="e.g. CS101 Mid Term Exam"></div>
-                        <div class="form-group"><label>Subject</label><select id="subject"><option value="">Select subject...</option></select></div>
-                        <div class="form-group"><label>Total Marks</label><input type="number" id="marks" placeholder="100" min="1"></div>
-                        <div class="form-group"><label>Duration (minutes)</label><input type="number" id="dur" placeholder="180" min="1"></div>
+                        <div class="form-group"><label>Paper Title</label><input type="text" id="title"
+                                placeholder="e.g. CS101 Mid Term Exam"></div>
+                        <div class="form-group"><label>Subject</label><select id="subject">
+                                <option value="">Select subject...</option>
+                            </select></div>
+                        <div class="form-group"><label>Total Marks</label><input type="number" id="marks"
+                                placeholder="100" min="1"></div>
+                        <div class="form-group"><label>Duration (minutes)</label><input type="number" id="dur"
+                                placeholder="180" min="1"></div>
                         <div class="form-group"><label>Question Type</label>
                             <select id="qtype">
                                 <option value="mixed">Mixed (All Types)</option>
@@ -139,20 +689,39 @@
                 <div>
                     <div class="card">
                         <div class="card-title">🎯 Bloom's Distribution</div>
-                        <div class="slider-row"><span class="slider-lbl">📌 Remember</span><input type="range" min="0" max="100" value="20" id="b_remember" oninput="sync('b_remember','v_remember')"><span class="slider-val" id="v_remember">20%</span></div>
-                        <div class="slider-row"><span class="slider-lbl">💡 Understand</span><input type="range" min="0" max="100" value="30" id="b_understand" oninput="sync('b_understand','v_understand')"><span class="slider-val" id="v_understand">30%</span></div>
-                        <div class="slider-row"><span class="slider-lbl">🔧 Apply</span><input type="range" min="0" max="100" value="30" id="b_apply" oninput="sync('b_apply','v_apply')"><span class="slider-val" id="v_apply">30%</span></div>
-                        <div class="slider-row"><span class="slider-lbl">🔍 Analyze</span><input type="range" min="0" max="100" value="10" id="b_analyze" oninput="sync('b_analyze','v_analyze')"><span class="slider-val" id="v_analyze">10%</span></div>
-                        <div class="slider-row"><span class="slider-lbl">⚖️ Evaluate</span><input type="range" min="0" max="100" value="5" id="b_evaluate" oninput="sync('b_evaluate','v_evaluate')"><span class="slider-val" id="v_evaluate">5%</span></div>
-                        <div class="slider-row"><span class="slider-lbl">🎨 Create</span><input type="range" min="0" max="100" value="5" id="b_create" oninput="sync('b_create','v_create')"><span class="slider-val" id="v_create">5%</span></div>
+                        <div class="slider-row"><span class="slider-lbl">📌 Remember</span><input type="range" min="0"
+                                max="100" value="20" id="b_remember" oninput="sync('b_remember','v_remember')"><span
+                                class="slider-val" id="v_remember">20%</span></div>
+                        <div class="slider-row"><span class="slider-lbl">💡 Understand</span><input type="range" min="0"
+                                max="100" value="30" id="b_understand"
+                                oninput="sync('b_understand','v_understand')"><span class="slider-val"
+                                id="v_understand">30%</span></div>
+                        <div class="slider-row"><span class="slider-lbl">🔧 Apply</span><input type="range" min="0"
+                                max="100" value="30" id="b_apply" oninput="sync('b_apply','v_apply')"><span
+                                class="slider-val" id="v_apply">30%</span></div>
+                        <div class="slider-row"><span class="slider-lbl">🔍 Analyze</span><input type="range" min="0"
+                                max="100" value="10" id="b_analyze" oninput="sync('b_analyze','v_analyze')"><span
+                                class="slider-val" id="v_analyze">10%</span></div>
+                        <div class="slider-row"><span class="slider-lbl">⚖️ Evaluate</span><input type="range" min="0"
+                                max="100" value="5" id="b_evaluate" oninput="sync('b_evaluate','v_evaluate')"><span
+                                class="slider-val" id="v_evaluate">5%</span></div>
+                        <div class="slider-row"><span class="slider-lbl">🎨 Create</span><input type="range" min="0"
+                                max="100" value="5" id="b_create" oninput="sync('b_create','v_create')"><span
+                                class="slider-val" id="v_create">5%</span></div>
                         <div class="total-pill tok" id="bTotal">Total: 100% ✓</div>
                     </div>
 
                     <div class="card">
                         <div class="card-title">📊 Difficulty Split</div>
-                        <div class="slider-row"><span class="slider-lbl">🟢 Easy</span><input type="range" min="0" max="100" value="30" id="d_easy" oninput="sync('d_easy','v_easy')"><span class="slider-val" id="v_easy">30%</span></div>
-                        <div class="slider-row"><span class="slider-lbl">🟡 Medium</span><input type="range" min="0" max="100" value="50" id="d_medium" oninput="sync('d_medium','v_medium')"><span class="slider-val" id="v_medium">50%</span></div>
-                        <div class="slider-row"><span class="slider-lbl">🔴 Hard</span><input type="range" min="0" max="100" value="20" id="d_hard" oninput="sync('d_hard','v_hard')"><span class="slider-val" id="v_hard">20%</span></div>
+                        <div class="slider-row"><span class="slider-lbl">🟢 Easy</span><input type="range" min="0"
+                                max="100" value="30" id="d_easy" oninput="sync('d_easy','v_easy')"><span
+                                class="slider-val" id="v_easy">30%</span></div>
+                        <div class="slider-row"><span class="slider-lbl">🟡 Medium</span><input type="range" min="0"
+                                max="100" value="50" id="d_medium" oninput="sync('d_medium','v_medium')"><span
+                                class="slider-val" id="v_medium">50%</span></div>
+                        <div class="slider-row"><span class="slider-lbl">🔴 Hard</span><input type="range" min="0"
+                                max="100" value="20" id="d_hard" oninput="sync('d_hard','v_hard')"><span
+                                class="slider-val" id="v_hard">20%</span></div>
                         <div class="total-pill tok" id="dTotal">Total: 100% ✓</div>
                     </div>
                 </div>
@@ -172,9 +741,18 @@
                     <span style="font-size:2em">✅</span>
                 </div>
                 <div class="result-stats">
-                    <div class="rstat"><div class="rstat-val" id="rQ">—</div><div class="rstat-lbl">Questions</div></div>
-                    <div class="rstat"><div class="rstat-val" id="rM">—</div><div class="rstat-lbl">Total Marks</div></div>
-                    <div class="rstat"><div class="rstat-val" id="rD">—</div><div class="rstat-lbl">Duration</div></div>
+                    <div class="rstat">
+                        <div class="rstat-val" id="rQ">—</div>
+                        <div class="rstat-lbl">Questions</div>
+                    </div>
+                    <div class="rstat">
+                        <div class="rstat-val" id="rM">—</div>
+                        <div class="rstat-lbl">Total Marks</div>
+                    </div>
+                    <div class="rstat">
+                        <div class="rstat-val" id="rD">—</div>
+                        <div class="rstat-lbl">Duration</div>
+                    </div>
                 </div>
                 <div class="result-qs" id="rQs"></div>
             </div>
@@ -187,29 +765,29 @@
         if (!token) window.location.href = 'index.html';
         const user = JSON.parse(localStorage.getItem('user') || '{}');
         document.getElementById('uName').textContent = user.username || 'User';
-        document.getElementById('av').textContent = (user.username||'U')[0].toUpperCase();
+        document.getElementById('av').textContent = (user.username || 'U')[0].toUpperCase();
         const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
-        const bb = { remember:'br', understand:'bu', apply:'ba', analyze:'ban', evaluate:'be', create:'bc' };
+        const bb = { remember: 'br', understand: 'bu', apply: 'ba', analyze: 'ban', evaluate: 'be', create: 'bc' };
 
         async function loadSubjects() {
             const res = await fetch(`${API}/subjects/`, { headers });
             const data = await res.json();
-            (data.subjects||[]).forEach(s => { document.getElementById('subject').innerHTML += `<option value="${s.id}">${s.name} (${s.code})</option>`; });
+            (data.subjects || []).forEach(s => { document.getElementById('subject').innerHTML += `<option value="${s.id}">${s.name} (${s.code})</option>`; });
         }
 
         function sync(sid, vid) { document.getElementById(vid).textContent = document.getElementById(sid).value + '%'; checkTotals(); }
 
         function checkTotals() {
-            const bs = ['remember','understand','apply','analyze','evaluate','create'];
-            const bt = bs.reduce((s,b) => s + parseInt(document.getElementById(`b_${b}`).value), 0);
+            const bs = ['remember', 'understand', 'apply', 'analyze', 'evaluate', 'create'];
+            const bt = bs.reduce((s, b) => s + parseInt(document.getElementById(`b_${b}`).value), 0);
             const bEl = document.getElementById('bTotal');
-            bEl.textContent = `Total: ${bt}%${bt===100?' ✓':' ✗ must equal 100%'}`;
-            bEl.className = `total-pill ${bt===100?'tok':'terr'}`;
-            const ds = ['easy','medium','hard'];
-            const dt = ds.reduce((s,d) => s + parseInt(document.getElementById(`d_${d}`).value), 0);
+            bEl.textContent = `Total: ${bt}%${bt === 100 ? ' ✓' : ' ✗ must equal 100%'}`;
+            bEl.className = `total-pill ${bt === 100 ? 'tok' : 'terr'}`;
+            const ds = ['easy', 'medium', 'hard'];
+            const dt = ds.reduce((s, d) => s + parseInt(document.getElementById(`d_${d}`).value), 0);
             const dEl = document.getElementById('dTotal');
-            dEl.textContent = `Total: ${dt}%${dt===100?' ✓':' ✗ must equal 100%'}`;
-            dEl.className = `total-pill ${dt===100?'tok':'terr'}`;
+            dEl.textContent = `Total: ${dt}%${dt === 100 ? ' ✓' : ' ✗ must equal 100%'}`;
+            dEl.className = `total-pill ${dt === 100 ? 'tok' : 'terr'}`;
         }
 
         async function generate() {
@@ -219,49 +797,50 @@
             const duration = parseInt(document.getElementById('dur').value);
             const qtype = document.getElementById('qtype').value;
             const err = document.getElementById('errMsg'), suc = document.getElementById('sucMsg');
-            if (!title || !subject_id || !totalMarks || !duration) { err.textContent='Fill in all paper details.'; err.style.display='block'; suc.style.display='none'; return; }
-            const bs = ['remember','understand','apply','analyze','evaluate','create'];
-            const bt = bs.reduce((s,b) => s + parseInt(document.getElementById(`b_${b}`).value), 0);
-            if (bt!==100) { err.textContent=`Bloom's must total 100% (currently ${bt}%)`; err.style.display='block'; return; }
-            const ds = ['easy','medium','hard'];
-            const dt = ds.reduce((s,d) => s + parseInt(document.getElementById(`d_${d}`).value), 0);
-            if (dt!==100) { err.textContent=`Difficulty must total 100% (currently ${dt}%)`; err.style.display='block'; return; }
+            if (!title || !subject_id || !totalMarks || !duration) { err.textContent = 'Fill in all paper details.'; err.style.display = 'block'; suc.style.display = 'none'; return; }
+            const bs = ['remember', 'understand', 'apply', 'analyze', 'evaluate', 'create'];
+            const bt = bs.reduce((s, b) => s + parseInt(document.getElementById(`b_${b}`).value), 0);
+            if (bt !== 100) { err.textContent = `Bloom's must total 100% (currently ${bt}%)`; err.style.display = 'block'; return; }
+            const ds = ['easy', 'medium', 'hard'];
+            const dt = ds.reduce((s, d) => s + parseInt(document.getElementById(`d_${d}`).value), 0);
+            if (dt !== 100) { err.textContent = `Difficulty must total 100% (currently ${dt}%)`; err.style.display = 'block'; return; }
             const blooms_distribution = {};
-            bs.forEach(b => { const v=parseInt(document.getElementById(`b_${b}`).value); if(v>0) blooms_distribution[b]=v; });
+            bs.forEach(b => { const v = parseInt(document.getElementById(`b_${b}`).value); if (v > 0) blooms_distribution[b] = v; });
             const difficulty_distribution = {};
-            ds.forEach(d => { const v=parseInt(document.getElementById(`d_${d}`).value); if(v>0) difficulty_distribution[d]=v; });
+            ds.forEach(d => { const v = parseInt(document.getElementById(`d_${d}`).value); if (v > 0) difficulty_distribution[d] = v; });
             const btn = document.getElementById('genBtn');
-            btn.textContent='⏳ Generating...'; btn.disabled=true;
-            err.style.display='none'; suc.style.display='none';
+            btn.textContent = '⏳ Generating...'; btn.disabled = true;
+            err.style.display = 'none'; suc.style.display = 'none';
             try {
-                const res = await fetch(`${API}/papers/generate`, { method:'POST', headers, body: JSON.stringify({ title, subject_id:parseInt(subject_id), total_marks:totalMarks, duration_minutes:duration, config:{blooms_distribution, difficulty_distribution, question_type:qtype} }) });
+                const res = await fetch(`${API}/papers/generate`, { method: 'POST', headers, body: JSON.stringify({ title, subject_id: parseInt(subject_id), total_marks: totalMarks, duration_minutes: duration, config: { blooms_distribution, difficulty_distribution, question_type: qtype } }) });
                 const data = await res.json();
-                if (!res.ok) { err.textContent=data.error||'Generation failed.'; err.style.display='block'; return; }
-                suc.textContent='✅ Paper generated successfully!'; suc.style.display='block';
+                if (!res.ok) { err.textContent = data.error || 'Generation failed.'; err.style.display = 'block'; return; }
+                suc.textContent = '✅ Paper generated successfully!'; suc.style.display = 'block';
                 showResult(data.paper);
-            } catch { err.textContent='Server error.'; err.style.display='block'; }
-            finally { btn.textContent='⚡ Generate Paper Now →'; btn.disabled=false; }
+            } catch { err.textContent = 'Server error.'; err.style.display = 'block'; }
+            finally { btn.textContent = '⚡ Generate Paper Now →'; btn.disabled = false; }
         }
 
         function showResult(p) {
             const card = document.getElementById('resultCard');
-            card.style.display='block';
+            card.style.display = 'block';
             document.getElementById('rTitle').textContent = p.title;
             document.getElementById('rSub').textContent = `Generated · ${new Date(p.created_at).toLocaleDateString()}`;
             document.getElementById('rQ').textContent = p.question_count;
             document.getElementById('rM').textContent = p.total_marks;
-            document.getElementById('rD').textContent = p.duration_minutes+'m';
-            document.getElementById('rQs').innerHTML = (p.questions||[]).map((q,i) => `
+            document.getElementById('rD').textContent = p.duration_minutes + 'm';
+            document.getElementById('rQs').innerHTML = (p.questions || []).map((q, i) => `
                 <div class="rq">
-                    <div class="rq-num">Q${i+1}</div>
-                    <div class="rq-text">${q.text}<span class="badge ${bb[q.blooms_level]||''}">${q.blooms_level}</span></div>
+                    <div class="rq-num">Q${i + 1}</div>
+                    <div class="rq-text">${q.text}<span class="badge ${bb[q.blooms_level] || ''}">${q.blooms_level}</span></div>
                     <div class="rq-pts">${q.marks} pts</div>
                 </div>`).join('');
-            card.scrollIntoView({ behavior:'smooth' });
+            card.scrollIntoView({ behavior: 'smooth' });
         }
 
-        function logout() { localStorage.clear(); window.location.href='index.html'; }
+        function logout() { localStorage.clear(); window.location.href = 'index.html'; }
         loadSubjects(); checkTotals();
     </script>
 </body>
+
 </html>

@@ -349,6 +349,7 @@
                             Flask backend</p>
                     </div>
                     <button
+                        onclick="alert('Please use the dedicated questions.html page to add new questions, or implement the modal here.')"
                         class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 text-sm font-bold transition-all shadow-md shadow-indigo-500/30 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-500/40">
                         <i data-lucide="plus" class="w-4 h-4"></i> Add Question
                     </button>
@@ -566,7 +567,7 @@
                         &larr; Back to Generator
                     </button>
                     <div class="flex gap-3">
-                        <button
+                        <button onclick="window.print()"
                             class="bg-indigo-50 text-indigo-700 px-5 py-2.5 rounded-xl border border-indigo-200 text-sm font-bold hover:bg-indigo-100 flex items-center gap-2 transition-all shadow-sm">
                             <i data-lucide="download" class="w-4 h-4"></i> Export PDF
                         </button>
@@ -707,13 +708,21 @@
 
                     // Update badge
                     totalBadge.innerText = `Total: ${total}%`;
+                    
+                    const bloomsTotal = Array.from(document.querySelectorAll('.blooms-slider')).reduce((acc, curr) => acc + parseInt(curr.value), 0);
+                    const diffTotal = Array.from(document.querySelectorAll('.diff-slider')).reduce((acc, curr) => acc + parseInt(curr.value), 0);
+
                     if (total === 100) {
                         totalBadge.className = 'text-sm font-bold px-3 py-1 rounded-full bg-green-100 text-green-700';
+                    } else {
+                        totalBadge.className = 'text-sm font-bold px-3 py-1 rounded-full bg-red-100 text-red-700';
+                    }
+                    
+                    if (bloomsTotal === 100 && diffTotal === 100) {
                         errorMsg.classList.add('hidden');
                         submitBtn.disabled = false;
                         submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
                     } else {
-                        totalBadge.className = 'text-sm font-bold px-3 py-1 rounded-full bg-red-100 text-red-700';
                         errorMsg.classList.remove('hidden');
                         submitBtn.disabled = true;
                         submitBtn.classList.add('opacity-50', 'cursor-not-allowed');

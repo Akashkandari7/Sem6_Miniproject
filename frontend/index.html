@@ -593,6 +593,23 @@
         // IMPORTANT: Change this if your Flask app runs on a different port/host
         const FLASK_API_BASE_URL = 'http://127.0.0.1:5000/api';
 
+        
+        // --- Mock Authentication for Testing ---
+        // In a real app, this would be obtained via login and stored in localStorage
+        // To test with real data, you need to paste a valid JWT token here
+        // or temporarily disable @jwt_required() on your Flask routes.
+        const auth_token = localStorage.getItem('access_token') || 'INSERT_YOUR_JWT_TOKEN_HERE';
+        
+        const fetchWithAuth = async (url, options = {}) => {
+            const headers = {
+                'Authorization': `Bearer ${auth_token}`,
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
+            return fetch(url, { ...options, headers });
+        };
+        // ---------------------------------------
+
         // 3. Navigation Logic
         function switchView(viewId) {
             // Hide all views
@@ -634,7 +651,7 @@
             const tbody = document.getElementById('questions-table-body');
             try {
                 // Assuming you have a route like @app.route('/api/questions') in your app/routes/questions.py
-                const response = await fetch(`${FLASK_API_BASE_URL}/questions`);
+                const response = await fetchWithAuth(`${FLASK_API_BASE_URL}/questions`);
 
                 if (!response.ok) throw new Error('Backend not reachable');
 
@@ -670,22 +687,66 @@
                     <tr class="hover:bg-gray-50 transition-colors">
                         <td class="px-6 py-4 font-medium text-gray-500">Q-${q.id}</td>
                         <td class="px-6 py-4 text-gray-800 pr-8">${q.text}</td>
-                        <td class="px-6 py-4"><span class="px-2.5 py-0.5 rounded-full text-xs font-medium ${getBadgeColor(q.blooms)}">${q.blooms}</span></td>
+                        <td class="px-6 py-4"><span class="px-2.5 py-0.5 rounded-full text-xs font-medium ${getBadgeColor(q.blooms_level || q.blooms)}">${q.blooms_level || q.blooms}</span></td>
                         <td class="px-6 py-4"><span class="px-2.5 py-0.5 rounded-full text-xs font-medium ${getBadgeColor(q.difficulty)}">${q.difficulty}</span></td>
                     </tr>
                 `;
             });
         }
 
-        function loadDashboardStats() {
-            // Mocking recent papers for dashboard
-            const recent = document.getElementById('recent-papers-list');
-            if (recent.children.length === 0) {
-                recent.innerHTML = `
-                    <tr><td class="px-6 py-4 font-medium">Computer Science - Mid Term</td><td class="px-6 py-4 text-gray-500">Today, 10:30 AM</td><td class="px-6 py-4 text-green-600"><i data-lucide="check-circle-2" class="inline w-4 h-4 mr-1"></i>Completed</td></tr>
-                    <tr><td class="px-6 py-4 font-medium">Physics - Unit Test</td><td class="px-6 py-4 text-gray-500">Yesterday</td><td class="px-6 py-4 text-green-600"><i data-lucide="check-circle-2" class="inline w-4 h-4 mr-1"></i>Completed</td></tr>
-                `;
-                lucide.createIcons();
+        
+        async function loadDashboardStats() {
+            try {
+                // Fetch stats from backend
+                const [questionsRes, papersRes] = await Promise.all([
+                    fetchWithAuth(`${FLASK_API_BASE_URL}/questions`),
+                    fetchWithAuth(`${FLASK_API_BASE_URL}/papers`)
+                ]);
+
+                if (questionsRes.ok) {
+                    const qData = await questionsRes.json();
+                    document.getElementById('stat-total-q').innerText = qData.count || 0;
+                }
+
+                if (papersRes.ok) {
+                    const pData = await papersRes.json();
+                    document.getElementById('stat-papers').innerText = pData.count || 0;
+                    
+                    // Populate recent papers
+                    const recent = document.getElementById('recent-papers-list');
+                    recent.innerHTML = '';
+                    
+                    if (pData.papers && pData.papers.length > 0) {
+                        // Sort by created_at desc and take top 5
+                        const sortedPapers = pData.papers.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 5);
+                        
+                        sortedPapers.forEach(paper => {
+                            const date = new Date(paper.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                            recent.innerHTML += `
+                                <tr>
+                                    <td class="px-6 py-4 font-medium">${paper.title}</td>
+                                    <td class="px-6 py-4 text-gray-500">${date}</td>
+                                    <td class="px-6 py-4 text-green-600"><i data-lucide="check-circle-2" class="inline w-4 h-4 mr-1"></i>Generated</td>
+                                </tr>
+                            `;
+                        });
+                        lucide.createIcons();
+                    } else {
+                        recent.innerHTML = '<tr><td colspan="3" class="px-6 py-4 text-center text-gray-500">No recent papers</td></tr>';
+                    }
+                }
+            } catch (error) {
+                console.warn("Could not load dashboard stats from backend. Using fallback.", error);
+                
+                // Fallback to static mock if backend fails
+                const recent = document.getElementById('recent-papers-list');
+                if (recent.children.length === 0) {
+                    recent.innerHTML = `
+                        <tr><td class="px-6 py-4 font-medium">Computer Science - Mid Term</td><td class="px-6 py-4 text-gray-500">Today, 10:30 AM</td><td class="px-6 py-4 text-green-600"><i data-lucide="check-circle-2" class="inline w-4 h-4 mr-1"></i>Completed</td></tr>
+                        <tr><td class="px-6 py-4 font-medium">Physics - Unit Test</td><td class="px-6 py-4 text-gray-500">Yesterday</td><td class="px-6 py-4 text-green-600"><i data-lucide="check-circle-2" class="inline w-4 h-4 mr-1"></i>Completed</td></tr>
+                    `;
+                    lucide.createIcons();
+                }
             }
         }
 
@@ -739,11 +800,32 @@
             e.preventDefault();
 
             // 1. Gather the data from your form
+            // Construct config from sliders
+            const config = {
+                blooms_distribution: {
+                    remember: parseInt(document.getElementById('b-rem').value),
+                    understand: parseInt(document.getElementById('b-und').value),
+                    apply: parseInt(document.getElementById('b-app').value),
+                    analyze: parseInt(document.getElementById('b-ana').value),
+                    evaluate: parseInt(document.getElementById('b-eva').value),
+                    create: parseInt(document.getElementById('b-cre').value)
+                },
+                difficulty_distribution: {
+                    easy: parseInt(document.getElementById('d-easy').value),
+                    medium: parseInt(document.getElementById('d-med').value),
+                    hard: parseInt(document.getElementById('d-hard').value)
+                },
+                question_type: "mixed" // Or add a select for this in the form later
+            };
+
             const payload = {
-                subject: document.getElementById('gen-subject').value,
                 title: document.getElementById('gen-title').value,
-                marks: document.getElementById('gen-marks').value,
-                duration: document.getElementById('gen-duration').value,
+                subject_id: 1, // HARDCODED for now. Ideally fetch from /api/subjects and populate the select.
+                total_marks: parseInt(document.getElementById('gen-marks').value),
+                duration_minutes: parseInt(document.getElementById('gen-duration').value.replace(/[^0-9]/g, '')) || 180,
+                config: config,
+                // Passing subject name for frontend rendering reference
+                _subjectName: document.getElementById('gen-subject').value 
             };
 
             // 2. Show the loading spinner
@@ -751,9 +833,8 @@
 
             try {
                 // 3. Make the actual request to your Flask backend
-                const response = await fetch(`${FLASK_API_BASE_URL}/papers/generate`, {
+                const response = await fetchWithAuth(`${FLASK_API_BASE_URL}/papers/generate`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
 
@@ -781,11 +862,11 @@
                 <div class="text-center border-b-2 border-gray-800 pb-6 mb-8">
                     <h1 class="text-2xl font-bold uppercase tracking-wider mb-2">K.R Mangalam University</h1>
                     <h2 class="text-xl font-semibold mb-1">${config.title}</h2>
-                    <h3 class="text-lg text-gray-700 mb-4">${config.subject}</h3>
+                    <h3 class="text-lg text-gray-700 mb-4">${config._subjectName || "Subject"}</h3>
                     <div class="flex justify-between text-sm font-medium mt-6 px-4">
                         <span>Date: ${new Date().toLocaleDateString()}</span>
-                        <span>Duration: ${config.duration}</span>
-                        <span>Max Marks: ${config.marks}</span>
+                        <span>Duration: ${config.duration_minutes} Mins</span>
+                        <span>Max Marks: ${config.total_marks}</span>
                     </div>
                 </div>
                 <div class="font-bold text-lg border-b border-gray-300 pb-2 mb-6">
@@ -801,7 +882,7 @@
                         <div class="flex-1">
                             <p class="text-gray-900 leading-relaxed">${q.text}</p>
                             <div class="mt-2 text-[10px] opacity-50 flex gap-2">
-                                <span class="bg-gray-100 px-2 py-0.5 border border-gray-200">[${q.blooms}]</span>
+                                <span class="bg-gray-100 px-2 py-0.5 border border-gray-200">[${q.blooms_level || q.blooms}]</span>
                                 <span class="bg-gray-100 px-2 py-0.5 border border-gray-200">[${q.difficulty}]</span>
                             </div>
                         </div>

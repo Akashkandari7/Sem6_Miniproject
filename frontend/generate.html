@@ -5,544 +5,616 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QPGen — Generate Paper</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap"
         rel="stylesheet">
     <style>
-        * {
+        *,
+        *::before,
+        *::after {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
         :root {
-            --bg: #f8fafc;
-            --white: #ffffff;
-            --border: #e2e8f0;
-            --accent: #4f46e5;
-            --accent-hover: #4338ca;
-            --text: #0f172a;
-            --muted: #64748b;
-            --sw: 240px;
-            --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            --hover-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --black: #080808;
+            --deep: #0e0e0e;
+            --surface: #141414;
+            --card: #1a1a1a;
+            --border: rgba(255, 255, 255, 0.07);
+            --border-strong: rgba(255, 255, 255, 0.12);
+            --gold: #c9a84c;
+            --gold-light: #e2c07a;
+            --gold-dim: rgba(201, 168, 76, 0.12);
+            --white: #f5f0e8;
+            --muted: #5a5a5a;
+            --text: #b8b3a8;
+            --sw: 220px;
         }
 
+        html,
         body {
-            font-family: 'Inter', system-ui, sans-serif;
-            background: var(--bg);
-            color: var(--text);
+            background: var(--black);
+            color: var(--white);
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .layout {
             display: flex;
             min-height: 100vh;
         }
 
-        /* SIDEBAR */
         .sidebar {
             width: var(--sw);
-            min-height: 100vh;
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(12px);
+            background: var(--deep);
             border-right: 1px solid var(--border);
-            padding: 24px 16px;
             display: flex;
             flex-direction: column;
             position: fixed;
             top: 0;
             left: 0;
             bottom: 0;
-            z-index: 10;
+            z-index: 50;
+            padding: 32px 20px;
         }
 
         .sidebar-logo {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 6px 10px;
-            margin-bottom: 32px;
+            margin-bottom: 48px;
+            padding: 0 4px;
         }
 
-        .logo-box {
-            width: 32px;
-            height: 32px;
-            background: linear-gradient(135deg, var(--accent), #818cf8);
-            border-radius: 8px;
+        .logo-mark {
+            width: 34px;
+            height: 34px;
+            border: 1px solid var(--gold);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
-            color: white;
-            box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);
+            font-family: 'Playfair Display', serif;
+            font-size: 1em;
+            color: var(--gold);
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .logo-mark::before {
+            content: '';
+            position: absolute;
+            inset: 3px;
+            background: var(--gold-dim);
         }
 
         .logo-text {
-            font-weight: 800;
-            font-size: 1.1em;
-            color: var(--text);
-            letter-spacing: -0.5px;
-        }
-
-        .nav-section-label {
-            font-size: 0.7em;
-            font-weight: 700;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.75em;
+            letter-spacing: 3px;
             color: var(--muted);
             text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 0 10px;
-            margin-bottom: 8px;
-            margin-top: 16px;
+        }
+
+        .nav-section {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.6em;
+            letter-spacing: 3px;
+            color: var(--muted);
+            text-transform: uppercase;
+            padding: 0 8px;
+            margin-bottom: 10px;
         }
 
         .nav-item {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 10px 12px;
-            border-radius: 8px;
-            font-size: 0.9em;
-            font-weight: 500;
-            color: #475569;
-            cursor: pointer;
-            transition: all 0.2s ease;
+            padding: 12px 10px;
+            color: var(--muted);
             text-decoration: none;
-            margin-bottom: 4px;
-            border: 1px solid transparent;
+            font-size: 0.85em;
+            font-weight: 500;
+            transition: all 0.3s;
+            border-left: 2px solid transparent;
+            margin-bottom: 2px;
         }
 
         .nav-item:hover {
-            background: #f1f5f9;
             color: var(--text);
-            transform: translateX(2px);
+            background: rgba(255, 255, 255, 0.03);
         }
 
         .nav-item.active {
-            background: #eef2ff;
-            color: var(--accent);
-            font-weight: 600;
-            border-color: #e0e7ff;
+            color: var(--gold);
+            border-left-color: var(--gold);
+            background: var(--gold-dim);
         }
 
-        .nav-item .icon {
-            width: 20px;
+        .nav-icon {
+            width: 18px;
             text-align: center;
-            font-size: 1.1em;
+            font-size: 0.9em;
         }
 
         .sidebar-bottom {
             margin-top: auto;
             border-top: 1px solid var(--border);
-            padding-top: 16px;
+            padding-top: 20px;
         }
 
-        .user-row {
+        .user-tile {
             display: flex;
             align-items: center;
             gap: 12px;
             padding: 10px;
-            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.3s;
             border: 1px solid transparent;
         }
 
-        .user-row:hover {
-            background: #f1f5f9;
+        .user-tile:hover {
+            background: rgba(255, 255, 255, 0.03);
             border-color: var(--border);
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
         }
 
         .avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #1e293b, #334155);
-            color: white;
+            width: 34px;
+            height: 34px;
+            background: var(--gold-dim);
+            border: 1px solid rgba(201, 168, 76, 0.3);
+            color: var(--gold);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.8em;
+            font-family: 'Playfair Display', serif;
+            font-size: 0.85em;
             font-weight: 700;
             flex-shrink: 0;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .user-name {
-            font-size: 0.85em;
+            font-size: 0.8em;
             font-weight: 600;
             color: var(--text);
         }
 
         .user-sub {
-            font-size: 0.75em;
+            font-size: 0.68em;
             color: var(--muted);
         }
 
-        /* MAIN */
         .main {
             margin-left: var(--sw);
             flex: 1;
-            display: flex;
-            flex-direction: column;
         }
 
-        /* Page banner */
         .page-banner {
-            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-            padding: 48px 52px;
+            background: var(--deep);
+            border-bottom: 1px solid var(--border);
+            padding: 56px 60px;
             position: relative;
             overflow: hidden;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .page-banner::before {
             content: '';
             position: absolute;
-            inset: 0;
-            background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
-            background-size: 24px 24px;
-            opacity: 0.5;
+            width: 500px;
+            height: 400px;
+            background: radial-gradient(ellipse, rgba(201, 168, 76, 0.07) 0%, transparent 60%);
+            top: -150px;
+            right: -100px;
         }
 
-        .page-banner::after {
-            content: '';
-            position: absolute;
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, rgba(79, 70, 229, 0.3) 0%, transparent 70%);
-            top: -50px;
-            right: -50px;
-            border-radius: 50%;
-            pointer-events: none;
-        }
-
-        .page-banner h1 {
-            font-size: 2.4em;
-            font-weight: 900;
-            color: white;
-            letter-spacing: -1px;
-            margin-bottom: 8px;
-            position: relative;
-            z-index: 1;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        .banner-kicker {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.68em;
+            letter-spacing: 3px;
+            color: var(--gold);
+            text-transform: uppercase;
+            margin-bottom: 16px;
             display: flex;
             align-items: center;
             gap: 12px;
         }
 
-        .page-banner p {
-            color: #94a3b8;
-            font-size: 1em;
-            position: relative;
-            z-index: 1;
-            line-height: 1.5;
-            max-width: 600px;
+        .banner-kicker::before {
+            content: '';
+            width: 24px;
+            height: 1px;
+            background: var(--gold);
         }
 
-        .page-banner-deco {
+        .banner-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3em;
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: -1.5px;
+            color: var(--white);
+            margin-bottom: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .banner-title em {
+            font-style: italic;
+            color: var(--gold);
+        }
+
+        .banner-sub {
+            color: var(--muted);
+            font-size: 0.85em;
+            position: relative;
+            z-index: 1;
+        }
+
+        .banner-deco {
             position: absolute;
-            right: 52px;
+            right: 60px;
             top: 50%;
             transform: translateY(-50%);
-            font-size: 6em;
-            opacity: 0.08;
-            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.2));
+            font-family: 'Playfair Display', serif;
+            font-size: 12em;
+            font-style: italic;
+            color: rgba(201, 168, 76, 0.04);
+            line-height: 1;
+            user-select: none;
+            pointer-events: none;
         }
 
         .content {
-            padding: 40px 52px;
-            max-width: 1400px;
-            margin: 0 auto;
-            width: 100%;
+            padding: 48px 60px;
+        }
+
+        .msg-bar {
+            padding: 14px 18px;
+            font-size: 0.82em;
+            margin-bottom: 28px;
+            display: none;
+            border-left: 3px solid;
+            font-weight: 500;
+        }
+
+        .msg-bar.error {
+            background: rgba(220, 38, 38, 0.08);
+            border-color: #dc2626;
+            color: #fca5a5;
+        }
+
+        .msg-bar.success {
+            background: rgba(201, 168, 76, 0.08);
+            border-color: var(--gold);
+            color: var(--gold-light);
         }
 
         .two-col {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 24px;
+            gap: 2px;
+            background: var(--border);
+            margin-bottom: 2px;
         }
 
-        .card {
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 32px;
-            margin-bottom: 24px;
-            box-shadow: var(--card-shadow);
-            transition: all 0.3s ease;
+        .config-panel {
+            background: var(--surface);
+            padding: 36px;
         }
 
-        .card:hover {
-            box-shadow: var(--hover-shadow);
-        }
-
-        .card-title {
-            font-size: 1.1em;
-            font-weight: 800;
-            color: var(--text);
-            margin-bottom: 24px;
-            letter-spacing: -0.3px;
+        .panel-title {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.62em;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 28px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
             gap: 10px;
-            border-bottom: 1px solid #f1f5f9;
-            padding-bottom: 16px;
+        }
+
+        .panel-title-num {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6em;
+            color: rgba(201, 168, 76, 0.2);
+            font-style: italic;
+            font-weight: 700;
+            line-height: 1;
+            margin-top: -2px;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 22px;
         }
 
-        label {
+        .form-group label {
             display: block;
-            font-size: 0.8em;
-            font-weight: 600;
-            color: var(--muted);
-            margin-bottom: 8px;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.6em;
+            letter-spacing: 2.5px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            color: var(--muted);
+            margin-bottom: 10px;
         }
 
-        input[type="text"],
-        input[type="number"],
-        select {
+        .form-group input,
+        .form-group select {
             width: 100%;
-            padding: 12px 16px;
+            background: var(--card);
             border: 1px solid var(--border);
-            border-radius: 10px;
-            font-family: 'Inter', sans-serif;
-            font-size: 0.9em;
-            color: var(--text);
-            background: #f8fafc;
+            color: var(--white);
+            padding: 12px 16px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.88em;
             outline: none;
-            transition: all 0.2s ease;
-            font-weight: 500;
-            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
-        }
-
-        input:focus,
-        select:focus {
-            border-color: var(--accent);
-            background: white;
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-        }
-
-        select {
+            transition: all 0.3s;
             appearance: none;
-            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2364748b%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-            background-repeat: no-repeat;
-            background-position: right 16px top 50%;
-            background-size: 12px auto;
-            padding-right: 40px;
         }
 
-        .slider-row {
-            display: flex;
-            align-items: center;
-            gap: 16px;
+        .form-group select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%235a5a5a' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            background-color: var(--card);
+            padding-right: 36px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 1px rgba(201, 168, 76, 0.15);
+        }
+
+        .form-group input::placeholder {
+            color: var(--muted);
+        }
+
+        .form-group select option {
+            background: var(--card);
+        }
+
+        /* Sliders */
+        .slider-group {
             margin-bottom: 20px;
         }
 
-        .slider-lbl {
-            width: 110px;
-            font-size: 0.85em;
-            font-weight: 600;
-            color: var(--text);
-            flex-shrink: 0;
+        .slider-header {
             display: flex;
-            align-items: center;
-            gap: 6px;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 10px;
+        }
+
+        .slider-label {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.82em;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .slider-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1em;
+            font-style: italic;
+            color: var(--gold);
+            font-weight: 700;
+        }
+
+        .slider-track {
+            position: relative;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .slider-fill {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            background: var(--gold);
+            pointer-events: none;
+            transition: width 0.1s;
         }
 
         input[type="range"] {
-            flex: 1;
-            height: 6px;
-            background: #e2e8f0;
-            border-radius: 10px;
-            outline: none;
+            width: 100%;
             appearance: none;
             -webkit-appearance: none;
-            border: none;
-            padding: 0;
+            height: 3px;
+            background: transparent;
+            position: relative;
             cursor: pointer;
+            outline: none;
         }
 
         input[type="range"]::-webkit-slider-thumb {
-            appearance: none;
             -webkit-appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: var(--accent);
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--gold);
+            background: var(--black);
             cursor: pointer;
-            box-shadow: 0 2px 4px rgba(79, 70, 229, 0.4);
-            border: 2px solid white;
-            transition: transform 0.1s;
+            transition: all 0.2s;
+            border-radius: 0;
         }
 
         input[type="range"]::-webkit-slider-thumb:hover {
-            transform: scale(1.1);
+            background: var(--gold-dim);
+            transform: scale(1.2);
         }
 
-        .slider-val {
-            width: 48px;
-            text-align: right;
-            font-size: 0.9em;
-            font-weight: 700;
-            color: var(--text);
-        }
-
-        .total-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            border-radius: 99px;
-            font-size: 0.8em;
-            font-weight: 700;
-            margin-top: 8px;
-        }
-
-        .tok {
-            background: #ecfdf5;
-            color: #059669;
-            border: 1px solid #d1fae5;
-        }
-
-        .terr {
-            background: #fef2f2;
-            color: #dc2626;
-            border: 1px solid #fecaca;
-        }
-
-        .btn-gen {
-            width: 100%;
-            padding: 16px;
-            background: var(--accent);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-family: 'Inter', sans-serif;
-            font-weight: 800;
-            font-size: 1.1em;
-            cursor: pointer;
-            letter-spacing: -0.3px;
-            transition: all 0.2s ease;
-            margin-top: 8px;
-            box-shadow: 0 4px 6px rgba(79, 70, 229, 0.3);
+        .total-line {
             display: flex;
             align-items: center;
-            justify-content: center;
+            gap: 12px;
+            padding: 10px 0;
+            margin-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        .total-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.62em;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--muted);
+            flex: 1;
+        }
+
+        .total-val {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1em;
+            font-style: italic;
+            font-weight: 700;
+        }
+
+        .total-val.ok {
+            color: var(--gold);
+        }
+
+        .total-val.err {
+            color: #dc6464;
+        }
+
+        .generate-bar {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-top: none;
+            padding: 24px 36px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn-generate {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 700;
+            font-size: 0.95em;
+            letter-spacing: 1px;
+            padding: 16px 40px;
+            background: var(--gold);
+            color: var(--black);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
             gap: 10px;
         }
 
-        .btn-gen:hover {
-            background: var(--accent-hover);
+        .btn-generate:hover {
+            background: var(--gold-light);
             transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(79, 70, 229, 0.4);
         }
 
-        .btn-gen:disabled {
-            opacity: 0.5;
+        .btn-generate:disabled {
+            opacity: 0.4;
             cursor: not-allowed;
             transform: none;
-            box-shadow: none;
         }
 
-        .msg {
-            padding: 14px 18px;
-            border-radius: 10px;
-            font-size: 0.9em;
-            margin-bottom: 24px;
-            display: none;
-            font-weight: 600;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        .gen-hint {
+            font-size: 0.78em;
+            color: var(--muted);
         }
 
-        .msg.error {
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            color: #dc2626;
-        }
-
-        .msg.success {
-            background: #f0fdf4;
-            border: 1px solid #bbf7d0;
-            color: #16a34a;
-        }
-
-        /* Result */
-        .result-card {
-            background: white;
+        /* RESULT */
+        .result-wrap {
             border: 1px solid var(--border);
-            border-radius: 16px;
-            margin-top: 32px;
+            background: var(--surface);
+            margin-top: 48px;
             display: none;
-            overflow: hidden;
-            box-shadow: var(--card-shadow);
         }
 
-        .result-banner {
-            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-            padding: 32px 40px;
+        .result-header {
+            background: linear-gradient(135deg, rgba(201, 168, 76, 0.12), rgba(201, 168, 76, 0.04));
+            border-bottom: 1px solid rgba(201, 168, 76, 0.2);
+            padding: 36px 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .r-title {
-            font-size: 1.4em;
+        .result-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8em;
             font-weight: 900;
-            color: white;
+            color: var(--white);
             letter-spacing: -0.5px;
             margin-bottom: 6px;
         }
 
-        .r-sub {
-            font-size: 0.85em;
-            color: rgba(255, 255, 255, 0.6);
+        .result-sub {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.65em;
+            letter-spacing: 2px;
+            color: var(--gold);
+            text-transform: uppercase;
+        }
+
+        .result-check {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5em;
+            font-style: italic;
+            color: var(--gold);
         }
 
         .result-stats {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             border-bottom: 1px solid var(--border);
-            background: #fafaf9;
         }
 
         .rstat {
-            padding: 24px;
-            text-align: center;
+            padding: 28px 32px;
             border-right: 1px solid var(--border);
+            text-align: center;
         }
 
         .rstat:last-child {
             border-right: none;
         }
 
-        .rstat-val {
-            font-size: 2em;
+        .rstat-num {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.8em;
             font-weight: 900;
-            letter-spacing: -1px;
-            margin-bottom: 4px;
-            color: var(--text);
+            letter-spacing: -2px;
+            color: var(--white);
+            line-height: 1;
+            margin-bottom: 8px;
         }
 
         .rstat-lbl {
-            font-size: 0.75em;
-            color: var(--muted);
-            font-weight: 700;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.6em;
+            letter-spacing: 2.5px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            color: var(--muted);
         }
 
-        .result-qs {
-            padding: 16px 0;
+        .result-questions {
+            padding: 0;
         }
 
         .rq {
             display: flex;
             align-items: flex-start;
-            gap: 20px;
-            padding: 20px 40px;
-            border-bottom: 1px solid #f1f5f9;
+            gap: 24px;
+            padding: 24px 40px;
+            border-bottom: 1px solid var(--border);
             transition: background 0.2s;
         }
 
@@ -551,133 +623,159 @@
         }
 
         .rq:hover {
-            background: #f8fafc;
+            background: rgba(255, 255, 255, 0.015);
         }
 
         .rq-num {
-            font-size: 0.8em;
-            font-weight: 800;
-            color: var(--muted);
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1em;
+            font-style: italic;
+            color: rgba(201, 168, 76, 0.25);
             width: 32px;
             flex-shrink: 0;
             padding-top: 2px;
         }
 
         .rq-text {
-            font-size: 0.95em;
-            font-weight: 500;
             flex: 1;
-            line-height: 1.6;
+            font-size: 0.88em;
+            line-height: 1.7;
             color: var(--text);
         }
 
-        .rq-pts {
-            font-size: 0.85em;
-            font-weight: 800;
-            color: var(--accent);
-            flex-shrink: 0;
-            white-space: nowrap;
-            background: #eef2ff;
-            padding: 4px 10px;
-            border-radius: 6px;
-        }
-
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 0.7em;
-            font-weight: 700;
-            margin-left: 10px;
+        .rq-badge {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.58em;
+            letter-spacing: 1.5px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            padding: 3px 8px;
+            border: 1px solid;
+            margin-left: 10px;
             vertical-align: middle;
         }
 
-        .br {
-            background: #eef2ff;
-            color: #4f46e5;
-            border: 1px solid #e0e7ff;
+        .rq-pts {
+            font-family: 'Playfair Display', serif;
+            font-size: 1em;
+            font-style: italic;
+            color: var(--gold);
+            flex-shrink: 0;
+            white-space: nowrap;
         }
 
-        .bu {
-            background: #eff6ff;
-            color: #2563eb;
-            border: 1px solid #dbeafe;
+        .b-remember {
+            border-color: rgba(201, 168, 76, 0.4);
+            color: var(--gold);
         }
 
-        .ba {
-            background: #ecfdf5;
-            color: #059669;
-            border: 1px solid #d1fae5;
+        .b-understand {
+            border-color: rgba(100, 150, 220, 0.4);
+            color: #7090cc;
         }
 
-        .ban {
-            background: #fffbeb;
-            color: #d97706;
-            border: 1px solid #fef3c7;
+        .b-apply {
+            border-color: rgba(100, 200, 130, 0.4);
+            color: #64c882;
         }
 
-        .be {
-            background: #fef2f2;
-            color: #dc2626;
-            border: 1px solid #fee2e2;
+        .b-analyze {
+            border-color: rgba(220, 180, 80, 0.4);
+            color: #dcb450;
         }
 
-        .bc {
-            background: #fdf2f8;
-            color: #db2777;
-            border: 1px solid #fce7f3;
+        .b-evaluate {
+            border-color: rgba(220, 100, 100, 0.4);
+            color: #dc6464;
+        }
+
+        .b-create {
+            border-color: rgba(200, 100, 180, 0.4);
+            color: #c864b4;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(14px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .content {
+            animation: fadeUp 0.5s 0.1s ease both;
+        }
+
+        .result-wrap {
+            animation: fadeUp 0.5s ease both;
         }
     </style>
 </head>
 
 <body>
-    <div class="sidebar">
-        <div class="sidebar-logo">
-            <div class="logo-box">🎓</div><span class="logo-text">QPGen</span>
-        </div>
-        <div class="nav-section-label">Workspace</div>
-        <a class="nav-item" href="dashboard.html"><span class="icon">🏠</span> Home</a>
-        <a class="nav-item" href="questions.html"><span class="icon">📚</span> Question Bank</a>
-        <a class="nav-item active" href="generate.html"><span class="icon">⚡</span> Generate Paper</a>
-        <div class="sidebar-bottom">
-            <div class="user-row" onclick="logout()">
-                <div class="avatar" id="av">N</div>
-                <div>
-                    <div class="user-name" id="uName">User</div>
-                    <div class="user-sub">Sign out</div>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-mark">Q</div>
+                <div class="logo-text">QPGen</div>
+            </div>
+            <div class="nav-section">Workspace</div>
+            <a class="nav-item" href="dashboard.html"><span class="nav-icon">◈</span> Dashboard</a>
+            <a class="nav-item" href="questions.html"><span class="nav-icon">◉</span> Question Bank</a>
+            <a class="nav-item active" href="generate.html"><span class="nav-icon">◎</span> Generate Paper</a>
+            <div class="sidebar-bottom">
+                <div class="user-tile" onclick="logout()">
+                    <div class="avatar" id="av">N</div>
+                    <div>
+                        <div class="user-name" id="uName">User</div>
+                        <div class="user-sub">Sign out</div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
+        </aside>
 
-    <div class="main">
-        <div class="page-banner">
-            <h1><span style="font-size: 1.2em;">⚡</span> Generate Paper</h1>
-            <p>Configure Bloom's distribution · AI selects the best questions automatically</p>
-            <div class="page-banner-deco">⚡</div>
-        </div>
+        <main class="main">
+            <div class="page-banner">
+                <div class="banner-kicker">AI-Powered</div>
+                <h1 class="banner-title">Generate <em>Paper.</em></h1>
+                <p class="banner-sub">Configure Bloom's distribution · Smart question selection</p>
+                <div class="banner-deco">◎</div>
+            </div>
 
-        <div class="content">
-            <div class="msg error" id="errMsg"></div>
-            <div class="msg success" id="sucMsg"></div>
+            <div class="content">
+                <div class="msg-bar error" id="errMsg"></div>
+                <div class="msg-bar success" id="sucMsg"></div>
 
-            <div class="two-col">
-                <div>
-                    <div class="card">
-                        <div class="card-title">📋 Paper Details</div>
-                        <div class="form-group"><label>Paper Title</label><input type="text" id="title"
-                                placeholder="e.g. CS101 Mid Term Exam"></div>
-                        <div class="form-group"><label>Subject</label><select id="subject">
+                <div class="two-col">
+                    <!-- LEFT: Paper Details -->
+                    <div class="config-panel">
+                        <div class="panel-title">
+                            <span class="panel-title-num">01</span>
+                            Paper Details
+                        </div>
+                        <div class="form-group">
+                            <label>Paper Title</label>
+                            <input type="text" id="title" placeholder="e.g. CS101 Mid Term Exam">
+                        </div>
+                        <div class="form-group">
+                            <label>Subject</label>
+                            <select id="subject">
                                 <option value="">Select subject...</option>
-                            </select></div>
-                        <div class="form-group"><label>Total Marks</label><input type="number" id="marks"
-                                placeholder="100" min="1"></div>
-                        <div class="form-group"><label>Duration (minutes)</label><input type="number" id="dur"
-                                placeholder="180" min="1"></div>
-                        <div class="form-group"><label>Question Type</label>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Total Marks</label>
+                            <input type="number" id="marks" placeholder="100" min="1">
+                        </div>
+                        <div class="form-group">
+                            <label>Duration (minutes)</label>
+                            <input type="number" id="dur" placeholder="180" min="1">
+                        </div>
+                        <div class="form-group">
+                            <label>Question Type</label>
                             <select id="qtype">
                                 <option value="mixed">Mixed (All Types)</option>
                                 <option value="mcq">MCQ Only</option>
@@ -686,79 +784,70 @@
                             </select>
                         </div>
                     </div>
-                </div>
 
-                <div>
-                    <div class="card">
-                        <div class="card-title">🎯 Bloom's Distribution</div>
-                        <div class="slider-row"><span class="slider-lbl">📌 Remember</span><input type="range" min="0"
-                                max="100" value="20" id="b_remember" oninput="sync('b_remember','v_remember')"><span
-                                class="slider-val" id="v_remember">20%</span></div>
-                        <div class="slider-row"><span class="slider-lbl">💡 Understand</span><input type="range" min="0"
-                                max="100" value="30" id="b_understand"
-                                oninput="sync('b_understand','v_understand')"><span class="slider-val"
-                                id="v_understand">30%</span></div>
-                        <div class="slider-row"><span class="slider-lbl">🔧 Apply</span><input type="range" min="0"
-                                max="100" value="30" id="b_apply" oninput="sync('b_apply','v_apply')"><span
-                                class="slider-val" id="v_apply">30%</span></div>
-                        <div class="slider-row"><span class="slider-lbl">🔍 Analyze</span><input type="range" min="0"
-                                max="100" value="10" id="b_analyze" oninput="sync('b_analyze','v_analyze')"><span
-                                class="slider-val" id="v_analyze">10%</span></div>
-                        <div class="slider-row"><span class="slider-lbl">⚖️ Evaluate</span><input type="range" min="0"
-                                max="100" value="5" id="b_evaluate" oninput="sync('b_evaluate','v_evaluate')"><span
-                                class="slider-val" id="v_evaluate">5%</span></div>
-                        <div class="slider-row"><span class="slider-lbl">🎨 Create</span><input type="range" min="0"
-                                max="100" value="5" id="b_create" oninput="sync('b_create','v_create')"><span
-                                class="slider-val" id="v_create">5%</span></div>
-                        <div class="total-pill tok" id="bTotal">Total: 100% ✓</div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-title">📊 Difficulty Split</div>
-                        <div class="slider-row"><span class="slider-lbl">🟢 Easy</span><input type="range" min="0"
-                                max="100" value="30" id="d_easy" oninput="sync('d_easy','v_easy')"><span
-                                class="slider-val" id="v_easy">30%</span></div>
-                        <div class="slider-row"><span class="slider-lbl">🟡 Medium</span><input type="range" min="0"
-                                max="100" value="50" id="d_medium" oninput="sync('d_medium','v_medium')"><span
-                                class="slider-val" id="v_medium">50%</span></div>
-                        <div class="slider-row"><span class="slider-lbl">🔴 Hard</span><input type="range" min="0"
-                                max="100" value="20" id="d_hard" oninput="sync('d_hard','v_hard')"><span
-                                class="slider-val" id="v_hard">20%</span></div>
-                        <div class="total-pill tok" id="dTotal">Total: 100% ✓</div>
-                    </div>
-                </div>
-            </div>
-
-            <div style="max-width:480px; margin-top:4px;">
-                <button class="btn-gen" id="genBtn" onclick="generate()">⚡ Generate Paper Now →</button>
-            </div>
-
-            <!-- Result -->
-            <div class="result-card" id="resultCard">
-                <div class="result-banner">
+                    <!-- RIGHT: Distributions -->
                     <div>
-                        <div class="r-title" id="rTitle">—</div>
-                        <div class="r-sub" id="rSub">—</div>
+                        <div class="config-panel" style="border-left: 1px solid var(--border); margin-bottom: 2px;">
+                            <div class="panel-title">
+                                <span class="panel-title-num">02</span>
+                                Bloom's Distribution
+                            </div>
+                            <div id="bloomSliders"></div>
+                            <div class="total-line">
+                                <span class="total-label">Total</span>
+                                <span class="total-val ok" id="bTotal">100%</span>
+                            </div>
+                        </div>
+
+                        <div class="config-panel"
+                            style="border-left: 1px solid var(--border); border-top: 1px solid var(--border);">
+                            <div class="panel-title">
+                                <span class="panel-title-num">03</span>
+                                Difficulty Split
+                            </div>
+                            <div id="diffSliders"></div>
+                            <div class="total-line">
+                                <span class="total-label">Total</span>
+                                <span class="total-val ok" id="dTotal">100%</span>
+                            </div>
+                        </div>
                     </div>
-                    <span style="font-size:2em">✅</span>
                 </div>
-                <div class="result-stats">
-                    <div class="rstat">
-                        <div class="rstat-val" id="rQ">—</div>
-                        <div class="rstat-lbl">Questions</div>
-                    </div>
-                    <div class="rstat">
-                        <div class="rstat-val" id="rM">—</div>
-                        <div class="rstat-lbl">Total Marks</div>
-                    </div>
-                    <div class="rstat">
-                        <div class="rstat-val" id="rD">—</div>
-                        <div class="rstat-lbl">Duration</div>
-                    </div>
+
+                <div class="generate-bar">
+                    <button class="btn-generate" id="genBtn" onclick="generate()">
+                        <span>◎</span> Generate Paper Now
+                    </button>
+                    <span class="gen-hint" id="genHint">All totals must equal 100%</span>
                 </div>
-                <div class="result-qs" id="rQs"></div>
+
+                <!-- Result -->
+                <div class="result-wrap" id="resultCard">
+                    <div class="result-header">
+                        <div>
+                            <div class="result-title" id="rTitle">—</div>
+                            <div class="result-sub" id="rSub">—</div>
+                        </div>
+                        <div class="result-check">✓</div>
+                    </div>
+                    <div class="result-stats">
+                        <div class="rstat">
+                            <div class="rstat-num" id="rQ">—</div>
+                            <div class="rstat-lbl">Questions</div>
+                        </div>
+                        <div class="rstat">
+                            <div class="rstat-num" id="rM">—</div>
+                            <div class="rstat-lbl">Total Marks</div>
+                        </div>
+                        <div class="rstat">
+                            <div class="rstat-num" id="rD">—</div>
+                            <div class="rstat-lbl">Duration</div>
+                        </div>
+                    </div>
+                    <div class="result-questions" id="rQs"></div>
+                </div>
             </div>
-        </div>
+        </main>
     </div>
 
     <script>
@@ -769,27 +858,67 @@
         document.getElementById('uName').textContent = user.username || 'User';
         document.getElementById('av').textContent = (user.username || 'U')[0].toUpperCase();
         const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
-        const bb = { remember: 'br', understand: 'bu', apply: 'ba', analyze: 'ban', evaluate: 'be', create: 'bc' };
+
+        const bloomsList = [
+            { key: 'remember', label: 'Remember', def: 20 },
+            { key: 'understand', label: 'Understand', def: 30 },
+            { key: 'apply', label: 'Apply', def: 30 },
+            { key: 'analyze', label: 'Analyze', def: 10 },
+            { key: 'evaluate', label: 'Evaluate', def: 5 },
+            { key: 'create', label: 'Create', def: 5 },
+        ];
+
+        const diffList = [
+            { key: 'easy', label: 'Easy', def: 30 },
+            { key: 'medium', label: 'Medium', def: 50 },
+            { key: 'hard', label: 'Hard', def: 20 },
+        ];
+
+        function buildSliders(items, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = items.map(item => `
+            <div class="slider-group">
+                <div class="slider-header">
+                    <span class="slider-label">${item.label}</span>
+                    <span class="slider-value" id="sv_${item.key}">${item.def}%</span>
+                </div>
+                <div class="slider-track">
+                    <div class="slider-fill" id="sf_${item.key}" style="width:${item.def}%"></div>
+                    <input type="range" min="0" max="100" value="${item.def}" id="sl_${item.key}"
+                        oninput="syncSlider('${item.key}'); checkTotals()">
+                </div>
+            </div>`).join('');
+        }
+
+        function syncSlider(key) {
+            const v = document.getElementById(`sl_${key}`).value;
+            document.getElementById(`sv_${key}`).textContent = v + '%';
+            document.getElementById(`sf_${key}`).style.width = v + '%';
+        }
+
+        function getTotal(items) {
+            return items.reduce((s, i) => s + parseInt(document.getElementById(`sl_${i.key}`).value), 0);
+        }
+
+        function checkTotals() {
+            const bt = getTotal(bloomsList), dt = getTotal(diffList);
+            const bEl = document.getElementById('bTotal'), dEl = document.getElementById('dTotal');
+            bEl.textContent = bt + '%';
+            bEl.className = `total-val ${bt === 100 ? 'ok' : 'err'}`;
+            dEl.textContent = dt + '%';
+            dEl.className = `total-val ${dt === 100 ? 'ok' : 'err'}`;
+
+            const hint = document.getElementById('genHint');
+            if (bt === 100 && dt === 100) { hint.textContent = 'Ready to generate'; hint.style.color = 'var(--gold)'; }
+            else { hint.textContent = 'Totals must equal 100%'; hint.style.color = 'var(--muted)'; }
+        }
 
         async function loadSubjects() {
             const res = await fetch(`${API}/subjects/`, { headers });
             const data = await res.json();
-            (data.subjects || []).forEach(s => { document.getElementById('subject').innerHTML += `<option value="${s.id}">${s.name} (${s.code})</option>`; });
-        }
-
-        function sync(sid, vid) { document.getElementById(vid).textContent = document.getElementById(sid).value + '%'; checkTotals(); }
-
-        function checkTotals() {
-            const bs = ['remember', 'understand', 'apply', 'analyze', 'evaluate', 'create'];
-            const bt = bs.reduce((s, b) => s + parseInt(document.getElementById(`b_${b}`).value), 0);
-            const bEl = document.getElementById('bTotal');
-            bEl.textContent = `Total: ${bt}%${bt === 100 ? ' ✓' : ' ✗ must equal 100%'}`;
-            bEl.className = `total-pill ${bt === 100 ? 'tok' : 'terr'}`;
-            const ds = ['easy', 'medium', 'hard'];
-            const dt = ds.reduce((s, d) => s + parseInt(document.getElementById(`d_${d}`).value), 0);
-            const dEl = document.getElementById('dTotal');
-            dEl.textContent = `Total: ${dt}%${dt === 100 ? ' ✓' : ' ✗ must equal 100%'}`;
-            dEl.className = `total-pill ${dt === 100 ? 'tok' : 'terr'}`;
+            (data.subjects || []).forEach(s => {
+                document.getElementById('subject').innerHTML += `<option value="${s.id}">${s.name} (${s.code})</option>`;
+            });
         }
 
         async function generate() {
@@ -799,49 +928,69 @@
             const duration = parseInt(document.getElementById('dur').value);
             const qtype = document.getElementById('qtype').value;
             const err = document.getElementById('errMsg'), suc = document.getElementById('sucMsg');
-            if (!title || !subject_id || !totalMarks || !duration) { err.textContent = 'Fill in all paper details.'; err.style.display = 'block'; suc.style.display = 'none'; return; }
-            const bs = ['remember', 'understand', 'apply', 'analyze', 'evaluate', 'create'];
-            const bt = bs.reduce((s, b) => s + parseInt(document.getElementById(`b_${b}`).value), 0);
-            if (bt !== 100) { err.textContent = `Bloom's must total 100% (currently ${bt}%)`; err.style.display = 'block'; return; }
-            const ds = ['easy', 'medium', 'hard'];
-            const dt = ds.reduce((s, d) => s + parseInt(document.getElementById(`d_${d}`).value), 0);
-            if (dt !== 100) { err.textContent = `Difficulty must total 100% (currently ${dt}%)`; err.style.display = 'block'; return; }
+
+            if (!title || !subject_id || !totalMarks || !duration) {
+                err.textContent = '⚠ Fill in all paper details before generating.';
+                err.style.display = 'block'; suc.style.display = 'none'; return;
+            }
+
+            const bt = getTotal(bloomsList), dt = getTotal(diffList);
+            if (bt !== 100) { err.textContent = `⚠ Bloom's distribution must total 100% (currently ${bt}%)`; err.style.display = 'block'; return; }
+            if (dt !== 100) { err.textContent = `⚠ Difficulty distribution must total 100% (currently ${dt}%)`; err.style.display = 'block'; return; }
+
             const blooms_distribution = {};
-            bs.forEach(b => { const v = parseInt(document.getElementById(`b_${b}`).value); if (v > 0) blooms_distribution[b] = v; });
+            bloomsList.forEach(i => { const v = parseInt(document.getElementById(`sl_${i.key}`).value); if (v > 0) blooms_distribution[i.key] = v; });
             const difficulty_distribution = {};
-            ds.forEach(d => { const v = parseInt(document.getElementById(`d_${d}`).value); if (v > 0) difficulty_distribution[d] = v; });
+            diffList.forEach(i => { const v = parseInt(document.getElementById(`sl_${i.key}`).value); if (v > 0) difficulty_distribution[i.key] = v; });
+
             const btn = document.getElementById('genBtn');
-            btn.textContent = '⏳ Generating...'; btn.disabled = true;
+            btn.innerHTML = '<span style="display:inline-block;animation:spin 1s linear infinite">◎</span> Generating...';
+            btn.disabled = true;
             err.style.display = 'none'; suc.style.display = 'none';
+
             try {
-                const res = await fetch(`${API}/papers/generate`, { method: 'POST', headers, body: JSON.stringify({ title, subject_id: parseInt(subject_id), total_marks: totalMarks, duration_minutes: duration, config: { blooms_distribution, difficulty_distribution, question_type: qtype } }) });
+                const res = await fetch(`${API}/papers/generate`, {
+                    method: 'POST', headers,
+                    body: JSON.stringify({ title, subject_id: parseInt(subject_id), total_marks: totalMarks, duration_minutes: duration, config: { blooms_distribution, difficulty_distribution, question_type: qtype } })
+                });
                 const data = await res.json();
-                if (!res.ok) { err.textContent = data.error || 'Generation failed.'; err.style.display = 'block'; return; }
-                suc.textContent = '✅ Paper generated successfully!'; suc.style.display = 'block';
+                if (!res.ok) { err.textContent = '⚠ ' + (data.error || 'Generation failed.'); err.style.display = 'block'; return; }
+                suc.textContent = '✓ Paper generated successfully.'; suc.style.display = 'block';
                 showResult(data.paper);
-            } catch { err.textContent = 'Server error.'; err.style.display = 'block'; }
-            finally { btn.textContent = '⚡ Generate Paper Now →'; btn.disabled = false; }
+            } catch { err.textContent = '⚠ Cannot reach server.'; err.style.display = 'block'; }
+            finally { btn.innerHTML = '<span>◎</span> Generate Paper Now'; btn.disabled = false; }
         }
+
+        const bbMap = { remember: 'b-remember', understand: 'b-understand', apply: 'b-apply', analyze: 'b-analyze', evaluate: 'b-evaluate', create: 'b-create' };
 
         function showResult(p) {
             const card = document.getElementById('resultCard');
             card.style.display = 'block';
             document.getElementById('rTitle').textContent = p.title;
-            document.getElementById('rSub').textContent = `Generated · ${new Date(p.created_at).toLocaleDateString()}`;
+            document.getElementById('rSub').textContent = `Generated · ${new Date(p.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`;
             document.getElementById('rQ').textContent = p.question_count;
             document.getElementById('rM').textContent = p.total_marks;
             document.getElementById('rD').textContent = p.duration_minutes + 'm';
             document.getElementById('rQs').innerHTML = (p.questions || []).map((q, i) => `
-                <div class="rq">
-                    <div class="rq-num">Q${i + 1}</div>
-                    <div class="rq-text">${q.text}<span class="badge ${bb[q.blooms_level] || ''}">${q.blooms_level}</span></div>
-                    <div class="rq-pts">${q.marks} pts</div>
-                </div>`).join('');
-            card.scrollIntoView({ behavior: 'smooth' });
+            <div class="rq">
+                <div class="rq-num">${String(i + 1).padStart(2, '0')}</div>
+                <div class="rq-text">${q.text}<span class="rq-badge ${bbMap[q.blooms_level] || ''}">${q.blooms_level}</span></div>
+                <div class="rq-pts">${q.marks} pts</div>
+            </div>`).join('');
+            card.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         function logout() { localStorage.clear(); window.location.href = 'index.html'; }
-        loadSubjects(); checkTotals();
+
+        buildSliders(bloomsList, 'bloomSliders');
+        buildSliders(diffList, 'diffSliders');
+        checkTotals();
+        loadSubjects();
+
+        // Add spin animation
+        const style = document.createElement('style');
+        style.textContent = '@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }';
+        document.head.appendChild(style);
     </script>
 </body>
 

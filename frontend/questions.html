@@ -5,252 +5,277 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QPGen — Question Bank</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap"
         rel="stylesheet">
     <style>
-        * {
+        *,
+        *::before,
+        *::after {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
         :root {
-            --bg: #f8fafc;
-            --white: #ffffff;
-            --border: #e2e8f0;
-            --accent: #4f46e5;
-            --accent-hover: #4338ca;
-            --text: #0f172a;
-            --muted: #64748b;
-            --sw: 240px;
-            --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            --hover-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --black: #080808;
+            --deep: #0e0e0e;
+            --surface: #141414;
+            --card: #1a1a1a;
+            --border: rgba(255, 255, 255, 0.07);
+            --border-strong: rgba(255, 255, 255, 0.12);
+            --gold: #c9a84c;
+            --gold-light: #e2c07a;
+            --gold-dim: rgba(201, 168, 76, 0.12);
+            --white: #f5f0e8;
+            --muted: #5a5a5a;
+            --text: #b8b3a8;
+            --sw: 220px;
         }
 
+        html,
         body {
-            font-family: 'Inter', system-ui, sans-serif;
-            background: var(--bg);
-            color: var(--text);
+            height: 100%;
+            background: var(--black);
+            color: var(--white);
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .layout {
             display: flex;
             min-height: 100vh;
         }
 
-        /* SIDEBAR */
         .sidebar {
             width: var(--sw);
-            min-height: 100vh;
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(12px);
+            background: var(--deep);
             border-right: 1px solid var(--border);
-            padding: 24px 16px;
             display: flex;
             flex-direction: column;
             position: fixed;
             top: 0;
             left: 0;
             bottom: 0;
-            z-index: 10;
+            z-index: 50;
+            padding: 32px 20px;
         }
 
         .sidebar-logo {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 6px 10px;
-            margin-bottom: 32px;
+            margin-bottom: 48px;
+            padding: 0 4px;
         }
 
-        .logo-box {
-            width: 32px;
-            height: 32px;
-            background: linear-gradient(135deg, var(--accent), #818cf8);
-            border-radius: 8px;
+        .logo-mark {
+            width: 34px;
+            height: 34px;
+            border: 1px solid var(--gold);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
-            color: white;
-            box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);
+            font-family: 'Playfair Display', serif;
+            font-size: 1em;
+            color: var(--gold);
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .logo-mark::before {
+            content: '';
+            position: absolute;
+            inset: 3px;
+            background: var(--gold-dim);
         }
 
         .logo-text {
-            font-weight: 800;
-            font-size: 1.1em;
-            color: var(--text);
-            letter-spacing: -0.5px;
-        }
-
-        .nav-section-label {
-            font-size: 0.7em;
-            font-weight: 700;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.75em;
+            letter-spacing: 3px;
             color: var(--muted);
             text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 0 10px;
-            margin-bottom: 8px;
-            margin-top: 16px;
+        }
+
+        .nav-section {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.6em;
+            letter-spacing: 3px;
+            color: var(--muted);
+            text-transform: uppercase;
+            padding: 0 8px;
+            margin-bottom: 10px;
         }
 
         .nav-item {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 10px 12px;
-            border-radius: 8px;
-            font-size: 0.9em;
-            font-weight: 500;
-            color: #475569;
-            cursor: pointer;
-            transition: all 0.2s ease;
+            padding: 12px 10px;
+            color: var(--muted);
             text-decoration: none;
-            margin-bottom: 4px;
-            border: 1px solid transparent;
+            font-size: 0.85em;
+            font-weight: 500;
+            transition: all 0.3s;
+            border-left: 2px solid transparent;
+            margin-bottom: 2px;
         }
 
         .nav-item:hover {
-            background: #f1f5f9;
             color: var(--text);
-            transform: translateX(2px);
+            background: rgba(255, 255, 255, 0.03);
         }
 
         .nav-item.active {
-            background: #eef2ff;
-            color: var(--accent);
-            font-weight: 600;
-            border-color: #e0e7ff;
+            color: var(--gold);
+            border-left-color: var(--gold);
+            background: var(--gold-dim);
         }
 
-        .nav-item .icon {
-            width: 20px;
+        .nav-icon {
+            width: 18px;
             text-align: center;
-            font-size: 1.1em;
+            font-size: 0.9em;
         }
 
         .sidebar-bottom {
             margin-top: auto;
             border-top: 1px solid var(--border);
-            padding-top: 16px;
+            padding-top: 20px;
         }
 
-        .user-row {
+        .user-tile {
             display: flex;
             align-items: center;
             gap: 12px;
             padding: 10px;
-            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.3s;
             border: 1px solid transparent;
         }
 
-        .user-row:hover {
-            background: #f1f5f9;
+        .user-tile:hover {
+            background: rgba(255, 255, 255, 0.03);
             border-color: var(--border);
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
         }
 
         .avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #1e293b, #334155);
-            color: white;
+            width: 34px;
+            height: 34px;
+            background: var(--gold-dim);
+            border: 1px solid rgba(201, 168, 76, 0.3);
+            color: var(--gold);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.8em;
+            font-family: 'Playfair Display', serif;
+            font-size: 0.85em;
             font-weight: 700;
             flex-shrink: 0;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .user-name {
-            font-size: 0.85em;
+            font-size: 0.8em;
             font-weight: 600;
             color: var(--text);
         }
 
         .user-sub {
-            font-size: 0.75em;
+            font-size: 0.68em;
             color: var(--muted);
         }
 
-        /* MAIN */
         .main {
             margin-left: var(--sw);
             flex: 1;
-            display: flex;
-            flex-direction: column;
         }
 
-        /* Page banner */
         .page-banner {
-            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-            padding: 48px 52px;
+            background: var(--deep);
+            border-bottom: 1px solid var(--border);
+            padding: 56px 60px;
             position: relative;
             overflow: hidden;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .page-banner::before {
             content: '';
             position: absolute;
-            inset: 0;
-            background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
-            background-size: 24px 24px;
-            opacity: 0.5;
+            width: 500px;
+            height: 400px;
+            background: radial-gradient(ellipse, rgba(201, 168, 76, 0.07) 0%, transparent 60%);
+            top: -150px;
+            right: -100px;
         }
 
-        .page-banner::after {
-            content: '';
-            position: absolute;
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, rgba(79, 70, 229, 0.3) 0%, transparent 70%);
-            top: -50px;
-            right: -50px;
-            border-radius: 50%;
-            pointer-events: none;
-        }
-
-        .page-banner h1 {
-            font-size: 2.4em;
-            font-weight: 900;
-            color: white;
-            letter-spacing: -1px;
-            margin-bottom: 8px;
-            position: relative;
-            z-index: 1;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        .banner-kicker {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.68em;
+            letter-spacing: 3px;
+            color: var(--gold);
+            text-transform: uppercase;
+            margin-bottom: 16px;
             display: flex;
             align-items: center;
             gap: 12px;
         }
 
-        .page-banner p {
-            color: #94a3b8;
-            font-size: 1em;
-            position: relative;
-            z-index: 1;
-            line-height: 1.5;
-            max-width: 600px;
+        .banner-kicker::before {
+            content: '';
+            width: 24px;
+            height: 1px;
+            background: var(--gold);
         }
 
-        .page-banner-deco {
+        .banner-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3em;
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: -1.5px;
+            color: var(--white);
+            margin-bottom: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .banner-title em {
+            font-style: italic;
+            color: var(--gold);
+        }
+
+        .banner-sub {
+            color: var(--muted);
+            font-size: 0.85em;
+            position: relative;
+            z-index: 1;
+        }
+
+        .banner-deco {
             position: absolute;
-            right: 52px;
+            right: 60px;
             top: 50%;
             transform: translateY(-50%);
-            font-size: 6em;
-            opacity: 0.08;
-            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.2));
+            font-family: 'Playfair Display', serif;
+            font-size: 12em;
+            font-style: italic;
+            color: rgba(201, 168, 76, 0.04);
+            line-height: 1;
+            user-select: none;
+            pointer-events: none;
         }
 
         .content {
-            padding: 40px 52px;
-            max-width: 1400px;
-            margin: 0 auto;
-            width: 100%;
+            padding: 40px 60px;
         }
 
         .toolbar {
@@ -262,228 +287,221 @@
             flex-wrap: wrap;
         }
 
-        .filters {
+        .filter-group {
             display: flex;
-            gap: 12px;
+            gap: 10px;
             flex-wrap: wrap;
         }
 
-        select {
-            padding: 10px 16px;
+        .filter-select {
+            padding: 9px 14px;
+            background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 8px;
-            font-family: 'Inter', sans-serif;
-            font-size: 0.85em;
-            font-weight: 600;
             color: var(--text);
-            background: white;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.68em;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
             outline: none;
             cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s;
             appearance: none;
-            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2364748b%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            padding-right: 28px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%235a5a5a' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
-            background-position: right 12px top 50%;
-            background-size: 10px auto;
-            padding-right: 32px;
+            background-position: right 10px center;
         }
 
-        select:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        .filter-select:focus {
+            border-color: var(--gold);
+            color: var(--white);
         }
 
         .btn-add {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.65em;
+            letter-spacing: 2px;
+            text-transform: uppercase;
             padding: 10px 20px;
-            border-radius: 8px;
-            font-size: 0.9em;
-            font-weight: 600;
-            cursor: pointer;
+            background: var(--gold);
+            color: var(--black);
             border: none;
-            font-family: 'Inter', sans-serif;
-            background: var(--accent);
-            color: white;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
         }
 
         .btn-add:hover {
-            background: var(--accent-hover);
+            background: var(--gold-light);
             transform: translateY(-1px);
-            box-shadow: 0 4px 6px rgba(79, 70, 229, 0.3);
         }
 
-        .table-wrap {
-            background: white;
+        .table-container {
             border: 1px solid var(--border);
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: var(--card-shadow);
+            background: var(--surface);
         }
 
-        .t-head {
+        .table-header {
             display: grid;
             grid-template-columns: 2.2fr 1fr 1fr 1fr 80px 70px;
-            padding: 16px 24px;
-            background: #fafaf9;
+            padding: 16px 28px;
+            background: var(--deep);
             border-bottom: 1px solid var(--border);
-            font-size: 0.75em;
-            font-weight: 700;
-            color: var(--muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
-        .t-row {
+        .th-cell {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.6em;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .table-row {
             display: grid;
             grid-template-columns: 2.2fr 1fr 1fr 1fr 80px 70px;
-            padding: 20px 24px;
-            border-bottom: 1px solid #f1f5f9;
+            padding: 20px 28px;
+            border-bottom: 1px solid var(--border);
             align-items: center;
-            transition: background 0.2s ease;
+            transition: background 0.2s;
         }
 
-        .t-row:last-child {
+        .table-row:last-child {
             border-bottom: none;
         }
 
-        .t-row:hover {
-            background: #f8fafc;
+        .table-row:hover {
+            background: rgba(255, 255, 255, 0.02);
         }
 
         .q-text {
-            font-size: 0.9em;
-            font-weight: 500;
+            font-size: 0.85em;
+            color: var(--text);
+            font-weight: 400;
+            line-height: 1.6;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
-            line-height: 1.6;
-            color: var(--text);
         }
 
         .badge {
             display: inline-flex;
             align-items: center;
             padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 0.7em;
-            font-weight: 700;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.6em;
+            letter-spacing: 1.5px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            border: 1px solid;
         }
 
-        .br {
-            background: #eef2ff;
-            color: #4f46e5;
-            border: 1px solid #e0e7ff;
+        .b-remember {
+            border-color: rgba(201, 168, 76, 0.5);
+            color: var(--gold);
         }
 
-        .bu {
-            background: #eff6ff;
-            color: #2563eb;
-            border: 1px solid #dbeafe;
+        .b-understand {
+            border-color: rgba(100, 150, 220, 0.5);
+            color: #7090cc;
         }
 
-        .ba {
-            background: #ecfdf5;
-            color: #059669;
-            border: 1px solid #d1fae5;
+        .b-apply {
+            border-color: rgba(100, 200, 130, 0.5);
+            color: #64c882;
         }
 
-        .ban {
-            background: #fffbeb;
-            color: #d97706;
-            border: 1px solid #fef3c7;
+        .b-analyze {
+            border-color: rgba(220, 180, 80, 0.5);
+            color: #dcb450;
         }
 
-        .be {
-            background: #fef2f2;
-            color: #dc2626;
-            border: 1px solid #fee2e2;
+        .b-evaluate {
+            border-color: rgba(220, 100, 100, 0.5);
+            color: #dc6464;
         }
 
-        .bc {
-            background: #fdf2f8;
-            color: #db2777;
-            border: 1px solid #fce7f3;
+        .b-create {
+            border-color: rgba(200, 100, 180, 0.5);
+            color: #c864b4;
         }
 
-        .de {
-            background: #ecfdf5;
-            color: #059669;
-            border: 1px solid #d1fae5;
+        .b-easy {
+            border-color: rgba(100, 200, 130, 0.5);
+            color: #64c882;
         }
 
-        .dm {
-            background: #ffedd5;
-            color: #c2410c;
-            border: 1px solid #ffedd5;
+        .b-medium {
+            border-color: rgba(220, 180, 80, 0.5);
+            color: #dcb450;
         }
 
-        .dh {
-            background: #fef2f2;
-            color: #dc2626;
-            border: 1px solid #fee2e2;
+        .b-hard {
+            border-color: rgba(220, 100, 100, 0.5);
+            color: #dc6464;
         }
 
-        .marks {
-            font-size: 0.9em;
-            font-weight: 700;
-            color: var(--text);
+        .marks-cell {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1em;
+            color: var(--gold);
+            font-style: italic;
         }
 
         .btn-del {
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 0.75em;
-            font-weight: 600;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.6em;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 6px 10px;
+            background: transparent;
+            border: 1px solid rgba(220, 50, 50, 0.3);
+            color: rgba(220, 100, 100, 0.7);
             cursor: pointer;
-            border: 1px solid #fee2e2;
-            background: #fef2f2;
-            color: #dc2626;
-            font-family: 'Inter', sans-serif;
-            transition: all 0.2s ease;
+            transition: all 0.2s;
         }
 
         .btn-del:hover {
-            background: #fee2e2;
+            background: rgba(220, 50, 50, 0.1);
+            border-color: rgba(220, 50, 50, 0.5);
+            color: #dc6464;
         }
 
         .empty-state {
             text-align: center;
             padding: 64px 24px;
-            color: var(--muted);
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            gap: 12px;
         }
 
         .empty-icon {
-            font-size: 3.5em;
-            margin-bottom: 16px;
-            opacity: 0.8;
+            font-family: 'Playfair Display', serif;
+            font-size: 4em;
+            font-style: italic;
+            color: rgba(201, 168, 76, 0.1);
+        }
+
+        .empty-text {
+            font-size: 0.82em;
+            color: var(--muted);
         }
 
         /* Modal */
         .overlay {
             position: fixed;
             inset: 0;
-            background: rgba(15, 23, 42, 0.4);
+            background: rgba(0, 0, 0, 0.85);
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 100;
+            z-index: 200;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.3s ease;
-            backdrop-filter: blur(8px);
+            transition: opacity 0.3s;
+            backdrop-filter: blur(4px);
         }
 
         .overlay.open {
@@ -492,97 +510,101 @@
         }
 
         .modal {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
+            background: var(--surface);
+            border: 1px solid var(--border-strong);
             width: 100%;
-            max-width: 600px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            transform: translateY(20px) scale(0.95);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid var(--border);
+            max-width: 580px;
+            padding: 0;
+            transform: translateY(20px);
+            transition: transform 0.3s;
         }
 
         .overlay.open .modal {
-            transform: translateY(0) scale(1);
+            transform: translateY(0);
         }
 
         .m-head {
+            padding: 28px 36px;
+            border-bottom: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 32px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 16px;
+            background: var(--deep);
         }
 
         .m-title {
-            font-size: 1.4em;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            color: var(--text);
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3em;
+            font-weight: 700;
+            color: var(--white);
         }
 
         .m-close {
-            background: #f1f5f9;
-            border: none;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            font-size: 1.2em;
-            cursor: pointer;
+            background: transparent;
+            border: 1px solid var(--border);
+            width: 30px;
+            height: 30px;
             color: var(--muted);
-            transition: all 0.2s ease;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
         .m-close:hover {
-            background: #e2e8f0;
-            color: var(--text);
+            border-color: var(--border-strong);
+            color: var(--white);
+        }
+
+        .m-body {
+            padding: 32px 36px;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 22px;
         }
 
-        label {
+        .form-group label {
             display: block;
-            font-size: 0.8em;
-            font-weight: 600;
-            color: #475569;
-            margin-bottom: 8px;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.62em;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 10px;
         }
 
-        input,
-        textarea,
-        select.fs {
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
             width: 100%;
-            padding: 12px 16px;
+            background: var(--card);
             border: 1px solid var(--border);
-            border-radius: 10px;
-            font-family: 'Inter', sans-serif;
-            font-size: 0.9em;
-            color: var(--text);
-            background: #f8fafc;
+            color: var(--white);
+            padding: 12px 16px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.88em;
             outline: none;
-            transition: all 0.2s ease;
-            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
-        }
-
-        input:focus,
-        textarea:focus,
-        select.fs:focus {
-            border-color: var(--accent);
-            background: white;
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-        }
-
-        textarea {
+            transition: all 0.3s;
             resize: vertical;
-            min-height: 100px;
-            line-height: 1.5;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 1px rgba(201, 168, 76, 0.15);
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: var(--muted);
+        }
+
+        .form-group select option {
+            background: var(--card);
         }
 
         .form-row {
@@ -591,190 +613,227 @@
             gap: 16px;
         }
 
-        .msg {
+        .msg-bar {
             padding: 12px 16px;
-            border-radius: 10px;
-            font-size: 0.85em;
+            font-size: 0.8em;
             margin-bottom: 20px;
             display: none;
-            font-weight: 600;
+            border-left: 3px solid;
+            font-weight: 500;
         }
 
-        .msg.error {
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            color: #dc2626;
+        .msg-bar.error {
+            background: rgba(220, 38, 38, 0.08);
+            border-color: #dc2626;
+            color: #fca5a5;
         }
 
-        .msg.success {
-            background: #f0fdf4;
-            border: 1px solid #bbf7d0;
-            color: #16a34a;
+        .msg-bar.success {
+            background: rgba(201, 168, 76, 0.08);
+            border-color: var(--gold);
+            color: var(--gold-light);
         }
 
         .m-footer {
+            padding: 20px 36px;
+            border-top: 1px solid var(--border);
             display: flex;
             justify-content: flex-end;
             gap: 12px;
-            margin-top: 32px;
-            padding-top: 24px;
-            border-top: 1px solid var(--border);
+            background: var(--deep);
         }
 
         .btn-cancel {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.65em;
+            letter-spacing: 2px;
+            text-transform: uppercase;
             padding: 10px 20px;
-            border-radius: 8px;
-            font-size: 0.9em;
-            font-weight: 600;
+            background: transparent;
+            border: 1px solid var(--border-strong);
+            color: var(--muted);
             cursor: pointer;
-            border: 1px solid var(--border);
-            background: white;
-            color: #475569;
-            font-family: 'Inter', sans-serif;
-            transition: all 0.2s ease;
+            transition: all 0.2s;
         }
 
         .btn-cancel:hover {
-            background: #f8fafc;
-            color: var(--text);
+            color: var(--white);
         }
 
         .btn-save {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.65em;
+            letter-spacing: 2px;
+            text-transform: uppercase;
             padding: 10px 24px;
-            border-radius: 8px;
-            font-size: 0.9em;
-            font-weight: 600;
-            cursor: pointer;
+            background: var(--gold);
+            color: var(--black);
             border: none;
-            background: var(--accent);
-            color: white;
-            font-family: 'Inter', sans-serif;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
         }
 
         .btn-save:hover {
-            background: var(--accent-hover);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 6px rgba(79, 70, 229, 0.3);
+            background: var(--gold-light);
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .content {
+            animation: fadeUp 0.5s 0.1s ease both;
         }
     </style>
 </head>
 
 <body>
-    <div class="sidebar">
-        <div class="sidebar-logo">
-            <div class="logo-box">🎓</div><span class="logo-text">QPGen</span>
-        </div>
-        <div class="nav-section-label">Workspace</div>
-        <a class="nav-item" href="dashboard.html"><span class="icon">🏠</span> Home</a>
-        <a class="nav-item active" href="questions.html"><span class="icon">📚</span> Question Bank</a>
-        <a class="nav-item" href="generate.html"><span class="icon">⚡</span> Generate Paper</a>
-        <div class="sidebar-bottom">
-            <div class="user-row" onclick="logout()">
-                <div class="avatar" id="av">N</div>
-                <div>
-                    <div class="user-name" id="uName">User</div>
-                    <div class="user-sub">Sign out</div>
-                </div>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-mark">Q</div>
+                <div class="logo-text">QPGen</div>
             </div>
-        </div>
-    </div>
-
-    <div class="main">
-        <div class="page-banner">
-            <h1><span style="font-size: 1.2em;">📚</span> Question Bank</h1>
-            <p>Browse, filter and manage your full question repository</p>
-            <div class="page-banner-deco">📚</div>
-        </div>
-
-        <div class="content">
-            <div class="toolbar">
-                <div class="filters">
-                    <select id="fSubject" onchange="loadQ()">
-                        <option value="">All Subjects</option>
-                    </select>
-                    <select id="fBlooms" onchange="loadQ()">
-                        <option value="">All Bloom's</option>
-                        <option value="remember">Remember</option>
-                        <option value="understand">Understand</option>
-                        <option value="apply">Apply</option>
-                        <option value="analyze">Analyze</option>
-                        <option value="evaluate">Evaluate</option>
-                        <option value="create">Create</option>
-                    </select>
-                    <select id="fDiff" onchange="loadQ()">
-                        <option value="">All Difficulties</option>
-                        <option value="easy">Easy</option>
-                        <option value="medium">Medium</option>
-                        <option value="hard">Hard</option>
-                    </select>
-                </div>
-                <button class="btn-add" onclick="openModal()">+ Add Question</button>
-            </div>
-
-            <div class="table-wrap">
-                <div class="t-head">
-                    <div>Question</div>
-                    <div>Bloom's</div>
-                    <div>Difficulty</div>
-                    <div>Type</div>
-                    <div>Marks</div>
-                    <div></div>
-                </div>
-                <div id="qList">
-                    <div class="empty-state">
-                        <div class="empty-icon">📚</div>
-                        <p>Loading...</p>
+            <div class="nav-section">Workspace</div>
+            <a class="nav-item" href="dashboard.html"><span class="nav-icon">◈</span> Dashboard</a>
+            <a class="nav-item active" href="questions.html"><span class="nav-icon">◉</span> Question Bank</a>
+            <a class="nav-item" href="generate.html"><span class="nav-icon">◎</span> Generate Paper</a>
+            <div class="sidebar-bottom">
+                <div class="user-tile" onclick="logout()">
+                    <div class="avatar" id="av">N</div>
+                    <div>
+                        <div class="user-name" id="uName">User</div>
+                        <div class="user-sub">Sign out</div>
                     </div>
                 </div>
             </div>
-        </div>
+        </aside>
+
+        <main class="main">
+            <div class="page-banner">
+                <div class="banner-kicker">Repository</div>
+                <h1 class="banner-title">Question <em>Bank.</em></h1>
+                <p class="banner-sub">Browse, filter and manage your full question repository</p>
+                <div class="banner-deco">◉</div>
+            </div>
+
+            <div class="content">
+                <div class="toolbar">
+                    <div class="filter-group">
+                        <select class="filter-select" id="fSubject" onchange="loadQ()">
+                            <option value="">All Subjects</option>
+                        </select>
+                        <select class="filter-select" id="fBlooms" onchange="loadQ()">
+                            <option value="">All Bloom's</option>
+                            <option value="remember">Remember</option>
+                            <option value="understand">Understand</option>
+                            <option value="apply">Apply</option>
+                            <option value="analyze">Analyze</option>
+                            <option value="evaluate">Evaluate</option>
+                            <option value="create">Create</option>
+                        </select>
+                        <select class="filter-select" id="fDiff" onchange="loadQ()">
+                            <option value="">All Difficulties</option>
+                            <option value="easy">Easy</option>
+                            <option value="medium">Medium</option>
+                            <option value="hard">Hard</option>
+                        </select>
+                    </div>
+                    <button class="btn-add" onclick="openModal()">+ Add Question</button>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <div class="th-cell">Question</div>
+                        <div class="th-cell">Bloom's</div>
+                        <div class="th-cell">Difficulty</div>
+                        <div class="th-cell">Type</div>
+                        <div class="th-cell">Marks</div>
+                        <div class="th-cell"></div>
+                    </div>
+                    <div id="qList">
+                        <div class="empty-state">
+                            <div class="empty-icon">—</div>
+                            <div class="empty-text">Loading questions...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
     <!-- Modal -->
-    <div class="overlay" id="overlay" onclick="handleO(event)">
+    <div class="overlay" id="overlay" onclick="handleOverlay(event)">
         <div class="modal">
             <div class="m-head">
-                <span class="m-title">Add New Question</span>
+                <div class="m-title">Add New Question</div>
                 <button class="m-close" onclick="closeModal()">✕</button>
             </div>
-            <div class="msg error" id="mErr"></div>
-            <div class="msg success" id="mSuc"></div>
-            <div class="form-group"><label>Question Text</label><textarea id="qText"
-                    placeholder="Type your question here..."></textarea></div>
-            <div class="form-row">
-                <div class="form-group"><label>Subject</label><select class="fs" id="qSub"></select></div>
-                <div class="form-group"><label>Type</label><select class="fs" id="qType">
-                        <option value="short">Short Answer</option>
-                        <option value="long">Long Answer</option>
-                        <option value="mcq">MCQ</option>
-                    </select></div>
-            </div>
-            <div class="form-row">
-                <div class="form-group"><label>Bloom's Level</label><select class="fs" id="qBlooms">
-                        <option value="remember">Remember</option>
-                        <option value="understand">Understand</option>
-                        <option value="apply">Apply</option>
-                        <option value="analyze">Analyze</option>
-                        <option value="evaluate">Evaluate</option>
-                        <option value="create">Create</option>
-                    </select></div>
-                <div class="form-group"><label>Difficulty</label><select class="fs" id="qDiff">
-                        <option value="easy">Easy</option>
-                        <option value="medium">Medium</option>
-                        <option value="hard">Hard</option>
-                    </select></div>
-            </div>
-            <div class="form-row">
-                <div class="form-group"><label>Marks</label><input type="number" id="qMarks" placeholder="5" min="1">
+            <div class="m-body">
+                <div class="msg-bar error" id="mErr"></div>
+                <div class="msg-bar success" id="mSuc"></div>
+                <div class="form-group">
+                    <label>Question Text</label>
+                    <textarea id="qText" rows="3" placeholder="Enter your question..."></textarea>
                 </div>
-                <div class="form-group"><label>Answer (optional)</label><input type="text" id="qAns"
-                        placeholder="Correct answer..."></div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Subject</label>
+                        <select id="qSub"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Question Type</label>
+                        <select id="qType">
+                            <option value="short">Short Answer</option>
+                            <option value="long">Long Answer</option>
+                            <option value="mcq">MCQ</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Bloom's Level</label>
+                        <select id="qBlooms">
+                            <option value="remember">Remember</option>
+                            <option value="understand">Understand</option>
+                            <option value="apply">Apply</option>
+                            <option value="analyze">Analyze</option>
+                            <option value="evaluate">Evaluate</option>
+                            <option value="create">Create</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Difficulty</label>
+                        <select id="qDiff">
+                            <option value="easy">Easy</option>
+                            <option value="medium">Medium</option>
+                            <option value="hard">Hard</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Marks</label>
+                        <input type="number" id="qMarks" placeholder="5" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Answer (optional)</label>
+                        <input type="text" id="qAns" placeholder="Correct answer...">
+                    </div>
+                </div>
             </div>
             <div class="m-footer">
                 <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-                <button class="btn-save" onclick="addQ()" id="addBtn">Add Question</button>
+                <button class="btn-save" onclick="addQ()" id="addBtn">Save Question</button>
             </div>
         </div>
     </div>
@@ -788,8 +847,8 @@
         document.getElementById('av').textContent = (user.username || 'U')[0].toUpperCase();
         const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
 
-        const bb = { remember: 'br', understand: 'bu', apply: 'ba', analyze: 'ban', evaluate: 'be', create: 'bc' };
-        const db = { easy: 'de', medium: 'dm', hard: 'dh' };
+        const bloomBadge = { remember: 'b-remember', understand: 'b-understand', apply: 'b-apply', analyze: 'b-analyze', evaluate: 'b-evaluate', create: 'b-create' };
+        const diffBadge = { easy: 'b-easy', medium: 'b-medium', hard: 'b-hard' };
 
         async function loadSubjects() {
             const res = await fetch(`${API}/subjects/`, { headers });
@@ -812,16 +871,19 @@
             const data = await res.json();
             const qs = data.questions || [];
             const el = document.getElementById('qList');
-            if (!qs.length) { el.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><p>No questions found.</p></div>`; return; }
+            if (!qs.length) {
+                el.innerHTML = `<div class="empty-state"><div class="empty-icon">—</div><div class="empty-text">No questions found.</div></div>`;
+                return;
+            }
             el.innerHTML = qs.map(q => `
-                <div class="t-row">
-                    <div class="q-text">${q.text}</div>
-                    <div><span class="badge ${bb[q.blooms_level] || ''}">${q.blooms_level}</span></div>
-                    <div><span class="badge ${db[q.difficulty] || ''}">${q.difficulty}</span></div>
-                    <div style="font-size:0.8em;color:#888;font-weight:700">${q.question_type}</div>
-                    <div class="marks">${q.marks} pts</div>
-                    <div><button class="btn-del" onclick="delQ(${q.id})">Delete</button></div>
-                </div>`).join('');
+            <div class="table-row">
+                <div class="q-text">${q.text}</div>
+                <div><span class="badge ${bloomBadge[q.blooms_level] || ''}">${q.blooms_level}</span></div>
+                <div><span class="badge ${diffBadge[q.difficulty] || ''}">${q.difficulty}</span></div>
+                <div style="font-family:'DM Mono',monospace;font-size:0.68em;letter-spacing:1px;color:var(--muted);text-transform:uppercase">${q.question_type}</div>
+                <div class="marks-cell">${q.marks}</div>
+                <div><button class="btn-del" onclick="delQ(${q.id})">Del</button></div>
+            </div>`).join('');
         }
 
         async function delQ(id) {
@@ -832,7 +894,7 @@
 
         function openModal() { document.getElementById('overlay').classList.add('open'); }
         function closeModal() { document.getElementById('overlay').classList.remove('open'); document.getElementById('mErr').style.display = 'none'; document.getElementById('mSuc').style.display = 'none'; }
-        function handleO(e) { if (e.target === document.getElementById('overlay')) closeModal(); }
+        function handleOverlay(e) { if (e.target === document.getElementById('overlay')) closeModal(); }
 
         async function addQ() {
             const text = document.getElementById('qText').value.trim();
@@ -845,16 +907,16 @@
             const err = document.getElementById('mErr'), suc = document.getElementById('mSuc');
             if (!text || !subject_id || !marks) { err.textContent = 'Fill in all required fields.'; err.style.display = 'block'; return; }
             const btn = document.getElementById('addBtn');
-            btn.textContent = 'Adding...'; btn.disabled = true;
+            btn.textContent = 'Saving...'; btn.disabled = true;
             try {
                 const res = await fetch(`${API}/questions/`, { method: 'POST', headers, body: JSON.stringify({ text, subject_id: parseInt(subject_id), question_type, blooms_level, difficulty, marks, correct_answer }) });
                 const data = await res.json();
                 if (!res.ok) { err.textContent = data.error || 'Failed.'; err.style.display = 'block'; return; }
-                suc.textContent = 'Question added!'; suc.style.display = 'block'; err.style.display = 'none';
+                suc.textContent = '✓ Question added successfully.'; suc.style.display = 'block'; err.style.display = 'none';
                 document.getElementById('qText').value = ''; document.getElementById('qMarks').value = ''; document.getElementById('qAns').value = '';
                 setTimeout(() => { closeModal(); loadQ(); }, 900);
             } catch { err.textContent = 'Server error.'; err.style.display = 'block'; }
-            finally { btn.textContent = 'Add Question'; btn.disabled = false; }
+            finally { btn.textContent = 'Save Question'; btn.disabled = false; }
         }
 
         function logout() { localStorage.clear(); window.location.href = 'index.html'; }

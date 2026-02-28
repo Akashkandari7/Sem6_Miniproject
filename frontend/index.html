@@ -4,44 +4,371 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QPaper AI - Automated Question Paper Generator</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <title>QPGen — Question Paper Generator</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
     <style>
-        /* Custom scrollbar for a polished look */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        ::-webkit-scrollbar-track {
-            background: #f8fafc;
+        :root {
+            --black: #080808;
+            --deep: #0e0e0e;
+            --surface: #141414;
+            --card: #1a1a1a;
+            --border: rgba(255, 255, 255, 0.08);
+            --gold: #c9a84c;
+            --gold-light: #e2c07a;
+            --gold-dim: rgba(201, 168, 76, 0.15);
+            --white: #f5f0e8;
+            --muted: #6b6b6b;
+            --text: #d4cfc5;
         }
 
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 4px;
+        html,
+        body {
+            height: 100%;
+            background: var(--black);
+            color: var(--white);
+            font-family: 'DM Sans', sans-serif;
+            overflow: hidden;
         }
 
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
+        /* Grain overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.4;
         }
 
-        .view-section {
+        .page {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            height: 100vh;
+        }
+
+        /* LEFT PANEL */
+        .left {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 56px;
+            background: var(--deep);
+            border-right: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .left::before {
+            content: '';
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(201, 168, 76, 0.12) 0%, transparent 65%);
+            top: -200px;
+            left: -200px;
+            pointer-events: none;
+        }
+
+        .left::after {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(201, 168, 76, 0.06) 0%, transparent 65%);
+            bottom: -100px;
+            right: -100px;
+            pointer-events: none;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo-mark {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1em;
+            color: var(--gold);
+            letter-spacing: -1px;
+            position: relative;
+        }
+
+        .logo-mark::before {
+            content: '';
+            position: absolute;
+            inset: 3px;
+            background: var(--gold-dim);
+        }
+
+        .logo-name {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.9em;
+            letter-spacing: 3px;
+            color: var(--muted);
+            text-transform: uppercase;
+        }
+
+        .hero-text {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-tag {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.7em;
+            letter-spacing: 3px;
+            color: var(--gold);
+            text-transform: uppercase;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .hero-tag::before {
+            content: '';
+            width: 32px;
+            height: 1px;
+            background: var(--gold);
+        }
+
+        .hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 4.2em;
+            font-weight: 900;
+            line-height: 0.95;
+            letter-spacing: -2px;
+            color: var(--white);
+            margin-bottom: 24px;
+        }
+
+        .hero-title em {
+            font-style: italic;
+            color: var(--gold);
+        }
+
+        .hero-sub {
+            font-size: 0.95em;
+            color: var(--muted);
+            line-height: 1.7;
+            max-width: 360px;
+            font-weight: 300;
+        }
+
+        .hero-bottom {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .stat-val {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--white);
+            line-height: 1;
+        }
+
+        .stat-lbl {
+            font-size: 0.7em;
+            color: var(--muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .stat-div {
+            width: 1px;
+            height: 40px;
+            background: var(--border);
+        }
+
+        /* RIGHT PANEL */
+        .right {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--black);
+            padding: 56px;
+        }
+
+        .auth-box {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .auth-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--white);
+            margin-bottom: 8px;
+        }
+
+        .auth-sub {
+            font-size: 0.85em;
+            color: var(--muted);
+            margin-bottom: 40px;
+        }
+
+        .tab-row {
+            display: flex;
+            gap: 0;
+            margin-bottom: 32px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            font-size: 0.85em;
+            font-weight: 600;
+            color: var(--muted);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            transition: all 0.3s;
+            letter-spacing: 0.5px;
+        }
+
+        .tab.active {
+            color: var(--gold);
+            border-color: var(--gold);
+        }
+
+        .form-panel {
             display: none;
         }
 
-        .view-section.active {
+        .form-panel.active {
             display: block;
-            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        @keyframes fadeIn {
+        .field {
+            margin-bottom: 20px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 0.7em;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 10px;
+        }
+
+        .field input {
+            width: 100%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--white);
+            padding: 14px 18px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9em;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .field input:focus {
+            border-color: var(--gold);
+            background: var(--card);
+            box-shadow: 0 0 0 1px rgba(201, 168, 76, 0.2);
+        }
+
+        .field input::placeholder {
+            color: var(--muted);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 16px;
+            background: var(--gold);
+            color: var(--black);
+            border: none;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 700;
+            font-size: 0.9em;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 8px;
+        }
+
+        .btn-submit:hover {
+            background: var(--gold-light);
+            transform: translateY(-1px);
+        }
+
+        .msg {
+            padding: 12px 16px;
+            font-size: 0.8em;
+            margin-bottom: 20px;
+            display: none;
+            font-weight: 500;
+            border-left: 3px solid;
+        }
+
+        .msg.error {
+            background: rgba(220, 38, 38, 0.1);
+            border-color: #dc2626;
+            color: #fca5a5;
+        }
+
+        .msg.success {
+            background: rgba(201, 168, 76, 0.1);
+            border-color: var(--gold);
+            color: var(--gold-light);
+        }
+
+        /* Decorative element */
+        .corner-deco {
+            position: absolute;
+            bottom: 56px;
+            right: 56px;
+            font-family: 'Playfair Display', serif;
+            font-size: 18em;
+            font-style: italic;
+            color: rgba(201, 168, 76, 0.04);
+            line-height: 1;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        /* Animations */
+        @keyframes fadeSlideUp {
             from {
                 opacity: 0;
-                transform: translateY(15px);
+                transform: translateY(24px);
             }
 
             to {
@@ -50,859 +377,156 @@
             }
         }
 
-        .nav-item.active {
-            background: #eef2ff;
-            color: #4f46e5;
-            font-weight: 600;
-            border: 1px solid #e0e7ff;
+        .logo {
+            animation: fadeSlideUp 0.6s ease both;
         }
 
-        .nav-item {
-            border: 1px solid transparent;
-            transition: all 0.2s ease;
+        .hero-tag {
+            animation: fadeSlideUp 0.6s 0.1s ease both;
         }
 
-        .nav-item:hover:not(.active) {
-            background: #f1f5f9;
-            color: #0f172a;
-            transform: translateX(2px);
+        .hero-title {
+            animation: fadeSlideUp 0.7s 0.2s ease both;
         }
 
-        /* Custom Gradients and Shadows to match custom CSS */
-        .bg-vibrant-gradient {
-            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+        .hero-sub {
+            animation: fadeSlideUp 0.6s 0.3s ease both;
         }
 
-        .text-vibrant-gradient {
-            background: linear-gradient(135deg, #4f46e5, #818cf8);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .hero-bottom {
+            animation: fadeSlideUp 0.6s 0.4s ease both;
         }
 
-        .shadow-premium {
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-        }
-
-        .shadow-premium-hover:hover {
-            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-            transform: translateY(-4px);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        /* Glassmorphism sidebar */
-        .glass-sidebar {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(12px);
-            border-right: 1px solid #e2e8f0;
-        }
-
-        /* Modern Range Sliders */
-        input[type="range"] {
-            appearance: none;
-            -webkit-appearance: none;
-            height: 6px;
-            background: #e2e8f0;
-            border-radius: 10px;
-        }
-
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #4f46e5;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(79, 70, 229, 0.4);
-            border: 2px solid white;
-            transition: transform 0.1s;
-        }
-
-        input[type="range"]::-webkit-slider-thumb:hover {
-            transform: scale(1.1);
+        .auth-box {
+            animation: fadeSlideUp 0.7s 0.3s ease both;
         }
     </style>
 </head>
 
-<body class="bg-gray-50 h-screen flex overflow-hidden font-sans text-gray-800">
+<body>
+    <div class="page">
+        <div class="left">
+            <div class="logo">
+                <div class="logo-mark">Q</div>
+                <div class="logo-name">QPGen</div>
+            </div>
 
-    <!-- Sidebar -->
-    <aside class="w-64 glass-sidebar text-slate-800 flex flex-col z-20">
-        <div class="p-6 flex items-center gap-3 mb-4">
-            <div
-                class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-600 to-indigo-400 flex items-center justify-center text-white shadow-md shadow-indigo-500/30">
-                <i data-lucide="brain-circuit" class="w-5 h-5"></i>
+            <div class="hero-text">
+                <div class="hero-tag">AI-Powered Assessment</div>
+                <h1 class="hero-title">Craft<br><em>Exams</em><br>With Intent.</h1>
+                <p class="hero-sub">Generate question papers aligned with Bloom's Taxonomy. Smart selection, precise
+                    distribution, effortless output.</p>
             </div>
-            <div>
-                <h1 class="text-xl font-extrabold tracking-tight text-slate-900 border-b-0 leading-none">QPGen</h1>
+
+            <div class="hero-bottom">
+                <div class="stat">
+                    <div class="stat-val">6</div>
+                    <div class="stat-lbl">Bloom's Levels</div>
+                </div>
+                <div class="stat-div"></div>
+                <div class="stat">
+                    <div class="stat-val">3</div>
+                    <div class="stat-lbl">Difficulty Tiers</div>
+                </div>
+                <div class="stat-div"></div>
+                <div class="stat">
+                    <div class="stat-val">AI</div>
+                    <div class="stat-lbl">Smart Select</div>
+                </div>
             </div>
+
+            <div class="corner-deco">Q</div>
         </div>
 
-        <div class="px-4 mb-2"><span
-                class="text-[0.7em] font-bold text-slate-400 uppercase tracking-widest pl-2">Workspace</span></div>
+        <div class="right">
+            <div class="auth-box">
+                <h2 class="auth-title">Welcome back</h2>
+                <p class="auth-sub">Sign in to your workspace</p>
 
-        <nav class="flex-1 px-4 space-y-1" id="sidebar-nav">
-            <button onclick="switchView('dashboard')"
-                class="nav-item active w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600"
-                data-target="dashboard">
-                <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard
-            </button>
-            <button onclick="switchView('questions')"
-                class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600"
-                data-target="questions">
-                <i data-lucide="database" class="w-5 h-5"></i> Question Bank
-            </button>
-            <button onclick="switchView('generate')"
-                class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600"
-                data-target="generate">
-                <i data-lucide="file-text" class="w-5 h-5"></i> Generate Paper
-            </button>
-        </nav>
-
-        <div class="p-4 border-t border-slate-200 mt-auto">
-            <div
-                class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer border border-transparent hover:border-slate-200">
-                <div
-                    class="w-8 h-8 rounded-full bg-gradient-to-br from-slate-800 to-slate-600 flex items-center justify-center text-xs font-bold text-white shadow-sm">
-                    MK
+                <div class="tab-row">
+                    <div class="tab active" onclick="setTab('login')">Sign In</div>
+                    <div class="tab" onclick="setTab('register')">Register</div>
                 </div>
-                <div>
-                    <p class="text-sm font-semibold text-slate-800">Manish Kumar</p>
-                    <p class="text-xs text-slate-500 font-medium">Administrator</p>
+
+                <!-- Login Form -->
+                <div class="form-panel active" id="loginPanel">
+                    <div class="msg error" id="lErr"></div>
+                    <div class="field">
+                        <label>Email</label>
+                        <input type="email" id="lEmail" placeholder="you@university.edu">
+                    </div>
+                    <div class="field">
+                        <label>Password</label>
+                        <input type="password" id="lPass" placeholder="••••••••">
+                    </div>
+                    <button class="btn-submit" onclick="login()">Enter →</button>
+                </div>
+
+                <!-- Register Form -->
+                <div class="form-panel" id="regPanel">
+                    <div class="msg error" id="rErr"></div>
+                    <div class="msg success" id="rSuc"></div>
+                    <div class="field">
+                        <label>Username</label>
+                        <input type="text" id="rUser" placeholder="prof_sharma">
+                    </div>
+                    <div class="field">
+                        <label>Email</label>
+                        <input type="email" id="rEmail" placeholder="you@university.edu">
+                    </div>
+                    <div class="field">
+                        <label>Password</label>
+                        <input type="password" id="rPass" placeholder="••••••••">
+                    </div>
+                    <button class="btn-submit" onclick="register()">Create Account →</button>
                 </div>
             </div>
         </div>
-    </aside>
+    </div>
 
-    <!-- Main Content Area -->
-    <main class="flex-1 flex flex-col h-screen overflow-hidden">
-        <!-- Header -->
-        <header
-            class="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-8 shrink-0 z-10 shadow-sm">
-            <h2 id="page-title" class="text-xl font-semibold text-gray-800 capitalize">Dashboard</h2>
-            <div class="flex items-center gap-4">
-                <span
-                    class="flex items-center gap-2 text-sm font-medium text-green-600 bg-green-50 px-3 py-1 rounded-full border border-green-100">
-                    <span class="relative flex h-2 w-2">
-                        <span
-                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                    </span>
-                    API Connected
-                </span>
-            </div>
-        </header>
-
-        <div class="flex-1 overflow-y-auto bg-slate-50 relative">
-
-            <!-- DASHBOARD VIEW -->
-            <div id="dashboard" class="view-section active space-y-8">
-
-                <!-- Hero Banner -->
-                <div class="bg-vibrant-gradient px-12 pb-16 pt-20 relative overflow-hidden border-b border-white/10">
-                    <div
-                        class="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.1)_1px,transparent_1px)] [background-size:24px_24px] opacity-50">
-                    </div>
-                    <div
-                        class="absolute w-[400px] h-[400px] bg-[radial-gradient(circle,rgba(79,70,229,0.4)_0%,transparent_70%)] -top-[100px] -right-[100px] rounded-full pointer-events-none">
-                    </div>
-
-                    <div class="max-w-6xl mx-auto relative z-10">
-                        <div
-                            class="inline-flex items-center gap-2 bg-white/10 border border-white/20 backdrop-blur-sm rounded-full px-4 py-1.5 text-xs font-semibold text-white/90 mb-5 shadow-sm">
-                            ✦ AI-Powered · Bloom's Taxonomy
-                        </div>
-                        <h1 class="text-[3rem] font-black text-white tracking-tight leading-[1.1] mb-4 drop-shadow-md">
-                            Welcome back,<br>Manish.</h1>
-                        <p class="text-slate-300 text-base max-w-lg leading-relaxed">Your central hub for question bank
-                            management and automated exam paper generation.</p>
-                        <div
-                            class="absolute right-8 top-1/2 -translate-y-1/2 text-[8rem] opacity-[0.08] select-none pointer-events-none filter drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]">
-                            🎓</div>
-                    </div>
-                </div>
-
-                <div class="max-w-6xl mx-auto px-8 -mt-8 relative z-20 space-y-8 pb-12">
-                    <!-- Stats Row -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-                        <div
-                            class="bg-white p-6 rounded-2xl border border-slate-200 shadow-premium shadow-premium-hover border-t-4 border-t-amber-500">
-                            <div
-                                class="w-10 h-10 rounded-lg flex items-center justify-center text-xl mb-4 bg-amber-100 text-amber-600">
-                                📚</div>
-                            <p class="text-slate-500 text-[0.8em] font-semibold mb-1">Total Questions</p>
-                            <p class="text-3xl font-extrabold text-slate-900 tracking-tight leading-tight mb-1"
-                                id="stat-total-q">1,245</p>
-                            <p class="text-xs text-slate-400 font-medium">In question bank</p>
-                        </div>
-                        <div
-                            class="bg-white p-6 rounded-2xl border border-slate-200 shadow-premium shadow-premium-hover border-t-4 border-t-blue-500">
-                            <div
-                                class="w-10 h-10 rounded-lg flex items-center justify-center text-xl mb-4 bg-blue-100 text-blue-600">
-                                📁</div>
-                            <p class="text-slate-500 text-[0.8em] font-semibold mb-1">Active Subjects</p>
-                            <p class="text-3xl font-extrabold text-slate-900 tracking-tight leading-tight mb-1">12</p>
-                            <p class="text-xs text-slate-400 font-medium">Across curriculum</p>
-                        </div>
-                        <div
-                            class="bg-white p-6 rounded-2xl border border-slate-200 shadow-premium shadow-premium-hover border-t-4 border-t-emerald-500">
-                            <div
-                                class="w-10 h-10 rounded-lg flex items-center justify-center text-xl mb-4 bg-emerald-100 text-emerald-600">
-                                📄</div>
-                            <p class="text-slate-500 text-[0.8em] font-semibold mb-1">Papers Generated</p>
-                            <p class="text-3xl font-extrabold text-slate-900 tracking-tight leading-tight mb-1"
-                                id="stat-papers">84</p>
-                            <p class="text-xs text-slate-400 font-medium">Total exported</p>
-                        </div>
-                        <div
-                            class="bg-white p-6 rounded-2xl border border-slate-200 shadow-premium shadow-premium-hover border-t-4 border-t-violet-500">
-                            <div
-                                class="w-10 h-10 rounded-lg flex items-center justify-center text-xl mb-4 bg-violet-100 text-violet-600">
-                                🎯</div>
-                            <p class="text-slate-500 text-[0.8em] font-semibold mb-1">Bloom's Levels</p>
-                            <p class="text-3xl font-extrabold text-slate-900 tracking-tight leading-tight mb-1">6</p>
-                            <p class="text-xs text-slate-400 font-medium">Cognitive domains</p>
-                        </div>
-                    </div>
-
-                    <!-- Recent Activity & Action Cards -->
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div
-                            class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-premium overflow-hidden flex flex-col">
-                            <div class="p-5 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-                                <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                                    <div
-                                        class="w-6 h-6 rounded bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm">
-                                        📄</div> Recent Generations
-                                </h3>
-                                <button onclick="switchView('generate')"
-                                    class="text-xs font-semibold bg-slate-900 text-white px-3 py-1.5 rounded-md hover:bg-slate-800 transition-colors">Generate
-                                    New</button>
-                            </div>
-                            <div class="flex-1 overflow-x-auto">
-                                <table class="w-full text-left">
-                                    <thead
-                                        class="bg-transparent text-slate-400 text-xs uppercase tracking-wider font-bold">
-                                        <tr class="border-b border-slate-100">
-                                            <th class="px-6 py-4">Title / Subject</th>
-                                            <th class="px-6 py-4">Date</th>
-                                            <th class="px-6 py-4">Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-slate-100 text-sm font-medium"
-                                        id="recent-papers-list">
-                                        <!-- Populated by JS -->
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div class="flex flex-col gap-5">
-                            <a href="#" onclick="switchView('questions'); return false;"
-                                class="group bg-gradient-to-br from-white to-slate-50 border border-slate-200 rounded-2xl p-6 shadow-premium shadow-premium-hover transition-all relative overflow-hidden min-h-[160px] flex flex-col justify-between">
-                                <div
-                                    class="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 text-slate-700 flex items-center justify-center text-lg mb-4 group-hover:translate-x-1 transition-transform z-10">
-                                    →</div>
-                                <div class="z-10">
-                                    <p class="text-[0.75em] font-bold text-indigo-600 uppercase tracking-widest mb-1.5">
-                                        Question Bank</p>
-                                    <h3
-                                        class="text-[1.4rem] font-extrabold text-slate-900 leading-[1.2] tracking-tight">
-                                        Add and manage<br>your questions.</h3>
-                                </div>
-                                <div
-                                    class="absolute right-6 bottom-4 text-7xl opacity-5 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-500 filter grayscale">
-                                    📚</div>
-                            </a>
-
-                            <a href="#" onclick="switchView('generate'); return false;"
-                                class="group bg-gradient-to-br from-indigo-600 to-indigo-900 rounded-2xl p-6 shadow-premium shadow-premium-hover transition-all relative overflow-hidden min-h-[160px] flex flex-col justify-between">
-                                <div
-                                    class="w-10 h-10 rounded-full bg-white/20 border border-white/10 text-white flex items-center justify-center text-lg mb-4 group-hover:translate-x-1 transition-transform z-10">
-                                    →</div>
-                                <div class="z-10">
-                                    <p class="text-[0.75em] font-bold text-white/70 uppercase tracking-widest mb-1.5">AI
-                                        Generation</p>
-                                    <h3 class="text-[1.4rem] font-extrabold text-white leading-[1.2] tracking-tight">
-                                        Generate a smart<br>exam paper.</h3>
-                                </div>
-                                <div
-                                    class="absolute right-6 bottom-4 text-7xl opacity-[0.05] group-hover:scale-110 group-hover:rotate-6 transition-transform duration-500">
-                                    ⚡</div>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- QUESTION BANK VIEW -->
-            <div id="questions" class="view-section max-w-6xl mx-auto space-y-6 px-8 py-8">
-                <div
-                    class="flex justify-between items-center bg-white p-6 rounded-2xl shadow-premium border border-slate-200 mb-8">
-                    <div>
-                        <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
-                            <div
-                                class="w-8 h-8 rounded bg-indigo-100 text-indigo-600 flex items-center justify-center text-lg">
-                                📚</div> Question Repository
-                        </h2>
-                        <p class="text-slate-500 text-sm mt-1 font-medium">Manage and classify questions using your
-                            Flask backend</p>
-                    </div>
-                    <button
-                        onclick="alert('Please use the dedicated questions.html page to add new questions, or implement the modal here.')"
-                        class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 text-sm font-bold transition-all shadow-md shadow-indigo-500/30 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-500/40">
-                        <i data-lucide="plus" class="w-4 h-4"></i> Add Question
-                    </button>
-                </div>
-
-                <div class="bg-white rounded-2xl shadow-premium border border-slate-200 overflow-hidden">
-                    <div class="p-5 border-b border-slate-100 bg-slate-50 flex gap-4">
-                        <div class="flex-1 relative">
-                            <i data-lucide="search"
-                                class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4"></i>
-                            <input type="text" placeholder="Search questions..."
-                                class="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm bg-white font-medium shadow-sm transition-all">
-                        </div>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left">
-                            <thead class="bg-transparent text-slate-400 text-xs uppercase tracking-wider font-bold">
-                                <tr class="border-b border-slate-100">
-                                    <th class="px-6 py-4">ID</th>
-                                    <th class="px-6 py-4 w-1/2">Question Text</th>
-                                    <th class="px-6 py-4">Bloom's Level</th>
-                                    <th class="px-6 py-4">Difficulty</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100 text-sm font-medium text-slate-700"
-                                id="questions-table-body">
-                                <tr>
-                                    <td colspan="4"
-                                        class="px-6 py-12 text-center text-slate-400 flex flex-col items-center justify-center">
-                                        <i data-lucide="loader-2" class="w-8 h-8 animate-spin mb-3 text-indigo-400"></i>
-                                        Loading questions from backend...
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- GENERATE PAPER VIEW -->
-            <div id="generate" class="view-section max-w-4xl mx-auto space-y-8 px-8 py-8">
-                <div class="bg-white p-6 rounded-2xl shadow-premium border border-slate-200 mb-8">
-                    <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
-                        <div
-                            class="w-8 h-8 rounded bg-indigo-100 text-indigo-600 flex items-center justify-center text-lg">
-                            ⚡</div> Generate Assessment
-                    </h2>
-                    <p class="text-slate-500 text-sm mt-1 font-medium">Configure parameters and let the AI generate a
-                        balanced paper</p>
-                </div>
-
-                <form id="generate-form" onsubmit="handleGenerate(event)"
-                    class="bg-white rounded-2xl shadow-premium border border-slate-200 overflow-hidden">
-
-                    <!-- Basic Info -->
-                    <div class="p-8 border-b border-slate-100 bg-slate-50/50">
-                        <h3 class="text-lg font-bold text-slate-800 mb-5 flex items-center gap-2"><span
-                                class="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-xs">1</span>
-                            Basic Information</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                            <div>
-                                <label
-                                    class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Subject</label>
-                                <select id="gen-subject"
-                                    class="w-full p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white font-medium text-slate-700 shadow-sm transition-all"
-                                    required>
-                                    <option value="Computer Science">Computer Science</option>
-                                    <option value="Physics">Physics</option>
-                                    <option value="Mathematics">Mathematics</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Exam
-                                    Title</label>
-                                <input type="text" id="gen-title"
-                                    class="w-full p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white font-medium text-slate-700 shadow-sm transition-all"
-                                    placeholder="e.g., Mid-Term Exam" required>
-                            </div>
-                            <div>
-                                <label
-                                    class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Total
-                                    Marks</label>
-                                <input type="number" id="gen-marks" value="100"
-                                    class="w-full p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white font-medium text-slate-700 shadow-sm transition-all"
-                                    required>
-                            </div>
-                            <div>
-                                <label
-                                    class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Duration</label>
-                                <input type="text" id="gen-duration" value="3 Hours"
-                                    class="w-full p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white font-medium text-slate-700 shadow-sm transition-all"
-                                    required>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Bloom's Taxonomy -->
-                    <div class="p-8 border-b border-slate-100">
-                        <div class="flex justify-between items-center mb-6">
-                            <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2"><span
-                                    class="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-xs">2</span>
-                                Bloom's Taxonomy Distribution (%)</h3>
-                            <span id="blooms-total-badge"
-                                class="text-xs font-bold px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200 shadow-sm">Total:
-                                100%</span>
-                        </div>
-                        <div class="grid grid-cols-2 md:grid-cols-3 gap-8">
-                            <div class="flex flex-col gap-2">
-                                <label class="flex justify-between text-sm font-semibold text-slate-700">Remember <span
-                                        id="val-rem"
-                                        class="text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded text-xs">15%</span></label>
-                                <input type="range" id="b-rem" class="blooms-slider" min="0" max="100" value="15">
-                            </div>
-                            <div class="flex flex-col gap-2">
-                                <label class="flex justify-between text-sm font-semibold text-slate-700">Understand
-                                    <span id="val-und"
-                                        class="text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded text-xs">25%</span></label>
-                                <input type="range" id="b-und" class="blooms-slider" min="0" max="100" value="25">
-                            </div>
-                            <div class="flex flex-col gap-2">
-                                <label class="flex justify-between text-sm font-semibold text-slate-700">Apply <span
-                                        id="val-app"
-                                        class="text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded text-xs">20%</span></label>
-                                <input type="range" id="b-app" class="blooms-slider" min="0" max="100" value="20">
-                            </div>
-                            <div class="flex flex-col gap-2">
-                                <label class="flex justify-between text-sm font-semibold text-slate-700">Analyze <span
-                                        id="val-ana"
-                                        class="text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded text-xs">20%</span></label>
-                                <input type="range" id="b-ana" class="blooms-slider" min="0" max="100" value="20">
-                            </div>
-                            <div class="flex flex-col gap-2">
-                                <label class="flex justify-between text-sm font-semibold text-slate-700">Evaluate <span
-                                        id="val-eva"
-                                        class="text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded text-xs">10%</span></label>
-                                <input type="range" id="b-eva" class="blooms-slider" min="0" max="100" value="10">
-                            </div>
-                            <div class="flex flex-col gap-2">
-                                <label class="flex justify-between text-sm font-semibold text-slate-700">Create <span
-                                        id="val-cre"
-                                        class="text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded text-xs">10%</span></label>
-                                <input type="range" id="b-cre" class="blooms-slider" min="0" max="100" value="10">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Difficulty -->
-                    <div class="p-8 border-b border-slate-100">
-                        <div class="flex justify-between items-center mb-6">
-                            <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2"><span
-                                    class="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-xs">3</span>
-                                Difficulty Distribution (%)</h3>
-                            <span id="diff-total-badge"
-                                class="text-xs font-bold px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200 shadow-sm">Total:
-                                100%</span>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                            <div class="flex flex-col gap-2">
-                                <label class="flex justify-between text-sm font-semibold text-slate-700">Easy <span
-                                        id="val-easy"
-                                        class="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded text-xs border border-emerald-100">30%</span></label>
-                                <input type="range" id="d-easy" class="diff-slider" min="0" max="100" value="30">
-                            </div>
-                            <div class="flex flex-col gap-2">
-                                <label class="flex justify-between text-sm font-semibold text-slate-700">Medium <span
-                                        id="val-med"
-                                        class="text-amber-700 bg-amber-50 px-2 py-0.5 rounded text-xs border border-amber-100">50%</span></label>
-                                <input type="range" id="d-med" class="diff-slider" min="0" max="100" value="50">
-                            </div>
-                            <div class="flex flex-col gap-2">
-                                <label class="flex justify-between text-sm font-semibold text-slate-700">Hard <span
-                                        id="val-hard"
-                                        class="text-rose-700 bg-rose-50 px-2 py-0.5 rounded text-xs border border-rose-100">20%</span></label>
-                                <input type="range" id="d-hard" class="diff-slider" min="0" max="100" value="20">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-50 p-6 flex justify-between items-center">
-                        <p id="validation-error"
-                            class="text-rose-600 text-sm font-medium hidden flex items-center gap-1.5 bg-rose-50 px-3 py-1.5 rounded-lg border border-rose-200">
-                            <i data-lucide="alert-circle" class="w-4 h-4"></i> Totals must equal 100%
-                        </p>
-                        <button type="submit" id="generate-btn"
-                            class="ml-auto bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3.5 rounded-xl font-bold shadow-md shadow-indigo-500/30 transition-all flex items-center gap-2 hover:-translate-y-1 hover:shadow-lg hover:shadow-indigo-500/40 text-sm">
-                            <i data-lucide="wand-2" class="w-5 h-5"></i> Generate Paper
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- LOADING SPINNER VIEW -->
-            <div id="loading"
-                class="view-section h-full flex flex-col items-center justify-center p-8 bg-white/50 backdrop-blur-sm">
-                <div class="relative w-24 h-24 mb-6">
-                    <div
-                        class="absolute inset-0 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin">
-                    </div>
-                    <div class="absolute inset-2 border-4 border-indigo-50 border-b-indigo-400 rounded-full animate-spin"
-                        style="animation-direction: reverse; animation-duration: 1.5s;"></div>
-                    <i data-lucide="brain-circuit"
-                        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-indigo-600 w-8 h-8 drop-shadow-md"></i>
-                </div>
-                <h2 class="text-3xl font-extrabold text-slate-900 mb-3 tracking-tight">AI is Processing...</h2>
-                <p class="text-slate-500 text-center max-w-md font-medium leading-relaxed">Querying database, applying
-                    NLP rules, tracking Bloom's distribution, and formatting your final paper.</p>
-            </div>
-
-            <!-- RESULT VIEW -->
-            <div id="result" class="view-section max-w-5xl mx-auto space-y-6 px-8 py-8">
-                <div
-                    class="flex justify-between items-center bg-white p-5 rounded-2xl shadow-premium border border-slate-200">
-                    <button onclick="switchView('generate')"
-                        class="text-slate-500 hover:text-indigo-600 font-bold text-sm flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-indigo-50 transition-colors">
-                        &larr; Back to Generator
-                    </button>
-                    <div class="flex gap-3">
-                        <button onclick="window.print()"
-                            class="bg-indigo-50 text-indigo-700 px-5 py-2.5 rounded-xl border border-indigo-200 text-sm font-bold hover:bg-indigo-100 flex items-center gap-2 transition-all shadow-sm">
-                            <i data-lucide="download" class="w-4 h-4"></i> Export PDF
-                        </button>
-                    </div>
-                </div>
-
-                <div class="bg-white p-12 rounded-2xl shadow-premium border border-slate-200 min-h-[800px] font-serif relative overflow-hidden"
-                    id="paper-preview-content">
-                    <div class="absolute top-0 left-0 w-full h-2 bg-indigo-600"></div>
-                    <!-- Injected by JS -->
-                </div>
-            </div>
-
-        </div>
-    </main>
-
-    <!-- JavaScript Application Logic -->
     <script>
-        // 1. Initialize Icons
-        lucide.createIcons();
+        const API = 'http://127.0.0.1:5000/api';
 
-        // 2. Configuration for your Flask Backend
-        // IMPORTANT: Change this if your Flask app runs on a different port/host
-        const FLASK_API_BASE_URL = 'http://127.0.0.1:5000/api';
-
-        
-        // --- Mock Authentication for Testing ---
-        // In a real app, this would be obtained via login and stored in localStorage
-        // To test with real data, you need to paste a valid JWT token here
-        // or temporarily disable @jwt_required() on your Flask routes.
-        const auth_token = localStorage.getItem('access_token') || 'INSERT_YOUR_JWT_TOKEN_HERE';
-        
-        const fetchWithAuth = async (url, options = {}) => {
-            const headers = {
-                'Authorization': `Bearer ${auth_token}`,
-                'Content-Type': 'application/json',
-                ...options.headers
-            };
-            return fetch(url, { ...options, headers });
-        };
-        // ---------------------------------------
-
-        // 3. Navigation Logic
-        function switchView(viewId) {
-            // Hide all views
-            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            // Show target view
-            document.getElementById(viewId).classList.add('active');
-
-            // Update sidebar active states
-            if (['dashboard', 'questions', 'generate'].includes(viewId)) {
-                document.querySelectorAll('.nav-item').forEach(el => {
-                    el.classList.remove('active', 'text-white', 'bg-indigo-800');
-                    el.classList.add('text-indigo-200');
-                });
-                const activeBtn = document.querySelector(`.nav-item[data-target="${viewId}"]`);
-                if (activeBtn) {
-                    activeBtn.classList.add('active', 'text-white', 'bg-indigo-800');
-                    activeBtn.classList.remove('text-indigo-200');
-                }
-
-                // Update Header Title
-                document.getElementById('page-title').innerText = viewId.replace('-', ' ');
-            }
-
-            // Trigger specific load actions based on view
-            if (viewId === 'questions') loadQuestions();
-            if (viewId === 'dashboard') loadDashboardStats();
+        function setTab(t) {
+            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.form-panel').forEach(el => el.classList.remove('active'));
+            document.querySelector(`.tab[onclick="setTab('${t}')"]`).classList.add('active');
+            document.getElementById(t === 'login' ? 'loginPanel' : 'regPanel').classList.add('active');
         }
 
-        // 4. Data Fetching (Connecting to your Flask Routes)
-
-        // Mock fallback data just in case Flask is down
-        const MOCK_DATA = [
-            { id: 1, text: "Explain the architecture of a REST API.", blooms: "Understand", difficulty: "Medium", subject: "Computer Science" },
-            { id: 2, text: "Design a relational schema for a library management system.", blooms: "Create", difficulty: "Hard", subject: "Computer Science" },
-            { id: 3, text: "Calculate the time complexity of the quicksort algorithm.", blooms: "Analyze", difficulty: "Medium", subject: "Computer Science" }
-        ];
-
-        async function loadQuestions() {
-            const tbody = document.getElementById('questions-table-body');
+        async function login() {
+            const email = document.getElementById('lEmail').value.trim();
+            const password = document.getElementById('lPass').value;
+            const err = document.getElementById('lErr');
+            if (!email || !password) { err.textContent = 'Please fill in all fields.'; err.style.display = 'block'; return; }
             try {
-                // Assuming you have a route like @app.route('/api/questions') in your app/routes/questions.py
-                const response = await fetchWithAuth(`${FLASK_API_BASE_URL}/questions`);
-
-                if (!response.ok) throw new Error('Backend not reachable');
-
-                const questions = await response.json();
-                renderQuestionsTable(questions);
-            } catch (error) {
-                console.warn("Flask API not reachable. Using mock data for preview.", error);
-                renderQuestionsTable(MOCK_DATA);
-            }
+                const res = await fetch(`${API}/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
+                const data = await res.json();
+                if (!res.ok) { err.textContent = data.error || 'Login failed.'; err.style.display = 'block'; return; }
+                localStorage.setItem('token', data.access_token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                window.location.href = 'dashboard.html';
+            } catch { err.textContent = 'Cannot reach server.'; err.style.display = 'block'; }
         }
 
-        function getBadgeColor(level) {
-            const colors = {
-                'Remember': 'bg-gray-100 text-gray-800',
-                'Understand': 'bg-blue-100 text-blue-800',
-                'Apply': 'bg-green-100 text-green-800',
-                'Analyze': 'bg-yellow-100 text-yellow-800',
-                'Evaluate': 'bg-purple-100 text-purple-800',
-                'Create': 'bg-red-100 text-red-800',
-                'Easy': 'bg-green-100 text-green-800',
-                'Medium': 'bg-yellow-100 text-yellow-800',
-                'Hard': 'bg-red-100 text-red-800'
-            };
-            return colors[level] || 'bg-gray-100 text-gray-800';
-        }
-
-        function renderQuestionsTable(questions) {
-            const tbody = document.getElementById('questions-table-body');
-            tbody.innerHTML = '';
-
-            questions.forEach(q => {
-                tbody.innerHTML += `
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="px-6 py-4 font-medium text-gray-500">Q-${q.id}</td>
-                        <td class="px-6 py-4 text-gray-800 pr-8">${q.text}</td>
-                        <td class="px-6 py-4"><span class="px-2.5 py-0.5 rounded-full text-xs font-medium ${getBadgeColor(q.blooms_level || q.blooms)}">${q.blooms_level || q.blooms}</span></td>
-                        <td class="px-6 py-4"><span class="px-2.5 py-0.5 rounded-full text-xs font-medium ${getBadgeColor(q.difficulty)}">${q.difficulty}</span></td>
-                    </tr>
-                `;
-            });
-        }
-
-        
-        async function loadDashboardStats() {
+        async function register() {
+            const username = document.getElementById('rUser').value.trim();
+            const email = document.getElementById('rEmail').value.trim();
+            const password = document.getElementById('rPass').value;
+            const err = document.getElementById('rErr'), suc = document.getElementById('rSuc');
+            if (!username || !email || !password) { err.textContent = 'All fields required.'; err.style.display = 'block'; return; }
             try {
-                // Fetch stats from backend
-                const [questionsRes, papersRes] = await Promise.all([
-                    fetchWithAuth(`${FLASK_API_BASE_URL}/questions`),
-                    fetchWithAuth(`${FLASK_API_BASE_URL}/papers`)
-                ]);
-
-                if (questionsRes.ok) {
-                    const qData = await questionsRes.json();
-                    document.getElementById('stat-total-q').innerText = qData.count || 0;
-                }
-
-                if (papersRes.ok) {
-                    const pData = await papersRes.json();
-                    document.getElementById('stat-papers').innerText = pData.count || 0;
-                    
-                    // Populate recent papers
-                    const recent = document.getElementById('recent-papers-list');
-                    recent.innerHTML = '';
-                    
-                    if (pData.papers && pData.papers.length > 0) {
-                        // Sort by created_at desc and take top 5
-                        const sortedPapers = pData.papers.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 5);
-                        
-                        sortedPapers.forEach(paper => {
-                            const date = new Date(paper.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-                            recent.innerHTML += `
-                                <tr>
-                                    <td class="px-6 py-4 font-medium">${paper.title}</td>
-                                    <td class="px-6 py-4 text-gray-500">${date}</td>
-                                    <td class="px-6 py-4 text-green-600"><i data-lucide="check-circle-2" class="inline w-4 h-4 mr-1"></i>Generated</td>
-                                </tr>
-                            `;
-                        });
-                        lucide.createIcons();
-                    } else {
-                        recent.innerHTML = '<tr><td colspan="3" class="px-6 py-4 text-center text-gray-500">No recent papers</td></tr>';
-                    }
-                }
-            } catch (error) {
-                console.warn("Could not load dashboard stats from backend. Using fallback.", error);
-                
-                // Fallback to static mock if backend fails
-                const recent = document.getElementById('recent-papers-list');
-                if (recent.children.length === 0) {
-                    recent.innerHTML = `
-                        <tr><td class="px-6 py-4 font-medium">Computer Science - Mid Term</td><td class="px-6 py-4 text-gray-500">Today, 10:30 AM</td><td class="px-6 py-4 text-green-600"><i data-lucide="check-circle-2" class="inline w-4 h-4 mr-1"></i>Completed</td></tr>
-                        <tr><td class="px-6 py-4 font-medium">Physics - Unit Test</td><td class="px-6 py-4 text-gray-500">Yesterday</td><td class="px-6 py-4 text-green-600"><i data-lucide="check-circle-2" class="inline w-4 h-4 mr-1"></i>Completed</td></tr>
-                    `;
-                    lucide.createIcons();
-                }
-            }
+                const res = await fetch(`${API}/auth/register`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, email, password }) });
+                const data = await res.json();
+                if (!res.ok) { err.textContent = data.error || 'Registration failed.'; err.style.display = 'block'; return; }
+                suc.textContent = 'Account created! Sign in now.'; suc.style.display = 'block'; err.style.display = 'none';
+                setTimeout(() => setTab('login'), 1200);
+            } catch { err.textContent = 'Cannot reach server.'; err.style.display = 'block'; }
         }
 
-        // 5. Form Logic & Validation (Sliders)
-        function setupSliders(selector, totalBadgeId, validationErrorId) {
-            const sliders = document.querySelectorAll(selector);
-            const totalBadge = document.getElementById(totalBadgeId);
-            const errorMsg = document.getElementById('validation-error');
-            const submitBtn = document.getElementById('generate-btn');
+        document.addEventListener('keydown', e => { if (e.key === 'Enter') { if (document.getElementById('loginPanel').classList.contains('active')) login(); else register(); } });
 
-            sliders.forEach(slider => {
-                slider.addEventListener('input', (e) => {
-                    // Update immediate text label next to slider
-                    const textSpan = document.getElementById(`val-${e.target.id.split('-')[1]}`);
-                    if (textSpan) textSpan.innerText = `${e.target.value}%`;
-
-                    // Calculate total
-                    let total = 0;
-                    sliders.forEach(s => total += parseInt(s.value));
-
-                    // Update badge
-                    totalBadge.innerText = `Total: ${total}%`;
-                    
-                    const bloomsTotal = Array.from(document.querySelectorAll('.blooms-slider')).reduce((acc, curr) => acc + parseInt(curr.value), 0);
-                    const diffTotal = Array.from(document.querySelectorAll('.diff-slider')).reduce((acc, curr) => acc + parseInt(curr.value), 0);
-
-                    if (total === 100) {
-                        totalBadge.className = 'text-sm font-bold px-3 py-1 rounded-full bg-green-100 text-green-700';
-                    } else {
-                        totalBadge.className = 'text-sm font-bold px-3 py-1 rounded-full bg-red-100 text-red-700';
-                    }
-                    
-                    if (bloomsTotal === 100 && diffTotal === 100) {
-                        errorMsg.classList.add('hidden');
-                        submitBtn.disabled = false;
-                        submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                    } else {
-                        errorMsg.classList.remove('hidden');
-                        submitBtn.disabled = true;
-                        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                    }
-                });
-            });
-        }
-
-        setupSliders('.blooms-slider', 'blooms-total-badge');
-        setupSliders('.diff-slider', 'diff-total-badge');
-
-        // 6. Form Submission to Flask API
-        async function handleGenerate(e) {
-            e.preventDefault();
-
-            // 1. Gather the data from your form
-            // Construct config from sliders
-            const config = {
-                blooms_distribution: {
-                    remember: parseInt(document.getElementById('b-rem').value),
-                    understand: parseInt(document.getElementById('b-und').value),
-                    apply: parseInt(document.getElementById('b-app').value),
-                    analyze: parseInt(document.getElementById('b-ana').value),
-                    evaluate: parseInt(document.getElementById('b-eva').value),
-                    create: parseInt(document.getElementById('b-cre').value)
-                },
-                difficulty_distribution: {
-                    easy: parseInt(document.getElementById('d-easy').value),
-                    medium: parseInt(document.getElementById('d-med').value),
-                    hard: parseInt(document.getElementById('d-hard').value)
-                },
-                question_type: "mixed" // Or add a select for this in the form later
-            };
-
-            const payload = {
-                title: document.getElementById('gen-title').value,
-                subject_id: 1, // HARDCODED for now. Ideally fetch from /api/subjects and populate the select.
-                total_marks: parseInt(document.getElementById('gen-marks').value),
-                duration_minutes: parseInt(document.getElementById('gen-duration').value.replace(/[^0-9]/g, '')) || 180,
-                config: config,
-                // Passing subject name for frontend rendering reference
-                _subjectName: document.getElementById('gen-subject').value 
-            };
-
-            // 2. Show the loading spinner
-            switchView('loading');
-
-            try {
-                // 3. Make the actual request to your Flask backend
-                const response = await fetchWithAuth(`${FLASK_API_BASE_URL}/papers/generate`, {
-                    method: 'POST',
-                    body: JSON.stringify(payload)
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Backend returned status ${response.status}`);
-                }
-
-                const generatedPaper = await response.json();
-
-                // 4. Render the paper (assuming your backend returns a list of 'questions')
-                renderPaperPreview(payload, generatedPaper.questions || []);
-                switchView('result');
-
-            } catch (error) {
-                // 5. IF IT FAILS: Catch the error, stop the spinner, and go back to the form
-                console.error("API Error:", error);
-                alert("Failed to connect to the backend! Error: " + error.message + "\n\nMake sure your Flask server is running and CORS is enabled.");
-                switchView('generate'); // Takes you out of the loading screen
-            }
-        }
-        function renderPaperPreview(config, questions) {
-            const container = document.getElementById('paper-preview-content');
-
-            let html = `
-                <div class="text-center border-b-2 border-gray-800 pb-6 mb-8">
-                    <h1 class="text-2xl font-bold uppercase tracking-wider mb-2">K.R Mangalam University</h1>
-                    <h2 class="text-xl font-semibold mb-1">${config.title}</h2>
-                    <h3 class="text-lg text-gray-700 mb-4">${config._subjectName || "Subject"}</h3>
-                    <div class="flex justify-between text-sm font-medium mt-6 px-4">
-                        <span>Date: ${new Date().toLocaleDateString()}</span>
-                        <span>Duration: ${config.duration_minutes} Mins</span>
-                        <span>Max Marks: ${config.total_marks}</span>
-                    </div>
-                </div>
-                <div class="font-bold text-lg border-b border-gray-300 pb-2 mb-6">
-                    SECTION A - All Questions are Compulsory
-                </div>
-                <div class="space-y-6">
-            `;
-
-            questions.forEach((q, idx) => {
-                html += `
-                    <div class="flex gap-4">
-                        <span class="font-bold">Q${idx + 1}.</span>
-                        <div class="flex-1">
-                            <p class="text-gray-900 leading-relaxed">${q.text}</p>
-                            <div class="mt-2 text-[10px] opacity-50 flex gap-2">
-                                <span class="bg-gray-100 px-2 py-0.5 border border-gray-200">[${q.blooms_level || q.blooms}]</span>
-                                <span class="bg-gray-100 px-2 py-0.5 border border-gray-200">[${q.difficulty}]</span>
-                            </div>
-                        </div>
-                        <span class="font-bold text-gray-600">[${q.difficulty === 'Hard' ? 10 : q.difficulty === 'Medium' ? 5 : 2}]</span>
-                    </div>
-                `;
-            });
-
-            html += `
-                </div>
-                <div class="mt-16 text-center text-sm font-bold italic border-t border-gray-300 pt-4">
-                    *** END OF QUESTION PAPER ***
-                </div>
-            `;
-            container.innerHTML = html;
-        }
-
-        // Initialize App
-        switchView('dashboard');
-        loadDashboardStats();
+        if (localStorage.getItem('token')) window.location.href = 'dashboard.html';
     </script>
 </body>
 

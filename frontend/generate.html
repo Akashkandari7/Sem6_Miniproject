@@ -33,6 +33,25 @@
             --sw: 220px;
         }
 
+        [data-theme="light"] {
+            --black: #f5f2ed;
+            --deep: #ebe7e0;
+            --surface: #ffffff;
+            --card: #f8f6f2;
+            --border: rgba(0, 0, 0, 0.08);
+            --border-strong: rgba(0, 0, 0, 0.14);
+            --gold: #a0852e;
+            --gold-light: #8a7226;
+            --gold-dim: rgba(160, 133, 46, 0.1);
+            --white: #1a1816;
+            --muted: #8a8580;
+            --text: #3d3a36;
+        }
+
+        [data-theme="light"] body::after {
+            opacity: 0.06;
+        }
+
         html,
         body {
             background: var(--black);
@@ -712,6 +731,34 @@
         .result-wrap {
             animation: fadeUp 0.5s ease both;
         }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            width: 100%;
+            padding: 10px;
+            margin-top: 12px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--gold);
+            font-size: 0.8em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s;
+            font-family: 'DM Mono', monospace;
+            letter-spacing: 1px;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--gold);
+            background: var(--gold-dim);
+        }
+
+        .theme-toggle-icon {
+            font-size: 1.1em;
+        }
     </style>
 </head>
 
@@ -734,6 +781,9 @@
                         <div class="user-sub">Sign out</div>
                     </div>
                 </div>
+                <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle theme">
+                    <span class="theme-toggle-icon">☀</span>
+                </button>
             </div>
         </aside>
 
@@ -992,6 +1042,7 @@
         style.textContent = '@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }';
         document.head.appendChild(style);
     </script>
+    <script src="theme.js"></script>
 </body>
 
 </html>

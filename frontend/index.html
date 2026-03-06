@@ -31,6 +31,24 @@
             --text: #d4cfc5;
         }
 
+        [data-theme="light"] {
+            --black: #f5f2ed;
+            --deep: #ebe7e0;
+            --surface: #ffffff;
+            --card: #f8f6f2;
+            --border: rgba(0, 0, 0, 0.1);
+            --gold: #a0852e;
+            --gold-light: #8a7226;
+            --gold-dim: rgba(160, 133, 46, 0.1);
+            --white: #1a1816;
+            --muted: #8a8580;
+            --text: #3d3a36;
+        }
+
+        [data-theme="light"] body::before {
+            opacity: 0.08;
+        }
+
         html,
         body {
             height: 100%;
@@ -364,6 +382,31 @@
             pointer-events: none;
         }
 
+        /* Theme Toggle */
+        .theme-toggle {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 100;
+            width: 42px;
+            height: 42px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--gold);
+            font-size: 1.2em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--gold);
+            background: var(--gold-dim);
+            transform: scale(1.08);
+        }
+
         /* Animations */
         @keyframes fadeSlideUp {
             from {
@@ -404,6 +447,7 @@
 </head>
 
 <body>
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle theme">☀</button>
     <div class="page">
         <div class="left">
             <div class="logo">
@@ -528,6 +572,7 @@
 
         if (localStorage.getItem('token')) window.location.href = 'dashboard.html';
     </script>
+    <script src="theme.js"></script>
 </body>
 
 </html>

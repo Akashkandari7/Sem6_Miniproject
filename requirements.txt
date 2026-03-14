@@ -1,0 +1,26 @@
+# Web Framework
+Flask==3.0.0
+Flask-RESTful==0.3.10
+
+# Database
+Flask-SQLAlchemy==3.1.1
+Flask-Migrate==4.0.5
+SQLAlchemy==2.0.23
+
+# Authentication
+Flask-JWT-Extended==4.6.0
+bcrypt==4.1.2
+
+# Validation & Serialization
+marshmallow==3.20.1
+Flask-Marshmallow==1.2.0
+marshmallow-sqlalchemy==1.0.0
+
+# Environment Variables
+python-dotenv==1.0.0
+
+# CORS
+Flask-CORS==4.0.0
+
+# Dev Tools
+pytest==7.4.3

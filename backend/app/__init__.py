@@ -13,9 +13,7 @@ def create_app(config_name='default'):
     Calling create_app('testing') gives a test app, 
     create_app('production') gives prod app. Same code, different behavior.
     """
-    # Point Flask at the frontend folder for static HTML serving
-    frontend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'frontend'))
-    app = Flask(__name__, static_folder=frontend_dir, static_url_path='')
+    app = Flask(__name__)
     
     # Load config
     app.config.from_object(config[config_name])
@@ -38,6 +36,17 @@ def create_app(config_name='default'):
     app.register_blueprint(papers_bp, url_prefix='/api/papers')
     app.register_blueprint(subjects_bp, url_prefix='/api/subjects')
     
+    # Auto-create tables and seed data (handles Vercel's ephemeral /tmp/)
+    with app.app_context():
+        from app.models.question import Question
+        from app.models.user import User
+        from app.models.subject import Subject
+        db.create_all()
+        
+        # Seed if DB is empty (cold start on Vercel)
+        if Subject.query.first() is None:
+            _seed_initial_data(db)
+    
     # Health check route
     @app.route('/api/health')
     def health():
@@ -52,4 +61,21 @@ def create_app(config_name='default'):
     def serve_frontend(filename):
         return send_from_directory(FRONTEND_DIR, filename)
     
-    return app 
+    return app
+
+
+def _seed_initial_data(db):
+    """Seed subjects and a default admin user for fresh DB."""
+    from app.models.subject import Subject
+    from app.models.user import User
+    
+    # Add default subject
+    cs = Subject(name='Computer Science', code='CS101', description='Core CS subject')
+    db.session.add(cs)
+    
+    # Add default admin user
+    admin = User(username='admin', email='admin@qpgen.com')
+    admin.set_password('admin123')
+    db.session.add(admin)
+    
+    db.session.commit()

@@ -1,4 +1,5 @@
-from flask import Flask
+import os
+from flask import Flask, send_from_directory
 from app.config import config
 from app.extensions import db, migrate, jwt, cors, ma
 
@@ -9,7 +10,9 @@ def create_app(config_name='default'):
     Calling create_app('testing') gives a test app, 
     create_app('production') gives prod app. Same code, different behavior.
     """
-    app = Flask(__name__)
+    # Point Flask at the frontend folder for static HTML serving
+    frontend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'frontend'))
+    app = Flask(__name__, static_folder=frontend_dir, static_url_path='')
     
     # Load config
     app.config.from_object(config[config_name])
@@ -36,5 +39,23 @@ def create_app(config_name='default'):
     @app.route('/api/health')
     def health():
         return {'status': 'ok', 'message': 'Server is running'}
-    
+
+    # Serve frontend HTML pages
+    @app.route('/')
+    @app.route('/index')
+    def serve_index():
+        return send_from_directory(frontend_dir, 'index.html')
+
+    @app.route('/dashboard')
+    def serve_dashboard():
+        return send_from_directory(frontend_dir, 'dashboard.html')
+
+    @app.route('/questions')
+    def serve_questions():
+        return send_from_directory(frontend_dir, 'questions.html')
+
+    @app.route('/generate')
+    def serve_generate():
+        return send_from_directory(frontend_dir, 'generate.html')
+
     return app 

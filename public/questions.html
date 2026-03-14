@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QPGen — Question Bank</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --black: #080808;
+            --deep: #0e0e0e;
+            --surface: #141414;
+            --card: #1a1a1a;
+            --border: rgba(255, 255, 255, 0.07);
+            --border-strong: rgba(255, 255, 255, 0.12);
+            --gold: #c9a84c;
+            --gold-light: #e2c07a;
+            --gold-dim: rgba(201, 168, 76, 0.12);
+            --white: #f5f0e8;
+            --muted: #5a5a5a;
+            --text: #b8b3a8;
+            --sw: 220px;
+        }
+
+        [data-theme="light"] {
+            --black: #f5f2ed;
+            --deep: #ebe7e0;
+            --surface: #ffffff;
+            --card: #f8f6f2;
+            --border: rgba(0, 0, 0, 0.08);
+            --border-strong: rgba(0, 0, 0, 0.14);
+            --gold: #a0852e;
+            --gold-light: #8a7226;
+            --gold-dim: rgba(160, 133, 46, 0.1);
+            --white: #1a1816;
+            --muted: #8a8580;
+            --text: #3d3a36;
+        }
+
+        [data-theme="light"] body::after {
+            opacity: 0.06;
+        }
+
+        html,
+        body {
+            height: 100%;
+            background: var(--black);
+            color: var(--white);
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: var(--sw);
+            background: var(--deep);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            z-index: 50;
+            padding: 32px 20px;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 48px;
+            padding: 0 4px;
+        }
+
+        .logo-mark {
+            width: 34px;
+            height: 34px;
+            border: 1px solid var(--gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Playfair Display', serif;
+            font-size: 1em;
+            color: var(--gold);
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .logo-mark::before {
+            content: '';
+            position: absolute;
+            inset: 3px;
+            background: var(--gold-dim);
+        }
+
+        .logo-text {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.75em;
+            letter-spacing: 3px;
+            color: var(--muted);
+            text-transform: uppercase;
+        }
+
+        .nav-section {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.6em;
+            letter-spacing: 3px;
+            color: var(--muted);
+            text-transform: uppercase;
+            padding: 0 8px;
+            margin-bottom: 10px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 10px;
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.85em;
+            font-weight: 500;
+            transition: all 0.3s;
+            border-left: 2px solid transparent;
+            margin-bottom: 2px;
+        }
+
+        .nav-item:hover {
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .nav-item.active {
+            color: var(--gold);
+            border-left-color: var(--gold);
+            background: var(--gold-dim);
+        }
+
+        .nav-icon {
+            width: 18px;
+            text-align: center;
+            font-size: 0.9em;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            border-top: 1px solid var(--border);
+            padding-top: 20px;
+        }
+
+        .user-tile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+        }
+
+        .user-tile:hover {
+            background: rgba(255, 255, 255, 0.03);
+            border-color: var(--border);
+        }
+
+        .avatar {
+            width: 34px;
+            height: 34px;
+            background: var(--gold-dim);
+            border: 1px solid rgba(201, 168, 76, 0.3);
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Playfair Display', serif;
+            font-size: 0.85em;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .user-name {
+            font-size: 0.8em;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .user-sub {
+            font-size: 0.68em;
+            color: var(--muted);
+        }
+
+        .main {
+            margin-left: var(--sw);
+            flex: 1;
+        }
+
+        .page-banner {
+            background: var(--deep);
+            border-bottom: 1px solid var(--border);
+            padding: 56px 60px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-banner::before {
+            content: '';
+            position: absolute;
+            width: 500px;
+            height: 400px;
+            background: radial-gradient(ellipse, rgba(201, 168, 76, 0.07) 0%, transparent 60%);
+            top: -150px;
+            right: -100px;
+        }
+
+        .banner-kicker {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.68em;
+            letter-spacing: 3px;
+            color: var(--gold);
+            text-transform: uppercase;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .banner-kicker::before {
+            content: '';
+            width: 24px;
+            height: 1px;
+            background: var(--gold);
+        }
+
+        .banner-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3em;
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: -1.5px;
+            color: var(--white);
+            margin-bottom: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .banner-title em {
+            font-style: italic;
+            color: var(--gold);
+        }
+
+        .banner-sub {
+            color: var(--muted);
+            font-size: 0.85em;
+            position: relative;
+            z-index: 1;
+        }
+
+        .banner-deco {
+            position: absolute;
+            right: 60px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-family: 'Playfair Display', serif;
+            font-size: 12em;
+            font-style: italic;
+            color: rgba(201, 168, 76, 0.04);
+            line-height: 1;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        .content {
+            padding: 40px 60px;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-select {
+            padding: 9px 14px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-family: 'DM Mono', monospace;
+            font-size: 0.68em;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            appearance: none;
+            padding-right: 28px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%235a5a5a' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+        }
+
+        .filter-select:focus {
+            border-color: var(--gold);
+            color: var(--white);
+        }
+
+        .btn-add {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.65em;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 10px 20px;
+            background: var(--gold);
+            color: var(--black);
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-add:hover {
+            background: var(--gold-light);
+            transform: translateY(-1px);
+        }
+
+        .table-container {
+            border: 1px solid var(--border);
+            background: var(--surface);
+        }
+
+        .table-header {
+            display: grid;
+            grid-template-columns: 2.2fr 1fr 1fr 1fr 80px 70px;
+            padding: 16px 28px;
+            background: var(--deep);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .th-cell {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.6em;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .table-row {
+            display: grid;
+            grid-template-columns: 2.2fr 1fr 1fr 1fr 80px 70px;
+            padding: 20px 28px;
+            border-bottom: 1px solid var(--border);
+            align-items: center;
+            transition: background 0.2s;
+        }
+
+        .table-row:last-child {
+            border-bottom: none;
+        }
+
+        .table-row:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .q-text {
+            font-size: 0.85em;
+            color: var(--text);
+            font-weight: 400;
+            line-height: 1.6;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.6em;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            border: 1px solid;
+        }
+
+        .b-remember {
+            border-color: rgba(201, 168, 76, 0.5);
+            color: var(--gold);
+        }
+
+        .b-understand {
+            border-color: rgba(100, 150, 220, 0.5);
+            color: #7090cc;
+        }
+
+        .b-apply {
+            border-color: rgba(100, 200, 130, 0.5);
+            color: #64c882;
+        }
+
+        .b-analyze {
+            border-color: rgba(220, 180, 80, 0.5);
+            color: #dcb450;
+        }
+
+        .b-evaluate {
+            border-color: rgba(220, 100, 100, 0.5);
+            color: #dc6464;
+        }
+
+        .b-create {
+            border-color: rgba(200, 100, 180, 0.5);
+            color: #c864b4;
+        }
+
+        .b-easy {
+            border-color: rgba(100, 200, 130, 0.5);
+            color: #64c882;
+        }
+
+        .b-medium {
+            border-color: rgba(220, 180, 80, 0.5);
+            color: #dcb450;
+        }
+
+        .b-hard {
+            border-color: rgba(220, 100, 100, 0.5);
+            color: #dc6464;
+        }
+
+        .marks-cell {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1em;
+            color: var(--gold);
+            font-style: italic;
+        }
+
+        .btn-del {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.6em;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 6px 10px;
+            background: transparent;
+            border: 1px solid rgba(220, 50, 50, 0.3);
+            color: rgba(220, 100, 100, 0.7);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-del:hover {
+            background: rgba(220, 50, 50, 0.1);
+            border-color: rgba(220, 50, 50, 0.5);
+            color: #dc6464;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 64px 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .empty-icon {
+            font-family: 'Playfair Display', serif;
+            font-size: 4em;
+            font-style: italic;
+            color: rgba(201, 168, 76, 0.1);
+        }
+
+        .empty-text {
+            font-size: 0.82em;
+            color: var(--muted);
+        }
+
+        /* Modal */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            backdrop-filter: blur(4px);
+        }
+
+        .overlay.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal {
+            background: var(--surface);
+            border: 1px solid var(--border-strong);
+            width: 100%;
+            max-width: 580px;
+            padding: 0;
+            transform: translateY(20px);
+            transition: transform 0.3s;
+        }
+
+        .overlay.open .modal {
+            transform: translateY(0);
+        }
+
+        .m-head {
+            padding: 28px 36px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--deep);
+        }
+
+        .m-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3em;
+            font-weight: 700;
+            color: var(--white);
+        }
+
+        .m-close {
+            background: transparent;
+            border: 1px solid var(--border);
+            width: 30px;
+            height: 30px;
+            color: var(--muted);
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .m-close:hover {
+            border-color: var(--border-strong);
+            color: var(--white);
+        }
+
+        .m-body {
+            padding: 32px 36px;
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        .form-group label {
+            display: block;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.62em;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 10px;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--white);
+            padding: 12px 16px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.88em;
+            outline: none;
+            transition: all 0.3s;
+            resize: vertical;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 1px rgba(201, 168, 76, 0.15);
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: var(--muted);
+        }
+
+        .form-group select option {
+            background: var(--card);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .msg-bar {
+            padding: 12px 16px;
+            font-size: 0.8em;
+            margin-bottom: 20px;
+            display: none;
+            border-left: 3px solid;
+            font-weight: 500;
+        }
+
+        .msg-bar.error {
+            background: rgba(220, 38, 38, 0.08);
+            border-color: #dc2626;
+            color: #fca5a5;
+        }
+
+        .msg-bar.success {
+            background: rgba(201, 168, 76, 0.08);
+            border-color: var(--gold);
+            color: var(--gold-light);
+        }
+
+        .m-footer {
+            padding: 20px 36px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            background: var(--deep);
+        }
+
+        .btn-cancel {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.65em;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 10px 20px;
+            background: transparent;
+            border: 1px solid var(--border-strong);
+            color: var(--muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-cancel:hover {
+            color: var(--white);
+        }
+
+        .btn-save {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.65em;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 10px 24px;
+            background: var(--gold);
+            color: var(--black);
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-save:hover {
+            background: var(--gold-light);
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .content {
+            animation: fadeUp 0.5s 0.1s ease both;
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            width: 100%;
+            padding: 10px;
+            margin-top: 12px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--gold);
+            font-size: 0.8em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s;
+            font-family: 'DM Mono', monospace;
+            letter-spacing: 1px;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--gold);
+            background: var(--gold-dim);
+        }
+
+        .theme-toggle-icon {
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-mark">Q</div>
+                <div class="logo-text">QPGen</div>
+            </div>
+            <div class="nav-section">Workspace</div>
+            <a class="nav-item" href="dashboard.html"><span class="nav-icon">◈</span> Dashboard</a>
+            <a class="nav-item active" href="questions.html"><span class="nav-icon">◉</span> Question Bank</a>
+            <a class="nav-item" href="generate.html"><span class="nav-icon">◎</span> Generate Paper</a>
+            <div class="sidebar-bottom">
+                <div class="user-tile" onclick="logout()">
+                    <div class="avatar" id="av">N</div>
+                    <div>
+                        <div class="user-name" id="uName">User</div>
+                        <div class="user-sub">Sign out</div>
+                    </div>
+                </div>
+                <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle theme">
+                    <span class="theme-toggle-icon">☀</span>
+                </button>
+            </div>
+        </aside>
+
+        <main class="main">
+            <div class="page-banner">
+                <div class="banner-kicker">Repository</div>
+                <h1 class="banner-title">Question <em>Bank.</em></h1>
+                <p class="banner-sub">Browse, filter and manage your full question repository</p>
+                <div class="banner-deco">◉</div>
+            </div>
+
+            <div class="content">
+                <div class="toolbar">
+                    <div class="filter-group">
+                        <select class="filter-select" id="fSubject" onchange="loadQ()">
+                            <option value="">All Subjects</option>
+                        </select>
+                        <select class="filter-select" id="fBlooms" onchange="loadQ()">
+                            <option value="">All Bloom's</option>
+                            <option value="remember">Remember</option>
+                            <option value="understand">Understand</option>
+                            <option value="apply">Apply</option>
+                            <option value="analyze">Analyze</option>
+                            <option value="evaluate">Evaluate</option>
+                            <option value="create">Create</option>
+                        </select>
+                        <select class="filter-select" id="fDiff" onchange="loadQ()">
+                            <option value="">All Difficulties</option>
+                            <option value="easy">Easy</option>
+                            <option value="medium">Medium</option>
+                            <option value="hard">Hard</option>
+                        </select>
+                    </div>
+                    <button class="btn-add" onclick="openModal()">+ Add Question</button>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <div class="th-cell">Question</div>
+                        <div class="th-cell">Bloom's</div>
+                        <div class="th-cell">Difficulty</div>
+                        <div class="th-cell">Type</div>
+                        <div class="th-cell">Marks</div>
+                        <div class="th-cell"></div>
+                    </div>
+                    <div id="qList">
+                        <div class="empty-state">
+                            <div class="empty-icon">—</div>
+                            <div class="empty-text">Loading questions...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal -->
+    <div class="overlay" id="overlay" onclick="handleOverlay(event)">
+        <div class="modal">
+            <div class="m-head">
+                <div class="m-title">Add New Question</div>
+                <button class="m-close" onclick="closeModal()">✕</button>
+            </div>
+            <div class="m-body">
+                <div class="msg-bar error" id="mErr"></div>
+                <div class="msg-bar success" id="mSuc"></div>
+                <div class="form-group">
+                    <label>Question Text</label>
+                    <textarea id="qText" rows="3" placeholder="Enter your question..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Subject</label>
+                        <select id="qSub"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Question Type</label>
+                        <select id="qType">
+                            <option value="short">Short Answer</option>
+                            <option value="long">Long Answer</option>
+                            <option value="mcq">MCQ</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Bloom's Level</label>
+                        <select id="qBlooms">
+                            <option value="remember">Remember</option>
+                            <option value="understand">Understand</option>
+                            <option value="apply">Apply</option>
+                            <option value="analyze">Analyze</option>
+                            <option value="evaluate">Evaluate</option>
+                            <option value="create">Create</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Difficulty</label>
+                        <select id="qDiff">
+                            <option value="easy">Easy</option>
+                            <option value="medium">Medium</option>
+                            <option value="hard">Hard</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Marks</label>
+                        <input type="number" id="qMarks" placeholder="5" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Answer (optional)</label>
+                        <input type="text" id="qAns" placeholder="Correct answer...">
+                    </div>
+                </div>
+            </div>
+            <div class="m-footer">
+                <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+                <button class="btn-save" onclick="addQ()" id="addBtn">Save Question</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = '/api';
+        const token = localStorage.getItem('token');
+        if (!token) window.location.href = 'index.html';
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        document.getElementById('uName').textContent = user.username || 'User';
+        document.getElementById('av').textContent = (user.username || 'U')[0].toUpperCase();
+        const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+        const bloomBadge = { remember: 'b-remember', understand: 'b-understand', apply: 'b-apply', analyze: 'b-analyze', evaluate: 'b-evaluate', create: 'b-create' };
+        const diffBadge = { easy: 'b-easy', medium: 'b-medium', hard: 'b-hard' };
+
+        async function loadSubjects() {
+            const res = await fetch(`${API}/subjects/`, { headers });
+            const data = await res.json();
+            (data.subjects || []).forEach(s => {
+                document.getElementById('fSubject').innerHTML += `<option value="${s.id}">${s.name}</option>`;
+                document.getElementById('qSub').innerHTML += `<option value="${s.id}">${s.name}</option>`;
+            });
+        }
+
+        async function loadQ() {
+            let url = `${API}/questions/?`;
+            const s = document.getElementById('fSubject').value;
+            const b = document.getElementById('fBlooms').value;
+            const d = document.getElementById('fDiff').value;
+            if (s) url += `subject_id=${s}&`;
+            if (b) url += `blooms_level=${b}&`;
+            if (d) url += `difficulty=${d}&`;
+            const res = await fetch(url, { headers });
+            const data = await res.json();
+            const qs = data.questions || [];
+            const el = document.getElementById('qList');
+            if (!qs.length) {
+                el.innerHTML = `<div class="empty-state"><div class="empty-icon">—</div><div class="empty-text">No questions found.</div></div>`;
+                return;
+            }
+            el.innerHTML = qs.map(q => `
+            <div class="table-row">
+                <div class="q-text">${q.text}</div>
+                <div><span class="badge ${bloomBadge[q.blooms_level] || ''}">${q.blooms_level}</span></div>
+                <div><span class="badge ${diffBadge[q.difficulty] || ''}">${q.difficulty}</span></div>
+                <div style="font-family:'DM Mono',monospace;font-size:0.68em;letter-spacing:1px;color:var(--muted);text-transform:uppercase">${q.question_type}</div>
+                <div class="marks-cell">${q.marks}</div>
+                <div><button class="btn-del" onclick="delQ(${q.id})">Del</button></div>
+            </div>`).join('');
+        }
+
+        async function delQ(id) {
+            if (!confirm('Delete this question?')) return;
+            await fetch(`${API}/questions/${id}`, { method: 'DELETE', headers });
+            loadQ();
+        }
+
+        function openModal() { document.getElementById('overlay').classList.add('open'); }
+        function closeModal() { document.getElementById('overlay').classList.remove('open'); document.getElementById('mErr').style.display = 'none'; document.getElementById('mSuc').style.display = 'none'; }
+        function handleOverlay(e) { if (e.target === document.getElementById('overlay')) closeModal(); }
+
+        async function addQ() {
+            const text = document.getElementById('qText').value.trim();
+            const subject_id = document.getElementById('qSub').value;
+            const question_type = document.getElementById('qType').value;
+            const blooms_level = document.getElementById('qBlooms').value;
+            const difficulty = document.getElementById('qDiff').value;
+            const marks = parseInt(document.getElementById('qMarks').value);
+            const correct_answer = document.getElementById('qAns').value.trim();
+            const err = document.getElementById('mErr'), suc = document.getElementById('mSuc');
+            if (!text || !subject_id || !marks) { err.textContent = 'Fill in all required fields.'; err.style.display = 'block'; return; }
+            const btn = document.getElementById('addBtn');
+            btn.textContent = 'Saving...'; btn.disabled = true;
+            try {
+                const res = await fetch(`${API}/questions/`, { method: 'POST', headers, body: JSON.stringify({ text, subject_id: parseInt(subject_id), question_type, blooms_level, difficulty, marks, correct_answer }) });
+                const data = await res.json();
+                if (!res.ok) { err.textContent = data.error || 'Failed.'; err.style.display = 'block'; return; }
+                suc.textContent = '✓ Question added successfully.'; suc.style.display = 'block'; err.style.display = 'none';
+                document.getElementById('qText').value = ''; document.getElementById('qMarks').value = ''; document.getElementById('qAns').value = '';
+                setTimeout(() => { closeModal(); loadQ(); }, 900);
+            } catch { err.textContent = 'Server error.'; err.style.display = 'block'; }
+            finally { btn.textContent = 'Save Question'; btn.disabled = false; }
+        }
+
+        function logout() { localStorage.clear(); window.location.href = 'index.html'; }
+        loadSubjects(); loadQ();
+    </script>
+    <script src="theme.js"></script>
+</body>
+
+</html>

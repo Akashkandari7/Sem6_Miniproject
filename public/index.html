@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QPGen — Question Paper Generator</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --black: #080808;
+            --deep: #0e0e0e;
+            --surface: #141414;
+            --card: #1a1a1a;
+            --border: rgba(255, 255, 255, 0.08);
+            --gold: #c9a84c;
+            --gold-light: #e2c07a;
+            --gold-dim: rgba(201, 168, 76, 0.15);
+            --white: #f5f0e8;
+            --muted: #6b6b6b;
+            --text: #d4cfc5;
+        }
+
+        [data-theme="light"] {
+            --black: #f5f2ed;
+            --deep: #ebe7e0;
+            --surface: #ffffff;
+            --card: #f8f6f2;
+            --border: rgba(0, 0, 0, 0.1);
+            --gold: #a0852e;
+            --gold-light: #8a7226;
+            --gold-dim: rgba(160, 133, 46, 0.1);
+            --white: #1a1816;
+            --muted: #8a8580;
+            --text: #3d3a36;
+        }
+
+        [data-theme="light"] body::before {
+            opacity: 0.08;
+        }
+
+        html,
+        body {
+            height: 100%;
+            background: var(--black);
+            color: var(--white);
+            font-family: 'DM Sans', sans-serif;
+            overflow: hidden;
+        }
+
+        /* Grain overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.4;
+        }
+
+        .page {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            height: 100vh;
+        }
+
+        /* LEFT PANEL */
+        .left {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 56px;
+            background: var(--deep);
+            border-right: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .left::before {
+            content: '';
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(201, 168, 76, 0.12) 0%, transparent 65%);
+            top: -200px;
+            left: -200px;
+            pointer-events: none;
+        }
+
+        .left::after {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(201, 168, 76, 0.06) 0%, transparent 65%);
+            bottom: -100px;
+            right: -100px;
+            pointer-events: none;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo-mark {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1em;
+            color: var(--gold);
+            letter-spacing: -1px;
+            position: relative;
+        }
+
+        .logo-mark::before {
+            content: '';
+            position: absolute;
+            inset: 3px;
+            background: var(--gold-dim);
+        }
+
+        .logo-name {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.9em;
+            letter-spacing: 3px;
+            color: var(--muted);
+            text-transform: uppercase;
+        }
+
+        .hero-text {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-tag {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.7em;
+            letter-spacing: 3px;
+            color: var(--gold);
+            text-transform: uppercase;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .hero-tag::before {
+            content: '';
+            width: 32px;
+            height: 1px;
+            background: var(--gold);
+        }
+
+        .hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 4.2em;
+            font-weight: 900;
+            line-height: 0.95;
+            letter-spacing: -2px;
+            color: var(--white);
+            margin-bottom: 24px;
+        }
+
+        .hero-title em {
+            font-style: italic;
+            color: var(--gold);
+        }
+
+        .hero-sub {
+            font-size: 0.95em;
+            color: var(--muted);
+            line-height: 1.7;
+            max-width: 360px;
+            font-weight: 300;
+        }
+
+        .hero-bottom {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .stat-val {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--white);
+            line-height: 1;
+        }
+
+        .stat-lbl {
+            font-size: 0.7em;
+            color: var(--muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .stat-div {
+            width: 1px;
+            height: 40px;
+            background: var(--border);
+        }
+
+        /* RIGHT PANEL */
+        .right {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--black);
+            padding: 56px;
+        }
+
+        .auth-box {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .auth-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--white);
+            margin-bottom: 8px;
+        }
+
+        .auth-sub {
+            font-size: 0.85em;
+            color: var(--muted);
+            margin-bottom: 40px;
+        }
+
+        .tab-row {
+            display: flex;
+            gap: 0;
+            margin-bottom: 32px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            font-size: 0.85em;
+            font-weight: 600;
+            color: var(--muted);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            transition: all 0.3s;
+            letter-spacing: 0.5px;
+        }
+
+        .tab.active {
+            color: var(--gold);
+            border-color: var(--gold);
+        }
+
+        .form-panel {
+            display: none;
+        }
+
+        .form-panel.active {
+            display: block;
+        }
+
+        .field {
+            margin-bottom: 20px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 0.7em;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 10px;
+        }
+
+        .field input {
+            width: 100%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--white);
+            padding: 14px 18px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9em;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .field input:focus {
+            border-color: var(--gold);
+            background: var(--card);
+            box-shadow: 0 0 0 1px rgba(201, 168, 76, 0.2);
+        }
+
+        .field input::placeholder {
+            color: var(--muted);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 16px;
+            background: var(--gold);
+            color: var(--black);
+            border: none;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 700;
+            font-size: 0.9em;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 8px;
+        }
+
+        .btn-submit:hover {
+            background: var(--gold-light);
+            transform: translateY(-1px);
+        }
+
+        .msg {
+            padding: 12px 16px;
+            font-size: 0.8em;
+            margin-bottom: 20px;
+            display: none;
+            font-weight: 500;
+            border-left: 3px solid;
+        }
+
+        .msg.error {
+            background: rgba(220, 38, 38, 0.1);
+            border-color: #dc2626;
+            color: #fca5a5;
+        }
+
+        .msg.success {
+            background: rgba(201, 168, 76, 0.1);
+            border-color: var(--gold);
+            color: var(--gold-light);
+        }
+
+        /* Decorative element */
+        .corner-deco {
+            position: absolute;
+            bottom: 56px;
+            right: 56px;
+            font-family: 'Playfair Display', serif;
+            font-size: 18em;
+            font-style: italic;
+            color: rgba(201, 168, 76, 0.04);
+            line-height: 1;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 100;
+            width: 42px;
+            height: 42px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--gold);
+            font-size: 1.2em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--gold);
+            background: var(--gold-dim);
+            transform: scale(1.08);
+        }
+
+        /* Animations */
+        @keyframes fadeSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(24px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            animation: fadeSlideUp 0.6s ease both;
+        }
+
+        .hero-tag {
+            animation: fadeSlideUp 0.6s 0.1s ease both;
+        }
+
+        .hero-title {
+            animation: fadeSlideUp 0.7s 0.2s ease both;
+        }
+
+        .hero-sub {
+            animation: fadeSlideUp 0.6s 0.3s ease both;
+        }
+
+        .hero-bottom {
+            animation: fadeSlideUp 0.6s 0.4s ease both;
+        }
+
+        .auth-box {
+            animation: fadeSlideUp 0.7s 0.3s ease both;
+        }
+    </style>
+</head>
+
+<body>
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle theme">☀</button>
+    <div class="page">
+        <div class="left">
+            <div class="logo">
+                <div class="logo-mark">Q</div>
+                <div class="logo-name">QPGen</div>
+            </div>
+
+            <div class="hero-text">
+                <div class="hero-tag">AI-Powered Assessment</div>
+                <h1 class="hero-title">Craft<br><em>Exams</em><br>With Intent.</h1>
+                <p class="hero-sub">Generate question papers aligned with Bloom's Taxonomy. Smart selection, precise
+                    distribution, effortless output.</p>
+            </div>
+
+            <div class="hero-bottom">
+                <div class="stat">
+                    <div class="stat-val">6</div>
+                    <div class="stat-lbl">Bloom's Levels</div>
+                </div>
+                <div class="stat-div"></div>
+                <div class="stat">
+                    <div class="stat-val">3</div>
+                    <div class="stat-lbl">Difficulty Tiers</div>
+                </div>
+                <div class="stat-div"></div>
+                <div class="stat">
+                    <div class="stat-val">AI</div>
+                    <div class="stat-lbl">Smart Select</div>
+                </div>
+            </div>
+
+            <div class="corner-deco">Q</div>
+        </div>
+
+        <div class="right">
+            <div class="auth-box">
+                <h2 class="auth-title">Welcome back</h2>
+                <p class="auth-sub">Sign in to your workspace</p>
+
+                <div class="tab-row">
+                    <div class="tab active" onclick="setTab('login')">Sign In</div>
+                    <div class="tab" onclick="setTab('register')">Register</div>
+                </div>
+
+                <!-- Login Form -->
+                <div class="form-panel active" id="loginPanel">
+                    <div class="msg error" id="lErr"></div>
+                    <div class="field">
+                        <label>Email</label>
+                        <input type="email" id="lEmail" placeholder="you@university.edu">
+                    </div>
+                    <div class="field">
+                        <label>Password</label>
+                        <input type="password" id="lPass" placeholder="••••••••">
+                    </div>
+                    <button class="btn-submit" onclick="login()">Enter →</button>
+                </div>
+
+                <!-- Register Form -->
+                <div class="form-panel" id="regPanel">
+                    <div class="msg error" id="rErr"></div>
+                    <div class="msg success" id="rSuc"></div>
+                    <div class="field">
+                        <label>Username</label>
+                        <input type="text" id="rUser" placeholder="prof_sharma">
+                    </div>
+                    <div class="field">
+                        <label>Email</label>
+                        <input type="email" id="rEmail" placeholder="you@university.edu">
+                    </div>
+                    <div class="field">
+                        <label>Password</label>
+                        <input type="password" id="rPass" placeholder="••••••••">
+                    </div>
+                    <button class="btn-submit" onclick="register()">Create Account →</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = '/api';
+
+        function setTab(t) {
+            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.form-panel').forEach(el => el.classList.remove('active'));
+            document.querySelector(`.tab[onclick="setTab('${t}')"]`).classList.add('active');
+            document.getElementById(t === 'login' ? 'loginPanel' : 'regPanel').classList.add('active');
+        }
+
+        async function login() {
+            const email = document.getElementById('lEmail').value.trim();
+            const password = document.getElementById('lPass').value;
+            const err = document.getElementById('lErr');
+            if (!email || !password) { err.textContent = 'Please fill in all fields.'; err.style.display = 'block'; return; }
+            try {
+                const res = await fetch(`${API}/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
+                const data = await res.json();
+                if (!res.ok) { err.textContent = data.error || 'Login failed.'; err.style.display = 'block'; return; }
+                localStorage.setItem('token', data.access_token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                window.location.href = 'dashboard.html';
+            } catch { err.textContent = 'Cannot reach server.'; err.style.display = 'block'; }
+        }
+
+        async function register() {
+            const username = document.getElementById('rUser').value.trim();
+            const email = document.getElementById('rEmail').value.trim();
+            const password = document.getElementById('rPass').value;
+            const err = document.getElementById('rErr'), suc = document.getElementById('rSuc');
+            if (!username || !email || !password) { err.textContent = 'All fields required.'; err.style.display = 'block'; return; }
+            try {
+                const res = await fetch(`${API}/auth/register`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, email, password }) });
+                const data = await res.json();
+                if (!res.ok) { err.textContent = data.error || 'Registration failed.'; err.style.display = 'block'; return; }
+                suc.textContent = 'Account created! Sign in now.'; suc.style.display = 'block'; err.style.display = 'none';
+                setTimeout(() => setTab('login'), 1200);
+            } catch { err.textContent = 'Cannot reach server.'; err.style.display = 'block'; }
+        }
+
+        document.addEventListener('keydown', e => { if (e.key === 'Enter') { if (document.getElementById('loginPanel').classList.contains('active')) login(); else register(); } });
+
+        if (localStorage.getItem('token')) window.location.href = 'dashboard.html';
+    </script>
+    <script src="theme.js"></script>
+</body>
+
+</html>

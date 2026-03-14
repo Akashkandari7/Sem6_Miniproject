@@ -1,23 +1,15 @@
 {
+  "version": 2,
   "builds": [
     {
-      "src": "backend/app.py",
+      "src": "api/index.py",
       "use": "@vercel/python"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "backend/app.py"
-    },
-    {
-      "src": "/(.*\\.(html|css|js|ico|png|jpg|svg))",
-      "dest": "frontend/$1"
-    },
-    {
-      "src": "/",
-      "dest": "frontend/index.html"
+      "dest": "/api/index.py"
     }
-  ],
-  "outputDirectory": "."
+  ]
 }

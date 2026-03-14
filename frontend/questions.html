@@ -847,11 +847,21 @@
         document.getElementById('av').textContent = (user.username || 'U')[0].toUpperCase();
         const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
 
+        function handleUnauthorized(res) {
+            if (res.status === 401 || res.status === 422) {
+                localStorage.clear();
+                window.location.href = 'index.html';
+                return true;
+            }
+            return false;
+        }
+
         const bloomBadge = { remember: 'b-remember', understand: 'b-understand', apply: 'b-apply', analyze: 'b-analyze', evaluate: 'b-evaluate', create: 'b-create' };
         const diffBadge = { easy: 'b-easy', medium: 'b-medium', hard: 'b-hard' };
 
         async function loadSubjects() {
             const res = await fetch(`${API}/subjects/`, { headers });
+            if (handleUnauthorized(res)) return;
             const data = await res.json();
             (data.subjects || []).forEach(s => {
                 document.getElementById('fSubject').innerHTML += `<option value="${s.id}">${s.name}</option>`;
@@ -868,6 +878,7 @@
             if (b) url += `blooms_level=${b}&`;
             if (d) url += `difficulty=${d}&`;
             const res = await fetch(url, { headers });
+            if (handleUnauthorized(res)) return;
             const data = await res.json();
             const qs = data.questions || [];
             const el = document.getElementById('qList');

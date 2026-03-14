@@ -863,6 +863,15 @@
         document.getElementById('av').textContent = (user.username || 'U')[0].toUpperCase();
         const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
 
+        function handleUnauthorized(res) {
+            if (res.status === 401 || res.status === 422) {
+                localStorage.clear();
+                window.location.href = 'index.html';
+                return true;
+            }
+            return false;
+        }
+
         const bloomsList = [
             { key: 'remember', label: 'Remember', def: 20 },
             { key: 'understand', label: 'Understand', def: 30 },
@@ -919,6 +928,7 @@
 
         async function loadSubjects() {
             const res = await fetch(`${API}/subjects/`, { headers });
+            if (handleUnauthorized(res)) return;
             const data = await res.json();
             (data.subjects || []).forEach(s => {
                 document.getElementById('subject').innerHTML += `<option value="${s.id}">${s.name} (${s.code})</option>`;

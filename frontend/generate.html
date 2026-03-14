@@ -821,6 +821,10 @@
                             <input type="number" id="marks" placeholder="100" min="1">
                         </div>
                         <div class="form-group">
+                            <label>Number of Questions</label>
+                            <input type="number" id="numQ" placeholder="e.g. 10" min="1" max="100">
+                        </div>
+                        <div class="form-group">
                             <label>Duration (minutes)</label>
                             <input type="number" id="dur" placeholder="180" min="1">
                         </div>
@@ -909,6 +913,15 @@
         document.getElementById('av').textContent = (user.username || 'U')[0].toUpperCase();
         const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
 
+        function handleUnauthorized(res) {
+            if (res.status === 401 || res.status === 422) {
+                localStorage.clear();
+                window.location.href = 'index.html';
+                return true;
+            }
+            return false;
+        }
+
         const bloomsList = [
             { key: 'remember', label: 'Remember', def: 20 },
             { key: 'understand', label: 'Understand', def: 30 },
@@ -965,6 +978,7 @@
 
         async function loadSubjects() {
             const res = await fetch(`${API}/subjects/`, { headers });
+            if (handleUnauthorized(res)) return;
             const data = await res.json();
             (data.subjects || []).forEach(s => {
                 document.getElementById('subject').innerHTML += `<option value="${s.id}">${s.name} (${s.code})</option>`;
@@ -975,11 +989,12 @@
             const title = document.getElementById('title').value.trim();
             const subject_id = document.getElementById('subject').value;
             const totalMarks = parseInt(document.getElementById('marks').value);
+            const numQ = parseInt(document.getElementById('numQ').value);
             const duration = parseInt(document.getElementById('dur').value);
             const qtype = document.getElementById('qtype').value;
             const err = document.getElementById('errMsg'), suc = document.getElementById('sucMsg');
 
-            if (!title || !subject_id || !totalMarks || !duration) {
+            if (!title || !subject_id || !totalMarks || !numQ || !duration) {
                 err.textContent = '⚠ Fill in all paper details before generating.';
                 err.style.display = 'block'; suc.style.display = 'none'; return;
             }
@@ -1001,7 +1016,7 @@
             try {
                 const res = await fetch(`${API}/papers/generate`, {
                     method: 'POST', headers,
-                    body: JSON.stringify({ title, subject_id: parseInt(subject_id), total_marks: totalMarks, duration_minutes: duration, config: { blooms_distribution, difficulty_distribution, question_type: qtype } })
+                    body: JSON.stringify({ title, subject_id: parseInt(subject_id), total_marks: totalMarks, duration_minutes: duration, config: { blooms_distribution, difficulty_distribution, question_type: qtype, num_questions: numQ } })
                 });
                 const data = await res.json();
                 if (!res.ok) { err.textContent = '⚠ ' + (data.error || 'Generation failed.'); err.style.display = 'block'; return; }

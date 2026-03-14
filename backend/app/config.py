@@ -7,7 +7,7 @@ load_dotenv()
 class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'fallback-secret-key')
     JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'fallback-jwt-key')
-    JWT_ACCESS_TOKEN_EXPIRES = timedelta(seconds=int(os.getenv('JWT_ACCESS_TOKEN_EXPIRES', 3600)))
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(seconds=int(os.getenv('JWT_ACCESS_TOKEN_EXPIRES', 28800)))
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     APP_NAME = os.getenv('APP_NAME', 'QuestionPaperGen')
 

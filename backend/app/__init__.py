@@ -13,7 +13,9 @@ def create_app(config_name='default'):
     Calling create_app('testing') gives a test app, 
     create_app('production') gives prod app. Same code, different behavior.
     """
-    app = Flask(__name__)
+    # Point Flask at the frontend folder for static HTML serving
+    frontend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'frontend'))
+    app = Flask(__name__, static_folder=frontend_dir, static_url_path='')
     
     # Load config
     app.config.from_object(config[config_name])

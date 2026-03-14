@@ -844,6 +844,15 @@
         document.getElementById('av').textContent = username[0].toUpperCase();
         const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
 
+        function handleUnauthorized(res) {
+            if (res.status === 401 || res.status === 422) {
+                localStorage.clear();
+                window.location.href = 'index.html';
+                return true;
+            }
+            return false;
+        }
+
         const bColors = { remember: '#c9a84c', understand: '#9a8a5a', apply: '#7a9a6a', analyze: '#6a8a9a', evaluate: '#8a6a9a', create: '#9a6a7a' };
 
         async function load() {
@@ -853,6 +862,7 @@
                     fetch(`${API}/subjects/`, { headers }),
                     fetch(`${API}/papers/`, { headers })
                 ]);
+                if (handleUnauthorized(qR)) return;
                 const qD = await qR.json(), sD = await sR.json(), pD = await pR.json();
                 document.getElementById('sQ').textContent = qD.count ?? 0;
                 document.getElementById('sS').textContent = sD.count ?? 0;

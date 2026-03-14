@@ -3,6 +3,9 @@ from flask import Flask, send_from_directory
 from app.config import config
 from app.extensions import db, migrate, jwt, cors, ma
 
+# Path to frontend directory (one level up from backend)
+FRONTEND_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '..', 'frontend')
+
 
 def create_app(config_name='default'):
     """
@@ -39,23 +42,14 @@ def create_app(config_name='default'):
     @app.route('/api/health')
     def health():
         return {'status': 'ok', 'message': 'Server is running'}
-
-    # Serve frontend HTML pages
+    
+    # Serve frontend HTML files
     @app.route('/')
-    @app.route('/index')
     def serve_index():
-        return send_from_directory(frontend_dir, 'index.html')
-
-    @app.route('/dashboard')
-    def serve_dashboard():
-        return send_from_directory(frontend_dir, 'dashboard.html')
-
-    @app.route('/questions')
-    def serve_questions():
-        return send_from_directory(frontend_dir, 'questions.html')
-
-    @app.route('/generate')
-    def serve_generate():
-        return send_from_directory(frontend_dir, 'generate.html')
-
+        return send_from_directory(FRONTEND_DIR, 'index.html')
+    
+    @app.route('/<path:filename>')
+    def serve_frontend(filename):
+        return send_from_directory(FRONTEND_DIR, filename)
+    
     return app 

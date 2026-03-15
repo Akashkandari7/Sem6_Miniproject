@@ -55,6 +55,109 @@
             filter: contrast(120%) brightness(110%);
         }
 
+        /* AI Sidebar Styles */
+        .ai-sidebar {
+            position: fixed;
+            right: -420px;
+            top: 20px;
+            bottom: 20px;
+            width: 400px;
+            background: var(--deep);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border-left: 1px solid var(--border);
+            z-index: 1000;
+            transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+            box-shadow: -20px 0 50px rgba(0,0,0,0.1);
+            border-radius: 24px 0 0 24px;
+        }
+
+        .ai-sidebar.open {
+            transform: translateX(-420px);
+        }
+
+        .ai-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ai-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8em;
+            font-style: italic;
+            color: var(--gold);
+        }
+
+        .ai-close {
+            background: none;
+            border: none;
+            color: var(--muted);
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .ai-close:hover { color: var(--gold); }
+
+        .ai-preview {
+            background: var(--surface);
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px dashed var(--border-strong);
+            font-size: 0.9em;
+            line-height: 1.6;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .btn-ai-gen {
+            background: linear-gradient(135deg, var(--gold) 0%, #ad8d3a 100%);
+            color: #fff;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+            box-shadow: 0 10px 20px var(--gold-glow);
+        }
+
+        .btn-ai-gen:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .btn-ai-nav {
+            background: var(--gold-dim);
+            color: var(--gold);
+            border: 1px solid var(--gold-glow);
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-ai-nav:hover { background: var(--gold-glow); }
+
+        .loading-dots:after {
+            content: ' .';
+            animation: dots 1s steps(5, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: ' .'; }
+            40% { content: ' ..'; }
+            60% { content: ' ...'; }
+            80%, 100% { content: ''; }
+        }
+
         [data-theme="light"] .sidebar,
         [data-theme="light"] .header {
             backdrop-filter: blur(20px) saturate(180%);
@@ -835,7 +938,10 @@
                             <option value="hard">Hard</option>
                         </select>
                     </div>
-                    <button class="btn-add" onclick="openModal()">+ Add Question</button>
+                    <div class="header-actions" style="display:flex;gap:12px">
+                        <button class="btn-ai-nav" onclick="toggleAI()">🪄 AI Assistant</button>
+                        <button class="btn-add" onclick="openModal()">+ Add Question</button>
+                    </div>
                 </div>
 
                 <div class="table-container">
@@ -924,6 +1030,60 @@
             </div>
         </div>
     </div>
+    <!-- AI Sidebar -->
+    <div class="ai-sidebar" id="aiSidebar">
+        <div class="ai-head">
+            <div class="ai-title">AI Assistant</div>
+            <button class="ai-close" onclick="toggleAI()">✕</button>
+        </div>
+        <div class="ai-body" style="display:flex;flex-direction:column;gap:20px">
+            <p style="font-size:0.85em;color:var(--muted)">Enter a topic and AI will craft a question for your bank.</p>
+            
+            <div class="form-group">
+                <label>Target Topic</label>
+                <input type="text" id="aiTopic" placeholder="e.g. Memory Management, Recursion">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Subject</label>
+                    <select id="aiSub"></select>
+                </div>
+                <div class="form-group">
+                    <label>Type</label>
+                    <select id="aiType">
+                        <option value="mcq">MCQ</option>
+                        <option value="short">Short</option>
+                        <option value="long">Long</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Difficulty</label>
+                    <select id="aiDiff">
+                        <option value="easy">Easy</option>
+                        <option value="medium">Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Marks</label>
+                    <input type="number" id="aiMarks" value="1" min="1">
+                </div>
+            </div>
+
+            <button class="btn-ai-gen" id="genBtn" onclick="generateAI()">Generate Question</button>
+
+            <div class="ai-preview" id="aiPreview">
+                <div style="font-size:0.7em;text-transform:uppercase;color:var(--gold);margin-bottom:8px">Preview</div>
+                <div id="aiText" style="margin-bottom:12px;font-weight:500"></div>
+                <div id="aiOptions" style="font-size:0.85em;color:var(--muted);margin-bottom:16px"></div>
+                <button class="btn-save" style="width:100%" onclick="saveAI()">Add to Bank</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         const API = 'http://127.0.0.1:5000/api';
@@ -943,6 +1103,7 @@
             (data.subjects || []).forEach(s => {
                 document.getElementById('fSubject').innerHTML += `<option value="${s.id}">${s.name}</option>`;
                 document.getElementById('qSub').innerHTML += `<option value="${s.id}">${s.name}</option>`;
+                document.getElementById('aiSub').innerHTML += `<option value="${s.id}">${s.name}</option>`;
             });
         }
 
@@ -997,6 +1158,73 @@
         function openModal() { document.getElementById('overlay').classList.add('open'); }
         function closeModal() { document.getElementById('overlay').classList.remove('open'); document.getElementById('mErr').style.display = 'none'; document.getElementById('mSuc').style.display = 'none'; }
         function handleOverlay(e) { if (e.target === document.getElementById('overlay')) closeModal(); }
+
+        function toggleAI() { document.getElementById('aiSidebar').classList.toggle('open'); document.getElementById('aiPreview').style.display = 'none'; }
+
+        let currentAIQ = null;
+
+        async function generateAI() {
+            const topic = document.getElementById('aiTopic').value.trim();
+            const subject_id = document.getElementById('aiSub').value;
+            const question_type = document.getElementById('aiType').value;
+            const difficulty = document.getElementById('aiDiff').value;
+            const marks = document.getElementById('aiMarks').value;
+            const btn = document.getElementById('genBtn');
+
+            if (!topic) { alert('Please enter a topic'); return; }
+
+            btn.disabled = true;
+            btn.innerHTML = 'Generating<span class="loading-dots"></span>';
+            
+            try {
+                const res = await fetch(`${API}/questions/generate-ai`, {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify({ subject_id, topic, question_type, difficulty, marks })
+                });
+                const data = await res.json();
+                
+                if (data.error) throw new Error(data.error);
+
+                currentAIQ = data.question;
+                displayAI(currentAIQ);
+            } catch (err) {
+                alert(err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Generate Question';
+            }
+        }
+
+        function displayAI(q) {
+            const pre = document.getElementById('aiPreview');
+            pre.style.display = 'block';
+            document.getElementById('aiText').textContent = q.text;
+            let optHtml = '';
+            if (q.question_type === 'mcq') {
+                optHtml = `A: ${q.option_a}<br>B: ${q.option_b}<br>C: ${q.option_c}<br>D: ${q.option_d}<br><b>Correct: ${q.correct_answer}</b>`;
+            } else {
+                optHtml = `<b>Answer Ref:</b> ${q.correct_answer}`;
+            }
+            document.getElementById('aiOptions').innerHTML = optHtml;
+        }
+
+        async function saveAI() {
+            if (!currentAIQ) return;
+            const res = await fetch(`${API}/questions/`, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify(currentAIQ)
+            });
+            const data = await res.json();
+            if (data.message) {
+                alert('Saved to bank!');
+                toggleAI();
+                loadQ();
+            } else {
+                alert(data.error || 'Save failed');
+            }
+        }
 
         async function addQ() {
             const text = document.getElementById('qText').value.trim();

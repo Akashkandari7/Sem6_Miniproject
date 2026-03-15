@@ -1,3 +1,4 @@
+import os
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.extensions import db
@@ -120,6 +121,49 @@ def update_question(question_id):
         'message': 'Question updated successfully',
         'question': question.to_dict()
     }), 200
+
+
+@questions_bp.route('/generate-ai', methods=['POST'])
+@jwt_required()
+def generate_ai_question():
+    """Generate a question using AI and return it (without saving yet)"""
+    data = request.get_json()
+    user_id = get_jwt_identity()
+
+    subject_id = data.get('subject_id')
+    topic = data.get('topic')
+    question_type = data.get('question_type', 'mcq')
+    difficulty = data.get('difficulty', 'medium')
+    marks = data.get('marks', 1)
+    
+    # Optional API key from headers or request body if user wants to provide it dynamically
+    api_key = data.get('api_key') or request.headers.get('X-Gemini-API-Key') or os.getenv("GOOGLE_API_KEY")
+
+    if not subject_id or not topic:
+        return jsonify({'error': 'subject_id and topic are required'}), 400
+
+    subject = Subject.query.get(subject_id)
+    if not subject:
+        return jsonify({'error': 'Subject not found'}), 404
+
+    from app.services.ai_service import AIService
+    try:
+        ai_service = AIService(api_key=api_key)
+        generated_question = ai_service.generate_question(
+            subject_name=subject.name,
+            topic=topic,
+            question_type=question_type,
+            difficulty=difficulty,
+            marks=marks
+        )
+        return jsonify({
+            'message': 'AI question generated successfully',
+            'question': generated_question
+        }), 200
+    except ValueError as ve:
+        return jsonify({'error': str(ve)}), 400
+    except Exception as e:
+        return jsonify({'error': f'AI generation failed: {str(e)}'}), 500
 
 
 @questions_bp.route('/<int:question_id>', methods=['DELETE'])

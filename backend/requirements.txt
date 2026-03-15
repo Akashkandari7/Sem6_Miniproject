@@ -31,5 +31,8 @@ Flask-CORS==4.0.0
 reportlab==4.0.7
 python-docx==1.1.0
 
+# AI Generation
+google-generativeai==0.8.3
+
 # Dev Tools
 pytest==7.4.3

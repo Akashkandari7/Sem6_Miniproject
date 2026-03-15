@@ -35,19 +35,38 @@
 
         [data-theme="light"] {
             --black: #ffffff;
-            --deep: #f9f7f2;
+            --deep: rgba(249, 247, 242, 0.85);
             --surface: #ffffff;
-            --card: #faf9f6;
-            --card-hover: #f2efe9;
-            --border: rgba(0, 0, 0, 0.05);
-            --border-strong: rgba(0, 0, 0, 0.1);
-            --gold: #b19440;
-            --gold-light: #d4bc7d;
-            --gold-dim: rgba(177, 148, 64, 0.08);
-            --gold-glow: rgba(177, 148, 64, 0.15);
-            --white: #121212;
-            --muted: #88837d;
-            --text: #4a463e;
+            --card: #ffffff;
+            --card-hover: #f9f8f4;
+            --border: rgba(177, 148, 64, 0.08);
+            --border-strong: rgba(177, 148, 64, 0.15);
+            --gold: #ad8d3a;
+            --gold-light: #c5a65c;
+            --gold-dim: rgba(173, 141, 58, 0.04);
+            --gold-glow: rgba(173, 141, 58, 0.1);
+            --white: #121210;
+            --muted: #8c8880;
+            --text: #4d4a44;
+        }
+
+        [data-theme="light"] body::after {
+            opacity: 0.04;
+            filter: contrast(120%) brightness(110%);
+        }
+
+        [data-theme="light"] .sidebar,
+        [data-theme="light"] .header {
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+        }
+
+        [data-theme="light"] .config-panel,
+        [data-theme="light"] .preview-panel {
+            box-shadow: 
+                0 4px 6px -1px rgba(0, 0, 0, 0.02),
+                0 20px 25px -5px rgba(173, 141, 58, 0.03);
+            border: 1px solid var(--border);
         }
 
         [data-theme="light"] body::after {

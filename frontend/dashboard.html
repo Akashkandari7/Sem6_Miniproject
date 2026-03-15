@@ -37,23 +37,52 @@
 
         [data-theme="light"] {
             --black: #ffffff;
-            --deep: #f9f7f2;
+            --deep: rgba(249, 247, 242, 0.85); /* Glass Base */
             --surface: #ffffff;
-            --card: #faf9f6;
-            --card-hover: #f2efe9;
-            --border: rgba(0, 0, 0, 0.05);
-            --border-strong: rgba(0, 0, 0, 0.1);
-            --gold: #b19440;
-            --gold-light: #d4bc7d;
-            --gold-dim: rgba(177, 148, 64, 0.08);
-            --gold-glow: rgba(177, 148, 64, 0.15);
-            --white: #121212;
-            --muted: #88837d;
-            --text: #4a463e;
+            --card: #ffffff;
+            --card-hover: #f9f8f4;
+            --border: rgba(177, 148, 64, 0.08);
+            --border-strong: rgba(177, 148, 64, 0.15);
+            --gold: #ad8d3a;
+            --gold-light: #c5a65c;
+            --gold-dim: rgba(173, 141, 58, 0.04);
+            --gold-glow: rgba(173, 141, 58, 0.1);
+            --white: #121210;
+            --muted: #8c8880;
+            --text: #4d4a44;
         }
 
         [data-theme="light"] body::after {
-            opacity: 0.06;
+            opacity: 0.04;
+            filter: contrast(120%) brightness(110%);
+        }
+
+        /* Glassmorphism and Shadows for Masterpiece Light Mode */
+        [data-theme="light"] .sidebar,
+        [data-theme="light"] .masthead {
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+        }
+
+        [data-theme="light"] .stat-tile,
+        [data-theme="light"] .feature-card,
+        [data-theme="light"] .section-panel {
+            box-shadow: 
+                0 4px 6px -1px rgba(0, 0, 0, 0.02),
+                0 2px 4px -1px rgba(0, 0, 0, 0.01),
+                0 20px 25px -5px rgba(173, 141, 58, 0.03);
+            border: 1px solid var(--border);
+        }
+
+        [data-theme="light"] .feature-card:hover {
+            box-shadow: 
+                0 10px 15px -3px rgba(173, 141, 58, 0.08),
+                0 4px 6px -2px rgba(173, 141, 58, 0.04);
+            transform: translateY(-2px);
+        }
+
+        [data-theme="light"] .masthead {
+            background: linear-gradient(135deg, #ffffff 0%, #fcfbf8 40%, #f9f7f2 100%);
         }
 
         html,
@@ -407,7 +436,7 @@
             text-decoration: none;
             position: relative;
             overflow: hidden;
-            transition: all 0.4s;
+            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
             min-height: 220px;
             display: flex;
             flex-direction: column;

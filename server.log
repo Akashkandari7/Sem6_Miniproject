@@ -209,3 +209,7 @@ WHERE ? = paper_questions.paper_id AND questions.id = paper_questions.question_i
 2026-03-15 03:38:03,302 INFO sqlalchemy.engine.Engine [cached since 0.007218s ago] (4,)
 2026-03-15 03:38:03,303 INFO sqlalchemy.engine.Engine ROLLBACK
 127.0.0.1 - - [15/Mar/2026 03:38:03] "[35m[1mPOST /api/papers/generate HTTP/1.1[0m" 201 -
+/opt/anaconda3/lib/python3.13/multiprocessing/resource_tracker.py:324: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown: {'/mp-8jzy6uw2'}
+  warnings.warn(
+/opt/anaconda3/lib/python3.13/multiprocessing/resource_tracker.py:324: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown: {'/mp-cruprvvq'}
+  warnings.warn(

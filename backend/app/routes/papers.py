@@ -85,7 +85,7 @@ def create_paper():
     # Save paper to database
     paper = Paper(
         title=data['title'],
-        total_marks=data['total_marks'],
+        total_marks=result['total_marks_allocated'],
         duration_minutes=data['duration_minutes'],
         config=data['config'],
         subject_id=data['subject_id'],

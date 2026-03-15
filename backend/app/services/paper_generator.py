@@ -3,13 +3,10 @@ from app.models.question import Question
 
 def generate_paper(subject_id, total_marks, config):
     """
-    Smart question selection algorithm.
+    Smart question selection algorithm with two passes.
     
-    Selects questions based on:
-    - Bloom's taxonomy distribution
-    - Difficulty distribution
-    - Marks target
-    - Usage count (least used questions preferred)
+    1. Strict Pass: Select questions respecting Bloom's and Difficulty distributions.
+    2. Backfill Pass: Fill remaining marks by picking from the subject pool.
     """
 
     blooms_dist = config.get('blooms_distribution', {})
@@ -20,49 +17,61 @@ def generate_paper(subject_id, total_marks, config):
     used_ids = set()
     marks_allocated = 0
 
-    # Step 1: Select questions by Bloom's distribution
-    # blooms_dist = {"remember": 20, "apply": 50, ...} (values are % of total marks)
+    # Pass 1: Strict distribution-based selection
     for blooms_level, percentage in blooms_dist.items():
+        # Calculate marks target for this Bloom's level
+        target_marks_for_bloom = round((percentage / 100) * total_marks)
+        bloom_marks_allocated = 0
 
-        target_marks = round((percentage / 100) * total_marks)
-        level_marks = 0
-
-        # Build query for this bloom's level
-        query = Question.query.filter_by(
-            subject_id=subject_id,
-            blooms_level=blooms_level
-        )
-
-        # Filter by question type if not mixed
+        # Query pool for this Bloom's level
+        query = Question.query.filter_by(subject_id=subject_id, blooms_level=blooms_level)
         if question_type != 'mixed':
             query = query.filter_by(question_type=question_type)
+        
+        # Prefer least used
+        bloom_pool = query.order_by(Question.times_used.asc()).all()
 
-        # Prefer least used questions (avoids repetition)
-        questions = query.order_by(Question.times_used.asc()).all()
-
-        # Step 2: Apply difficulty distribution within each bloom's level
+        # Sub-distribution by difficulty within this Bloom's level
         for difficulty, diff_percentage in difficulty_dist.items():
-            diff_target = round((diff_percentage / 100) * target_marks)
-            diff_marks = 0
+            # Target for this specific (Bloom, Difficulty) bucket
+            target_for_bucket = round((diff_percentage / 100) * target_marks_for_bloom)
+            bucket_marks = 0
 
-            diff_questions = [
-                q for q in questions
-                if q.difficulty == difficulty and q.id not in used_ids
-            ]
+            bucket_pool = [q for q in bloom_pool if q.difficulty == difficulty and q.id not in used_ids]
 
-            for q in diff_questions:
-                if diff_marks + q.marks <= diff_target:
+            for q in bucket_pool:
+                # If adding this question keeps us within bucket limit (with some flexibility for large mark questions)
+                if marks_allocated + q.marks <= total_marks and bucket_marks + q.marks <= target_for_bucket:
                     selected_questions.append(q)
                     used_ids.add(q.id)
-                    diff_marks += q.marks
-                    level_marks += q.marks
+                    bucket_marks += q.marks
+                    bloom_marks_allocated += q.marks
                     marks_allocated += q.marks
+
+    # Pass 2: Backfill Pass (if we are under total_marks)
+    if marks_allocated < total_marks:
+        # Get all remaining questions for this subject, sorted by usage and marks
+        remaining_pool = Question.query.filter_by(subject_id=subject_id)\
+            .filter(~Question.id.in_(used_ids))\
+            .order_by(Question.times_used.asc(), Question.marks.desc()).all()
+
+        if question_type != 'mixed':
+            remaining_pool = [q for q in remaining_pool if q.question_type == question_type]
+
+        for q in remaining_pool:
+            if marks_allocated + q.marks <= total_marks:
+                selected_questions.append(q)
+                used_ids.add(q.id)
+                marks_allocated += q.marks
+            
+            if marks_allocated == total_marks:
+                break
 
     # Step 3: Validate we got enough questions
     if not selected_questions:
         return {
             'success': False,
-            'message': 'Not enough questions in the bank. Please add more questions first.'
+            'message': 'Not enough questions in the bank matching your criteria.'
         }
 
     # Step 4: Sort questions — easy to hard, then by bloom's level
@@ -70,8 +79,8 @@ def generate_paper(subject_id, total_marks, config):
     difficulty_order = ['easy', 'medium', 'hard']
 
     selected_questions.sort(key=lambda q: (
-        blooms_order.index(q.blooms_level),
-        difficulty_order.index(q.difficulty)
+        blooms_order.index(q.blooms_level) if q.blooms_level in blooms_order else 99,
+        difficulty_order.index(q.difficulty) if q.difficulty in difficulty_order else 99
     ))
 
     return {

@@ -14,7 +14,8 @@ class Config:
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:///qpgen.db')
+    # Explicitly use instance/qpgen.db to avoid confusion with top-level dummy files
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:///instance/qpgen.db')
     SQLALCHEMY_ECHO = True
 
 

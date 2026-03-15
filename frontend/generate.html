@@ -1158,24 +1158,42 @@
                 err.style.display = 'block'; suc.style.display = 'none'; return;
             }
 
-            const bt = getTotal(bloomsList), dt = getTotal(diffList);
-            if (bt !== 100) { err.textContent = `⚠ Bloom's distribution must total 100% (currently ${bt}%)`; err.style.display = 'block'; return; }
-            if (dt !== 100) { err.textContent = `⚠ Difficulty distribution must total 100% (currently ${dt}%)`; err.style.display = 'block'; return; }
-
-            const blooms_distribution = {};
-            bloomsList.forEach(i => { const v = parseInt(document.getElementById(`sl_${i.key}`).value); if (v > 0) blooms_distribution[i.key] = v; });
-            const difficulty_distribution = {};
-            diffList.forEach(i => { const v = parseInt(document.getElementById(`sl_${i.key}`).value); if (v > 0) difficulty_distribution[i.key] = v; });
-
             const btn = document.getElementById('genBtn');
             btn.innerHTML = '<span style="display:inline-block;animation:spin 1s linear infinite">◎</span> Generating...';
             btn.disabled = true;
             err.style.display = 'none'; suc.style.display = 'none';
 
+            let config = { question_type: qtype };
+            
+            if (isManualMode) {
+                const total = calcManualTotal();
+                if (total !== totalMarks) {
+                    err.textContent = `⚠ Manual question total (${total} marks) does not match Paper Total (${totalMarks} marks).`;
+                    err.style.display = 'block';
+                    btn.innerHTML = '<span>◎</span> Generate Paper Now'; btn.disabled = false;
+                    return;
+                }
+                config.custom_distribution = {
+                    1: parseInt(document.getElementById('m1').value || 0),
+                    3: parseInt(document.getElementById('m3').value || 0),
+                    5: parseInt(document.getElementById('m5').value || 0),
+                    10: parseInt(document.getElementById('m10').value || 0)
+                };
+            } else {
+                const bt = getTotal(bloomsList), dt = getTotal(diffList);
+                if (bt !== 100) { err.textContent = `⚠ Bloom's distribution must total 100% (currently ${bt}%)`; err.style.display = 'block'; btn.innerHTML = '<span>◎</span> Generate Paper Now'; btn.disabled = false; return; }
+                if (dt !== 100) { err.textContent = `⚠ Difficulty distribution must total 100% (currently ${dt}%)`; err.style.display = 'block'; btn.innerHTML = '<span>◎</span> Generate Paper Now'; btn.disabled = false; return; }
+
+                config.blooms_distribution = {};
+                bloomsList.forEach(i => { const v = parseInt(document.getElementById(`sl_${i.key}`).value); if (v > 0) config.blooms_distribution[i.key] = v; });
+                config.difficulty_distribution = {};
+                diffList.forEach(i => { const v = parseInt(document.getElementById(`sl_${i.key}`).value); if (v > 0) config.difficulty_distribution[i.key] = v; });
+            }
+
             try {
                 const res = await fetch(`${API}/papers/generate`, {
                     method: 'POST', headers,
-                    body: JSON.stringify({ title, subject_id: parseInt(subject_id), total_marks: totalMarks, duration_minutes: duration, config: { blooms_distribution, difficulty_distribution, question_type: qtype } })
+                    body: JSON.stringify({ title, subject_id: parseInt(subject_id), total_marks: totalMarks, duration_minutes: duration, config })
                 });
                 const data = await res.json();
                 if (!res.ok) { err.textContent = '⚠ ' + (data.error || 'Generation failed.'); err.style.display = 'block'; return; }

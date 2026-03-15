@@ -759,6 +759,108 @@
         .theme-toggle-icon {
             font-size: 1.1em;
         }
+        /* Mode Switch */
+        .mode-toggle-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding: 16px;
+            background: var(--card);
+            border: 1px solid var(--border);
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 22px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background-color: var(--surface);
+            transition: .4s;
+            border: 1px solid var(--border-strong);
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: var(--muted);
+            transition: .4s;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--gold-dim);
+            border-color: var(--gold);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(22px);
+            background-color: var(--gold);
+        }
+        
+        .mode-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.65em;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text);
+        }
+
+        .manual-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-top: 12px;
+        }
+
+        .m-input-group {
+            background: var(--card);
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+        }
+
+        .m-input-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.58em;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .m-input-field {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid var(--border);
+            color: var(--gold);
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3em;
+            font-style: italic;
+            font-weight: 700;
+            outline: none;
+            padding: 4px 0;
+        }
+
+        .m-input-field:focus {
+            border-color: var(--gold);
+        }
     </style>
 </head>
 
@@ -799,7 +901,45 @@
                 <div class="msg-bar error" id="errMsg"></div>
                 <div class="msg-bar success" id="sucMsg"></div>
 
-                <div class="two-col">
+                <div class="mode-toggle-wrap">
+                    <label class="switch">
+                        <input type="checkbox" id="modeSwitch" onchange="toggleMode()">
+                        <span class="slider"></span>
+                    </label>
+                    <span class="mode-label">Manual Structure Mode</span>
+                </div>
+
+                <!-- Manual Structure Panel -->
+                <div id="manualPanel" class="config-panel" style="display: none; margin-bottom: 24px;">
+                    <div class="panel-title">
+                        <span class="panel-title-num">00</span>
+                        Question Counts by Marks
+                    </div>
+                    <div class="manual-grid">
+                        <div class="m-input-group">
+                            <span class="m-input-label">1 Mark (MCQ)</span>
+                            <input type="number" class="m-input-field" id="m1" value="0" min="0" oninput="calcManualTotal()">
+                        </div>
+                        <div class="m-input-group">
+                            <span class="m-input-label">3 Marks (Short)</span>
+                            <input type="number" class="m-input-field" id="m3" value="0" min="0" oninput="calcManualTotal()">
+                        </div>
+                        <div class="m-input-group">
+                            <span class="m-input-label">5 Marks (Long)</span>
+                            <input type="number" class="m-input-field" id="m5" value="0" min="0" oninput="calcManualTotal()">
+                        </div>
+                        <div class="m-input-group">
+                            <span class="m-input-label">10 Marks (Major)</span>
+                            <input type="number" class="m-input-field" id="m10" value="0" min="0" oninput="calcManualTotal()">
+                        </div>
+                    </div>
+                    <div class="total-line">
+                        <span class="total-label">Calculated Marks Total</span>
+                        <span class="total-val err" id="mTotalDisplay">0</span>
+                    </div>
+                </div>
+
+                <div class="two-col" id="smartConfigArea">
                     <!-- LEFT: Paper Details -->
                     <div class="config-panel">
                         <div class="panel-title">
@@ -920,6 +1060,37 @@
             { key: 'evaluate', label: 'Evaluate', def: 5 },
             { key: 'create', label: 'Create', def: 5 },
         ];
+
+        let isManualMode = false;
+
+        function toggleMode() {
+            isManualMode = document.getElementById('modeSwitch').checked;
+            document.getElementById('manualPanel').style.display = isManualMode ? 'block' : 'none';
+            // Hide Bloom's and Difficulty sliders if manual mode is on (they aren't used)
+            const smartConfigs = document.querySelectorAll('.config-panel');
+            // Specifically targeting the distribution panels
+            document.getElementById('smartConfigArea').children[1].style.display = isManualMode ? 'none' : 'block';
+            calcManualTotal();
+        }
+
+        function calcManualTotal() {
+            const m1 = parseInt(document.getElementById('m1').value || 0);
+            const m3 = parseInt(document.getElementById('m3').value || 0);
+            const m5 = parseInt(document.getElementById('m5').value || 0);
+            const m10 = parseInt(document.getElementById('m10').value || 0);
+            const total = (m1 * 1) + (m3 * 3) + (m5 * 5) + (m10 * 10);
+            
+            const display = document.getElementById('mTotalDisplay');
+            display.textContent = total;
+            
+            const target = parseInt(document.getElementById('marks').value || 0);
+            if (total === target && target > 0) {
+                display.className = 'total-val ok';
+            } else {
+                display.className = 'total-val err';
+            }
+            return total;
+        }
 
         const diffList = [
             { key: 'easy', label: 'Easy', def: 30 },

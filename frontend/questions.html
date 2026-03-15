@@ -740,6 +740,22 @@
         .theme-toggle-icon {
             font-size: 1.1em;
         }
+        .subject-group-header {
+            background: var(--gold-dim);
+            padding: 12px 28px;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.7em;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--gold);
+            border-bottom: 1px solid var(--border);
+            border-top: 1px solid var(--border);
+            margin-top: 20px;
+        }
+        .subject-group-header:first-child {
+            margin-top: 0;
+            border-top: none;
+        }
     </style>
 </head>
 
@@ -925,15 +941,30 @@
                 el.innerHTML = `<div class="empty-state"><div class="empty-icon">—</div><div class="empty-text">No questions found.</div></div>`;
                 return;
             }
-            el.innerHTML = qs.map(q => `
-            <div class="table-row">
-                <div class="q-text">${q.text}</div>
-                <div><span class="badge ${bloomBadge[q.blooms_level] || ''}">${q.blooms_level}</span></div>
-                <div><span class="badge ${diffBadge[q.difficulty] || ''}">${q.difficulty}</span></div>
-                <div style="font-family:'DM Mono',monospace;font-size:0.68em;letter-spacing:1px;color:var(--muted);text-transform:uppercase">${q.question_type}</div>
-                <div class="marks-cell">${q.marks}</div>
-                <div><button class="btn-del" onclick="delQ(${q.id})">Del</button></div>
-            </div>`).join('');
+
+            // Group by subject
+            const groups = {};
+            qs.forEach(q => {
+                const sub = q.subject_name || 'Uncategorized';
+                if (!groups[sub]) groups[sub] = [];
+                groups[sub].push(q);
+            });
+
+            let html = '';
+            // Sort by subject name
+            Object.keys(groups).sort().forEach(sub => {
+                html += `<div class="subject-group-header">${sub}</div>`;
+                html += groups[sub].map(q => `
+                <div class="table-row">
+                    <div class="q-text">${q.text}</div>
+                    <div><span class="badge ${bloomBadge[q.blooms_level] || ''}">${q.blooms_level}</span></div>
+                    <div><span class="badge ${diffBadge[q.difficulty] || ''}">${q.difficulty}</span></div>
+                    <div style="font-family:'DM Mono',monospace;font-size:0.68em;letter-spacing:1px;color:var(--muted);text-transform:uppercase">${q.question_type}</div>
+                    <div class="marks-cell">${q.marks}</div>
+                    <div><button class="btn-del" onclick="delQ(${q.id})">Del</button></div>
+                </div>`).join('');
+            });
+            el.innerHTML = html;
         }
 
         async function delQ(id) {

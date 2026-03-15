@@ -51,6 +51,7 @@ class Question(db.Model):
             } if self.question_type == 'mcq' else None,
             'correct_answer': self.correct_answer,
             'subject_id': self.subject_id,
+            'subject_name': self.subject.name if self.subject else 'Uncategorized',
             'times_used': self.times_used,
             'created_at': self.created_at.isoformat()
         }

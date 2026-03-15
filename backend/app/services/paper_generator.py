@@ -10,25 +10,38 @@ def generate_paper(subject_id, total_marks, config):
     """
 
     custom_dist = config.get('custom_distribution') # e.g., {1: 20, 3: 10, 5: 10, 10: 10}
+    max_mcqs = config.get('max_mcqs') # e.g., 10
     
     selected_questions = []
     used_ids = set()
     marks_allocated = 0
+    mcq_count = 0
 
     # MODE 1: Custom Explicit Distribution
     if custom_dist:
         for marks, count in custom_dist.items():
             if count <= 0: continue
             
+            # Enforce MCQ limit in manual mode
+            actual_count = count
+            if int(marks) == 1 and max_mcqs is not None:
+                if count > max_mcqs:
+                    return {
+                        'success': False,
+                        'message': f'Manual structure exceeds MCQ limit: {count} requested, but max is {max_mcqs}.'
+                    }
+            
             # Query pool for this mark value
             query = Question.query.filter_by(subject_id=subject_id, marks=int(marks))
             # Prefer least used
-            pool = query.order_by(Question.times_used.asc()).limit(count).all()
+            pool = query.order_by(Question.times_used.asc()).limit(actual_count).all()
             
             for q in pool:
                 selected_questions.append(q)
                 used_ids.add(q.id)
                 marks_allocated += q.marks
+                if q.marks == 1:
+                    mcq_count += 1
                 
         # If we successfully allocated marks (doesn't have to be perfect if pool exhausted)
         # We skip Pass 1 & 2 if custom distribution was intended to be the full definition
@@ -57,12 +70,18 @@ def generate_paper(subject_id, total_marks, config):
                 bucket_pool = [q for q in bloom_pool if q.difficulty == difficulty and q.id not in used_ids]
 
                 for q in bucket_pool:
+                    # Check MCQ limit for 1-mark questions
+                    if q.marks == 1 and max_mcqs is not None and mcq_count >= max_mcqs:
+                        continue
+                        
                     if marks_allocated + q.marks <= total_marks and bucket_marks + q.marks <= target_for_bucket:
                         selected_questions.append(q)
                         used_ids.add(q.id)
                         bucket_marks += q.marks
                         bloom_marks_allocated += q.marks
                         marks_allocated += q.marks
+                        if q.marks == 1:
+                            mcq_count += 1
 
         # Pass 2: Backfill Pass (if we are under total_marks)
         if marks_allocated < total_marks:
@@ -74,13 +93,16 @@ def generate_paper(subject_id, total_marks, config):
                 remaining_pool = [q for q in remaining_pool if q.question_type == question_type]
 
             for q in remaining_pool:
+                # Check MCQ limit for 1-mark questions
+                if q.marks == 1 and max_mcqs is not None and mcq_count >= max_mcqs:
+                    continue
+                    
                 if marks_allocated + q.marks <= total_marks:
                     selected_questions.append(q)
                     used_ids.add(q.id)
                     marks_allocated += q.marks
-                
-                if marks_allocated == total_marks:
-                    break
+                    if q.marks == 1:
+                        mcq_count += 1
 
     # Finalization
     if not selected_questions:

@@ -973,6 +973,11 @@
                                 <option value="long">Long Answer Only</option>
                             </select>
                         </div>
+                        <div class="form-group">
+                            <label>Maximum MCQs Allowed</label>
+                            <input type="number" id="maxMcqs" placeholder="No limit" min="1">
+                            <span class="gen-hint" style="margin-top:4px">Limits 1-mark questions</span>
+                        </div>
                     </div>
 
                     <!-- RIGHT: Distributions -->
@@ -1084,11 +1089,21 @@
             display.textContent = total;
             
             const target = parseInt(document.getElementById('marks').value || 0);
-            if (total === target && target > 0) {
+            const limit = parseInt(document.getElementById('maxMcqs').value || 999);
+            
+            if (total === target && target > 0 && m1 <= limit) {
                 display.className = 'total-val ok';
             } else {
                 display.className = 'total-val err';
             }
+
+            if (m1 > limit) {
+                document.getElementById('errMsg').textContent = `⚠ MCQ count (${m1}) exceeds the set limit (${limit}).`;
+                document.getElementById('errMsg').style.display = 'block';
+            } else {
+                document.getElementById('errMsg').style.display = 'none';
+            }
+
             return total;
         }
 
@@ -1163,7 +1178,9 @@
             btn.disabled = true;
             err.style.display = 'none'; suc.style.display = 'none';
 
+            const limit = parseInt(document.getElementById('maxMcqs').value);
             let config = { question_type: qtype };
+            if (!isNaN(limit)) config.max_mcqs = limit;
             
             if (isManualMode) {
                 const total = calcManualTotal();

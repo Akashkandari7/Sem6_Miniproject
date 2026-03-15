@@ -98,7 +98,7 @@ def create_paper():
     # Link selected questions to paper
     for question in result['questions']:
         paper.questions.append(question)
-        question.times_used += 1  # track usage
+        question.times_used = (question.times_used or 0) + 1  # track usage
 
     db.session.commit()
 

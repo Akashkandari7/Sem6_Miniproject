@@ -832,7 +832,7 @@
     </div>
 
     <script>
-        const API = '/api';
+        const API = 'http://127.0.0.1:5000/api';
         const token = localStorage.getItem('token');
         if (!token) window.location.href = 'index.html';
         const user = JSON.parse(localStorage.getItem('user') || '{}');

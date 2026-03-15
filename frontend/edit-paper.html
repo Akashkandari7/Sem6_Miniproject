@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QPGen — Edit Paper</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --black: #080808; --deep: #0e0e0e; --surface: #141414; --card: #1a1a1a;
+            --border: rgba(255, 255, 255, 0.07); --border-strong: rgba(255, 255, 255, 0.12);
+            --gold: #c9a84c; --gold-light: #e2c07a; --gold-dim: rgba(201, 168, 76, 0.12);
+            --white: #f5f0e8; --muted: #5a5a5a; --text: #b8b3a8; --sw: 220px;
+        }
+        [data-theme="light"] {
+            --black: #f5f2ed; --deep: #ebe7e0; --surface: #ffffff; --card: #f8f6f2;
+            --border: rgba(0, 0, 0, 0.08); --border-strong: rgba(0, 0, 0, 0.14);
+            --gold: #a0852e; --gold-light: #8a7226; --gold-dim: rgba(160, 133, 46, 0.1);
+            --white: #1a1816; --muted: #8a8580; --text: #3d3a36;
+        }
+        html, body { background: var(--black); color: var(--white); font-family: 'DM Sans', sans-serif; }
+        body::after {
+            content: ''; position: fixed; inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 9999;
+        }
+        .layout { display: flex; min-height: 100vh; }
+        .sidebar { width: var(--sw); background: var(--deep); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 50; padding: 32px 20px; }
+        .sidebar-logo { display: flex; align-items: center; gap: 12px; margin-bottom: 48px; }
+        .logo-mark { width: 34px; height: 34px; border: 1px solid var(--gold); display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 1em; color: var(--gold); position: relative; }
+        .logo-text { font-family: 'DM Mono', monospace; font-size: 0.75em; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; }
+        .nav-section { font-family: 'DM Mono', monospace; font-size: 0.6em; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; margin-bottom: 10px; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 10px; color: var(--muted); text-decoration: none; font-size: 0.85em; font-weight: 500; transition: all 0.3s; border-left: 2px solid transparent; }
+        .nav-item:hover { color: var(--text); background: rgba(255, 255, 255, 0.03); }
+        .nav-item.active { color: var(--gold); border-left-color: var(--gold); background: var(--gold-dim); }
+        .nav-icon { width: 18px; text-align: center; }
+        .main { margin-left: var(--sw); flex: 1; }
+        .page-header { background: var(--deep); border-bottom: 1px solid var(--border); padding: 56px 60px; display: flex; justify-content: space-between; align-items: flex-end; }
+        .header-left { flex: 1; }
+        .header-kicker { font-family: 'DM Mono', monospace; font-size: 0.68em; letter-spacing: 3px; color: var(--gold); text-transform: uppercase; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
+        .header-kicker::before { content: ''; width: 24px; height: 1px; background: var(--gold); }
+        .header-title { font-family: 'Playfair Display', serif; font-size: 3em; font-weight: 900; line-height: 1; letter-spacing: -1.5px; color: var(--white); margin-bottom: 8px; }
+        .header-sub { color: var(--muted); font-size: 0.85em; }
+        .actions { display: flex; gap: 12px; }
+        .btn { padding: 12px 24px; font-family: 'DM Mono', monospace; font-size: 0.75em; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all 0.3s; border: 1px solid var(--border); background: var(--surface); color: var(--white); outline: none; }
+        .btn:hover { border-color: var(--gold); background: var(--gold-dim); color: var(--gold); }
+        .btn.primary { background: var(--gold); color: #000; border: none; font-weight: 700; }
+        .btn.primary:hover { background: var(--gold-light); color: #000; }
+
+        .content { padding: 48px 60px; max-width: 1200px; }
+        .paper-meta-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 48px; }
+        .meta-card { background: var(--surface); padding: 24px; border: 1px solid var(--border); }
+        .meta-label { font-family: 'DM Mono', monospace; font-size: 0.6em; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+        .meta-value { font-family: 'Playfair Display', serif; font-size: 1.8em; font-weight: 700; color: var(--white); }
+
+        .questions-list { display: flex; flex-direction: column; gap: 16px; }
+        .question-card { background: var(--surface); border: 1px solid var(--border); padding: 24px; position: relative; transition: all 0.3s; }
+        .question-card:hover { border-color: var(--border-strong); background: var(--card); }
+        .q-header { display: flex; justify-content: space-between; margin-bottom: 12px; align-items: flex-start; }
+        .q-num { font-family: 'DM Mono', monospace; font-size: 0.75em; color: var(--gold); }
+        .q-points { font-family: 'Playfair Display', serif; font-style: italic; font-size: 0.9em; color: var(--muted); }
+        .q-text { font-size: 1.05em; line-height: 1.6; color: var(--text); margin-bottom: 16px; }
+        .q-footer { display: flex; gap: 12px; border-top: 1px solid var(--border); padding-top: 16px; }
+        .q-tag { font-family: 'DM Mono', monospace; font-size: 0.6em; padding: 4px 8px; background: rgba(255, 255, 255, 0.05); color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+        .btn-remove { margin-left: auto; color: #dc2626; border-color: rgba(220, 38, 38, 0.2); }
+        .btn-remove:hover { background: rgba(220, 38, 38, 0.1); border-color: #dc2626; color: #dc2626; }
+
+        .add-q-section { margin-top: 32px; border: 2px dashed var(--border); padding: 32px; text-align: center; }
+        .btn-add { background: transparent; border: 1px solid var(--gold); color: var(--gold); padding: 12px 32px; font-family: 'DM Mono', monospace; font-size: 0.8em; text-transform: uppercase; cursor: pointer; transition: all 0.3s; }
+        .btn-add:hover { background: var(--gold-dim); transform: translateY(-2px); }
+
+        /* Modal Styles */
+        .modal { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); z-index: 100; display: none; align-items: center; justify-content: center; padding: 40px; }
+        .modal-content { background: var(--deep); border: 1px solid var(--border-strong); width: 100%; max-width: 900px; max-height: 100%; overflow-y: auto; position: relative; }
+        .modal-header { padding: 32px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .modal-body { padding: 32px; }
+        .search-row { margin-bottom: 24px; display: flex; gap: 12px; }
+        .search-input { flex: 1; background: var(--card); border: 1px solid var(--border); color: var(--white); padding: 12px; outline: none; }
+        .modal-q-list { display: flex; flex-direction: column; gap: 12px; }
+        .modal-q-item { background: var(--surface); padding: 20px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.3s; }
+        .modal-q-item:hover { border-color: var(--gold); }
+        .modal-q-info { flex: 1; }
+        .modal-q-text { font-size: 0.95em; color: var(--text); margin-bottom: 8px; }
+        .btn-select { padding: 6px 12px; font-size: 0.7em; }
+    </style>
+</head>
+
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-mark">Q</div>
+                <div class="logo-text">QPGen</div>
+            </div>
+            <div class="nav-section">Workspace</div>
+            <a class="nav-item" href="dashboard.html"><span class="nav-icon">◈</span> Dashboard</a>
+            <a class="nav-item" href="questions.html"><span class="nav-icon">◉</span> Question Bank</a>
+            <a class="nav-item" href="generate.html"><span class="nav-icon">◎</span> Generate Paper</a>
+            <div class="sidebar-bottom">
+                <div class="avatar" id="av">N</div>
+                <div class="user-name" id="uName">User</div>
+            </div>
+        </aside>
+
+        <main class="main">
+            <header class="page-header">
+                <div class="header-left">
+                    <div class="header-kicker">Customization</div>
+                    <h1 class="header-title" id="paperTitle">Edit <em>Paper.</em></h1>
+                    <p class="header-sub" id="paperSub">Modify questions to perfection.</p>
+                </div>
+                <div class="actions">
+                    <button class="btn" id="btnPdf" onclick="downloadPdf()">Download PDF</button>
+                    <button class="btn primary" id="btnSave" onclick="savePaper()">Save Changes</button>
+                </div>
+            </header>
+
+            <div class="content">
+                <div class="paper-meta-row">
+                    <div class="meta-card">
+                        <div class="meta-label">Total Marks</div>
+                        <div class="meta-value" id="metaMarks">—</div>
+                    </div>
+                    <div class="meta-card">
+                        <div class="meta-label">Questions</div>
+                        <div class="meta-value" id="metaCount">—</div>
+                    </div>
+                    <div class="meta-card">
+                        <div class="meta-label">Subject</div>
+                        <div class="meta-value" id="metaSubject">—</div>
+                    </div>
+                </div>
+
+                <div class="questions-list" id="qList">
+                    <!-- Questions will be loaded here -->
+                </div>
+
+                <div class="add-q-section">
+                    <button class="btn-add" onclick="openAddModal()">+ Add New Question</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Replacement/Add Modal -->
+    <div class="modal" id="qModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 style="font-family: 'Playfair Display', serif;">Select Question</h3>
+                <button class="btn" onclick="closeModal()">Close</button>
+            </div>
+            <div class="modal-body">
+                <div class="search-row">
+                    <input type="text" class="search-input" id="qSearch" placeholder="Search questions..." onkeyup="filterQuestions()">
+                </div>
+                <div class="modal-q-list" id="modalQList">
+                    <!-- Search results here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = 'http://127.0.0.1:5000/api';
+        const token = localStorage.getItem('token');
+        if (!token) window.location.href = 'index.html';
+        const params = new URLSearchParams(window.location.search);
+        const paperId = params.get('id');
+        if (!paperId) window.location.href = 'dashboard.html';
+
+        let currentPaper = null;
+        let allQuestions = []; // Pool for the subject
+        let paperQuestions = []; // Current questions in paper
+
+        const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+        async function init() {
+            try {
+                // Load paper details
+                const pResp = await fetch(`${API}/papers/${paperId}`, { headers });
+                const pData = await pResp.json();
+                currentPaper = pData.paper;
+                paperQuestions = pData.paper.questions;
+
+                // Load all questions for this subject for the "Add" pool
+                const qResp = await fetch(`${API}/questions/?subject_id=${currentPaper.subject_id}`, { headers });
+                const qData = await qResp.json();
+                allQuestions = qData.questions || [];
+
+                renderHeader();
+                renderQuestions();
+            } catch (e) {
+                console.error(e);
+                alert("Failed to load paper.");
+            }
+        }
+
+        function renderHeader() {
+            document.getElementById('paperTitle').innerHTML = `Edit <em>${currentPaper.title}</em>`;
+            document.getElementById('metaMarks').textContent = currentPaper.total_marks;
+            document.getElementById('metaCount').textContent = paperQuestions.length;
+            document.getElementById('metaSubject').textContent = currentPaper.subject ? currentPaper.subject.name : "N/A";
+        }
+
+        function renderQuestions() {
+            const list = document.getElementById('qList');
+            list.innerHTML = paperQuestions.map((q, i) => `
+                <div class="question-card" data-id="${q.id}">
+                    <div class="q-header">
+                        <div class="q-num">QUESTION ${i + 1}</div>
+                        <div class="q-points">${q.marks} pts</div>
+                    </div>
+                    <div class="q-text">${q.text}</div>
+                    <div class="q-footer">
+                        <div class="q-tag">${q.blooms_level}</div>
+                        <div class="q-tag">${q.difficulty}</div>
+                        <div class="q-tag">${q.question_type}</div>
+                        <button class="btn btn-remove" onclick="removeQuestion(${i})">Remove</button>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Update counts
+            document.getElementById('metaMarks').textContent = paperQuestions.reduce((sum, q) => sum + q.marks, 0);
+            document.getElementById('metaCount').textContent = paperQuestions.length;
+        }
+
+        function removeQuestion(index) {
+            paperQuestions.splice(index, 1);
+            renderQuestions();
+        }
+
+        function openAddModal() {
+            document.getElementById('qModal').style.display = 'flex';
+            filterQuestions();
+        }
+
+        function closeModal() {
+            document.getElementById('qModal').style.display = 'none';
+        }
+
+        function filterQuestions() {
+            const search = document.getElementById('qSearch').value.toLowerCase();
+            const filtered = allQuestions.filter(q => 
+                !paperQuestions.find(pq => pq.id === q.id) && 
+                q.text.toLowerCase().includes(search)
+            );
+
+            const list = document.getElementById('modalQList');
+            list.innerHTML = filtered.slice(0, 10).map(q => `
+                <div class="modal-q-item" onclick="addQuestion(${q.id})">
+                    <div class="modal-q-info">
+                        <div class="modal-q-text">${q.text}</div>
+                        <div style="display:flex;gap:8px">
+                            <div class="q-tag">${q.marks} pts</div>
+                            <div class="q-tag" style="background:var(--gold-dim)">${q.blooms_level}</div>
+                        </div>
+                    </div>
+                    <button class="btn primary btn-select">Add</button>
+                </div>
+            `).join('');
+        }
+
+        function addQuestion(id) {
+            const q = allQuestions.find(q => q.id === id);
+            if (q) {
+                paperQuestions.push(q);
+                renderQuestions();
+                closeModal();
+            }
+        }
+
+        async function savePaper() {
+            const btn = document.getElementById('btnSave');
+            btn.textContent = "Saving...";
+            btn.disabled = true;
+
+            try {
+                const resp = await fetch(`${API}/papers/${paperId}`, {
+                    method: 'PUT',
+                    headers,
+                    body: JSON.stringify({
+                        question_ids: paperQuestions.map(q => q.id)
+                    })
+                });
+                
+                if (resp.ok) {
+                    alert("Paper saved successfully!");
+                } else {
+                    alert("Failed to save paper.");
+                }
+            } catch (e) {
+                console.error(e);
+            } finally {
+                btn.textContent = "Save Changes";
+                btn.disabled = false;
+            }
+        }
+
+        function downloadPdf() {
+            window.open(`${API}/papers/${paperId}/pdf?token=${token}`, '_blank');
+        }
+
+        // We need a way to pass token for direct download if opened in new tab, 
+        // but typically it's better to fetch and create a blob URL, however 
+        // to simplify for and let Browser handle attachment:
+        // Updating endpoint logic slightly to check for token in query if needed, 
+        // OR simply using a hidden form/link.
+        
+        // Revised downloadPdf to handle auth
+        async function downloadPdf() {
+            const btn = document.getElementById('btnPdf');
+            btn.textContent = "Generating...";
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch(`${API}/papers/${paperId}/pdf`, { headers });
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${currentPaper.title.replace(/\s+/g, '_')}.pdf`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                } else {
+                    alert("Failed to generate PDF.");
+                }
+            } catch (e) {
+                console.error(e);
+            } finally {
+                btn.textContent = "Download PDF";
+                btn.disabled = false;
+            }
+        }
+
+        init();
+        
+        // Shared theme support
+        const username_val = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).username : 'User';
+        document.getElementById('uName').textContent = username_val;
+        document.getElementById('av').textContent = username_val[0].toUpperCase();
+    </script>
+    <script src="theme.js"></script>
+</body>
+
+</html>

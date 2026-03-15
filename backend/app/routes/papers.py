@@ -121,3 +121,47 @@ def delete_paper(paper_id):
     db.session.commit()
 
     return jsonify({'message': 'Paper deleted successfully'}), 200
+
+
+@papers_bp.route('/<int:paper_id>', methods=['PUT'])
+@jwt_required()
+def update_paper(paper_id):
+    """Update paper questions or details"""
+    paper = Paper.query.get_or_404(paper_id)
+    data = request.get_json()
+
+    if 'title' in data:
+        paper.title = data['title']
+    
+    if 'question_ids' in data:
+        # Replace questions
+        new_questions = Question.query.filter(Question.id.in_(data['question_ids'])).all()
+        # Ensure we maintain order if index is provided
+        id_map = {q.id: q for q in new_questions}
+        paper.questions = [id_map[qid] for qid in data['question_ids'] if qid in id_map]
+        paper.total_marks = sum(q.marks for q in paper.questions)
+
+    db.session.commit()
+    return jsonify({'message': 'Paper updated successfully', 'paper': paper.to_dict()}), 200
+
+
+@papers_bp.route('/<int:paper_id>/pdf', methods=['GET'])
+@jwt_required()
+def download_paper_pdf(paper_id):
+    """Generate and return PDF for a paper"""
+    from flask import send_file
+    from app.services.pdf_generator import generate_paper_pdf
+    
+    paper = Paper.query.get_or_404(paper_id)
+    paper_data = paper.to_dict()
+    paper_data['questions'] = [q.to_dict() for q in paper.questions]
+    paper_data['subject_name'] = paper.subject.name if paper.subject else "Examination"
+
+    pdf_buffer = generate_paper_pdf(paper_data)
+    
+    return send_file(
+        pdf_buffer,
+        mimetype='application/pdf',
+        as_attachment=True,
+        download_name=f"{paper.title.replace(' ', '_')}.pdf"
+    )

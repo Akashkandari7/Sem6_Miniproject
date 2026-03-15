@@ -862,13 +862,15 @@
                 document.getElementById('papersList').innerHTML = papers.length === 0
                     ? `<div class="empty-msg"><div class="empty-msg-icon">—</div><span>No papers yet. <a href="generate.html" style="color:var(--gold)">Generate one →</a></span></div>`
                     : papers.slice(0, 5).map((p, i) => `
-                <div class="paper-item">
+                <div class="paper-item" onclick="location.href='edit-paper.html?id=${p.id}'" style="cursor:pointer">
                     <div class="paper-num">${String(i + 1).padStart(2, '0')}</div>
                     <div class="paper-info">
                         <div class="paper-name">${p.title}</div>
                         <div class="paper-meta">${p.total_marks} marks · ${p.question_count} questions</div>
                     </div>
-                    <span class="p-badge ${p.status}">${p.status}</span>
+                    <div style="display:flex;gap:8px;align-items:center">
+                         <span class="p-badge draft" style="cursor:pointer">EDIT</span>
+                    </div>
                 </div>`).join('');
 
                 const qs = qD.questions || [];

@@ -873,12 +873,15 @@
 
                 <!-- Result -->
                 <div class="result-wrap" id="resultCard">
-                    <div class="result-header">
-                        <div>
-                            <div class="result-title" id="rTitle">—</div>
-                            <div class="result-sub" id="rSub">—</div>
+                    <div class="success-header">
+                        <div class="sh-left">
+                            <h2 class="sh-title" id="rTitle"></h2>
+                            <div class="sh-meta" id="rSub"></div>
                         </div>
-                        <div class="result-check">✓</div>
+                        <div class="actions" style="margin-left:auto; display:flex; gap:12px;">
+                            <button class="btn" style="background:var(--surface); color:var(--gold); border-color:var(--gold)" onclick="downloadPdf()">Download PDF</button>
+                            <div class="success-check">✓</div>
+                        </div>
                     </div>
                     <div class="result-stats">
                         <div class="rstat">
@@ -1041,6 +1044,26 @@
         const style = document.createElement('style');
         style.textContent = '@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }';
         document.head.appendChild(style);
+        async function downloadPdf() {
+            if (!currentPaper) return;
+            const btn = document.createElement('button'); // temp ref or use existing if any
+            
+            try {
+                const response = await fetch(`${API}/papers/${currentPaper.id}/pdf`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${currentPaper.title.replace(/\s+/g, '_')}.pdf`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                }
+            } catch (e) { console.error(e); }
+        }
     </script>
     <script src="theme.js"></script>
 </body>

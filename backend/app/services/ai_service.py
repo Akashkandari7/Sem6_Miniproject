@@ -8,7 +8,8 @@ class AIService:
         self.api_key = api_key or os.getenv("GOOGLE_API_KEY")
         if self.api_key:
             genai.configure(api_key=self.api_key)
-        self.model = genai.GenerativeModel('gemini-2.0-flash')
+        # Using gemini-flash-latest as it often has different quota or more availability
+        self.model = genai.GenerativeModel('gemini-flash-latest')
 
     def generate_question(self, subject_name, topic, question_type, difficulty, marks):
         """
@@ -44,13 +45,29 @@ class AIService:
 
         try:
             response = self.model.generate_content(prompt)
-            # Extract JSON from markdown if necessary
-            content = response.text
-            json_match = re.search(r'\{.*\}', content, re.DOTALL)
-            if json_match:
-                content = json_match.group(0)
+            if not response or not response.text:
+                raise ValueError("Empty response from Gemini AI.")
             
-            return json.loads(content)
+            content = response.text
+            # More robust JSON extraction - look for code blocks first, then try raw regex
+            json_str = ""
+            
+            # 1. Try to find content within ```json ... ``` or ``` ... ```
+            code_block_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', content, re.DOTALL)
+            if code_block_match:
+                json_str = code_block_match.group(1)
+            else:
+                # 2. Fallback to finding anything between curly braces
+                json_match = re.search(r'(\{.*\})', content, re.DOTALL)
+                if json_match:
+                    json_str = json_match.group(1)
+                else:
+                    json_str = content # Try raw content if no braces found (unlikely for valid JSON)
+
+            return json.loads(json_str)
+        except json.JSONDecodeError as je:
+            print(f"AI JSON Parse Error: {str(je)} | Content: {content}")
+            raise ValueError(f"AI returned invalid JSON format: {str(je)}")
         except Exception as e:
             print(f"AI Generation Error: {str(e)}")
             raise e

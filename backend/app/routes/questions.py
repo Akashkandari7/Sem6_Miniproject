@@ -156,6 +156,19 @@ def generate_ai_question():
             difficulty=difficulty,
             marks=marks
         )
+        # Ensure the generated object has all required fields for saving
+        # Merge AI output with metadata from the request to ensure consistency
+        if 'subject_id' not in generated_question:
+            generated_question['subject_id'] = subject_id
+        if 'question_type' not in generated_question:
+            generated_question['question_type'] = question_type
+        if 'difficulty' not in generated_question:
+            generated_question['difficulty'] = difficulty
+        if 'marks' not in generated_question:
+            generated_question['marks'] = marks
+        if 'blooms_level' not in generated_question:
+            generated_question['blooms_level'] = 'understand' # fallback
+
         return jsonify({
             'message': 'AI question generated successfully',
             'question': generated_question

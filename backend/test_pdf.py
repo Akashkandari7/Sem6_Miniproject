@@ -41,7 +41,9 @@ with app.app_context():
     
     # EXACT CODE FROM papers.py:
     paper_data['subject_name'] = paper.subject.name if paper.subject else "Examination"
+    paper_data['subject_code'] = paper.subject.code if paper.subject else ""
     print("paper_data['subject_name']:", paper_data['subject_name'])
+    print("paper_data['subject_code']:", paper_data['subject_code'])
     
     try:
         pdf_buffer = generate_paper_pdf(paper_data)

@@ -156,6 +156,7 @@ def download_paper_pdf(paper_id):
     paper_data = paper.to_dict()
     paper_data['questions'] = [q.to_dict() for q in paper.questions]
     paper_data['subject_name'] = paper.subject.name if paper.subject else "Examination"
+    paper_data['subject_code'] = paper.subject.code if paper.subject else ""
 
     pdf_buffer = generate_paper_pdf(paper_data)
     

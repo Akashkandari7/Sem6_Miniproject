@@ -46,6 +46,8 @@ class Paper(db.Model):
             'config': self.config,
             'status': self.status,
             'subject_id': self.subject_id,
+            'subject_name': self.subject.name if self.subject else None,
+            'subject_code': self.subject.code if self.subject else None,
             'created_by': self.created_by,
             'question_count': len(self.questions),
             'created_at': self.created_at.isoformat()

@@ -1087,6 +1087,7 @@
             { key: 'create', label: 'Create', def: 5 },
         ];
 
+        let currentPaper = null;
         let isManualMode = false;
 
         function toggleMode() {
@@ -1244,6 +1245,7 @@
         const bbMap = { remember: 'b-remember', understand: 'b-understand', apply: 'b-apply', analyze: 'b-analyze', evaluate: 'b-evaluate', create: 'b-create' };
 
         function showResult(p) {
+            currentPaper = p;
             const card = document.getElementById('resultCard');
             card.style.display = 'block';
             document.getElementById('rTitle').textContent = p.title;
@@ -1272,8 +1274,10 @@
         style.textContent = '@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }';
         document.head.appendChild(style);
         async function downloadPdf() {
-            if (!currentPaper) return;
-            const btn = document.createElement('button'); // temp ref or use existing if any
+            if (!currentPaper) {
+                alert('Please generate a paper first.');
+                return;
+            }
             
             try {
                 const response = await fetch(`${API}/papers/${currentPaper.id}/pdf`, {
@@ -1287,9 +1291,15 @@
                     a.download = `${currentPaper.title.replace(/\s+/g, '_')}.pdf`;
                     document.body.appendChild(a);
                     a.click();
+                    document.body.removeChild(a);
                     window.URL.revokeObjectURL(url);
+                } else {
+                    alert('Failed to generate PDF. Please try again.');
                 }
-            } catch (e) { console.error(e); }
+            } catch (e) {
+                console.error(e);
+                alert('Error downloading PDF. Check server connection.');
+            }
         }
     </script>
     <script src="theme.js"></script>

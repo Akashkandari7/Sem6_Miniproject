@@ -36,16 +36,41 @@ def create_app(config_name='default'):
     app.register_blueprint(papers_bp, url_prefix='/api/papers')
     app.register_blueprint(subjects_bp, url_prefix='/api/subjects')
     
-    # Auto-create tables and seed data (handles Vercel's ephemeral /tmp/)
+    # Auto-create tables and seed data ONLY for local/ephemeral SQLite databases.
+    # Running db.create_all() against a remote PostgreSQL DB on Vercel cold starts
+    # causes severe latency, function timeouts, and potential race conditions.
     with app.app_context():
         from app.models.question import Question
         from app.models.user import User
         from app.models.subject import Subject
-        db.create_all()
         
-        # Seed if DB is empty (cold start on Vercel)
-        if Subject.query.first() is None:
-            _seed_initial_data(db)
+        db_uri = app.config.get('SQLALCHEMY_DATABASE_URI', '')
+        if db_uri.startswith('sqlite://'):
+            db.create_all()
+            
+            # Seed if DB is empty (local or cold start on Vercel /tmp/ db)
+            if Subject.query.first() is None:
+                _seed_initial_data(db)
+
+    # Secure setup endpoint for initializing persistent production databases (Postgres, etc)
+    @app.route('/api/setup', methods=['GET', 'POST'])
+    def setup_db():
+        from flask import request, jsonify
+        from app.models.subject import Subject
+        
+        # Require SECRET_KEY as a security measure
+        secret = request.args.get('key')
+        if not secret or secret != app.config.get('SECRET_KEY'):
+            return jsonify({'error': 'Unauthorized', 'message': 'Invalid key. Pass ?key=<your_secret_key>'}), 401
+            
+        try:
+            db.create_all()
+            if Subject.query.first() is None:
+                _seed_initial_data(db)
+                return jsonify({'status': 'ok', 'message': 'Database tables created and seeded successfully.'})
+            return jsonify({'status': 'ok', 'message': 'Database tables created. Existing data found.'})
+        except Exception as e:
+            return jsonify({'error': 'Setup failed', 'details': str(e)}), 500
     
     # Health check route
     @app.route('/api/health')

@@ -101,6 +101,9 @@ def require_permission(permission_name: str):
                 return inactive
 
             if not user.has_permission(permission_name):
+                from app.services.audit_service import log_action
+                log_action('auth.permission_denied', status='failure',
+                           details={'required_permission': permission_name})
                 return jsonify({
                     'error': 'Forbidden',
                     'required_permission': permission_name,
@@ -140,6 +143,9 @@ def require_role(role_name: str):
                 return inactive
 
             if not user.has_role(role_name):
+                from app.services.audit_service import log_action
+                log_action('auth.permission_denied', status='failure',
+                           details={'required_role': role_name})
                 return jsonify({
                     'error': 'Forbidden',
                     'required_role': role_name,
@@ -181,6 +187,9 @@ def require_any_permission(*permission_names: str):
 
             user_perms = user.get_all_permissions()
             if not any(p in user_perms for p in permission_names):
+                from app.services.audit_service import log_action
+                log_action('auth.permission_denied', status='failure',
+                           details={'required_any_of': list(permission_names)})
                 return jsonify({
                     'error': 'Forbidden',
                     'required_any_of': list(permission_names),
@@ -223,6 +232,9 @@ def require_all_permissions(*permission_names: str):
             user_perms = user.get_all_permissions()
             missing = [p for p in permission_names if p not in user_perms]
             if missing:
+                from app.services.audit_service import log_action
+                log_action('auth.permission_denied', status='failure',
+                           details={'missing_permissions': missing})
                 return jsonify({
                     'error': 'Forbidden',
                     'missing_permissions': missing,

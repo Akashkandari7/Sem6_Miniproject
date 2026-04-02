@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from app.extensions import db
 from app.models.subject import Subject
 from app.authorization import require_permission
+from app.services.audit_service import log_action
 
 subjects_bp = Blueprint('subjects', __name__)
 
@@ -45,6 +46,8 @@ def create_subject():
 
     db.session.add(subject)
     db.session.commit()
+    log_action('subject.create', resource_type='subject', resource_id=subject.id,
+               details={'code': subject.code})
 
     return jsonify({
         'message': 'Subject created successfully',
@@ -63,6 +66,7 @@ def update_subject(subject_id):
     subject.description = data.get('description', subject.description)
 
     db.session.commit()
+    log_action('subject.update', resource_type='subject', resource_id=subject_id)
 
     return jsonify({
         'message': 'Subject updated successfully',
@@ -78,5 +82,6 @@ def delete_subject(subject_id):
 
     db.session.delete(subject)
     db.session.commit()
+    log_action('subject.delete', resource_type='subject', resource_id=subject_id)
 
     return jsonify({'message': 'Subject deleted successfully'}), 200

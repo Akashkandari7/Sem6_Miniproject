@@ -4,6 +4,7 @@ from app.extensions import db
 from app.models.question import Question
 from app.models.subject import Subject
 from app.authorization import require_permission, get_current_user
+from app.services.audit_service import log_action
 
 questions_bp = Blueprint('questions', __name__)
 
@@ -87,6 +88,8 @@ def create_question():
 
     db.session.add(question)
     db.session.commit()
+    log_action('question.create', resource_type='question', resource_id=question.id,
+               details={'subject_id': question.subject_id, 'question_type': question.question_type})
 
     return jsonify({
         'message': 'Question created successfully',
@@ -112,6 +115,7 @@ def update_question(question_id):
     question.correct_answer = data.get('correct_answer', question.correct_answer)
 
     db.session.commit()
+    log_action('question.update', resource_type='question', resource_id=question.id)
 
     return jsonify({
         'message': 'Question updated successfully',
@@ -160,13 +164,19 @@ def generate_ai_question():
         generated.setdefault('marks',         marks)
         generated.setdefault('blooms_level',  'understand')
 
+        log_action('question.generate_ai', details={'subject_id': subject_id, 'topic': topic,
+                                                    'question_type': question_type})
         return jsonify({
             'message': 'AI question generated successfully',
             'question': generated,
         }), 200
     except ValueError as ve:
+        log_action('question.generate_ai', status='failure',
+                   details={'subject_id': subject_id, 'topic': topic, 'error': str(ve)})
         return jsonify({'error': str(ve)}), 400
     except Exception as e:
+        log_action('question.generate_ai', status='failure',
+                   details={'subject_id': subject_id, 'topic': topic, 'error': str(e)})
         return jsonify({'error': f'AI generation failed: {str(e)}'}), 500
 
 
@@ -178,5 +188,6 @@ def delete_question(question_id):
 
     db.session.delete(question)
     db.session.commit()
+    log_action('question.delete', resource_type='question', resource_id=question_id)
 
     return jsonify({'message': 'Question deleted successfully'}), 200

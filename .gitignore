@@ -6,3 +6,4 @@ instance/
 venv/
 .DS_Store
 .venv/
+CLAUDE.md

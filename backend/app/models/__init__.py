@@ -4,3 +4,4 @@ from app.models.user import User              # noqa: F401
 from app.models.subject import Subject        # noqa: F401
 from app.models.question import Question      # noqa: F401
 from app.models.paper import Paper            # noqa: F401
+from app.models.audit_log import AuditLog     # noqa: F401

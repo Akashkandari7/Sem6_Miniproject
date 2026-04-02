@@ -5,6 +5,7 @@ from app.models.question import Question
 from app.models.subject import Subject
 from app.services.paper_generator import generate_paper
 from app.authorization import require_permission, get_current_user
+from app.services.audit_service import log_action
 
 papers_bp = Blueprint('papers', __name__)
 
@@ -88,6 +89,9 @@ def create_paper():
         question.times_used = (question.times_used or 0) + 1
 
     db.session.commit()
+    log_action('paper.create', resource_type='paper', resource_id=paper.id,
+               details={'subject_id': data['subject_id'], 'total_marks': paper.total_marks,
+                        'question_count': len(paper.questions)})
 
     paper_data = paper.to_dict()
     paper_data['questions'] = [q.to_dict() for q in paper.questions]
@@ -106,6 +110,7 @@ def delete_paper(paper_id):
 
     db.session.delete(paper)
     db.session.commit()
+    log_action('paper.delete', resource_type='paper', resource_id=paper_id)
 
     return jsonify({'message': 'Paper deleted successfully'}), 200
 
@@ -127,6 +132,7 @@ def update_paper(paper_id):
         paper.total_marks = sum(q.marks for q in paper.questions)
 
     db.session.commit()
+    log_action('paper.update', resource_type='paper', resource_id=paper_id)
     return jsonify({'message': 'Paper updated successfully', 'paper': paper.to_dict()}), 200
 
 
@@ -145,6 +151,7 @@ def download_paper_pdf(paper_id):
 
     pdf_buffer = generate_paper_pdf(paper_data)
 
+    log_action('paper.download_pdf', resource_type='paper', resource_id=paper_id)
     return send_file(
         pdf_buffer,
         mimetype='application/pdf',

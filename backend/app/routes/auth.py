@@ -3,6 +3,7 @@ from flask_jwt_extended import create_access_token
 from app.extensions import db
 from app.models.user import User
 from app.authorization import require_permission, get_current_user
+from app.services.audit_service import log_action
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -32,6 +33,8 @@ def register():
 
     db.session.add(user)
     db.session.commit()
+    log_action('auth.register', resource_type='user', resource_id=user.id,
+               details={'username': user.username}, user_id=user.id)
 
     return jsonify({
         'message': 'User registered successfully',
@@ -49,9 +52,11 @@ def login():
     user = User.query.filter_by(email=data['email']).first()
 
     if not user or not user.check_password(data['password']):
+        log_action('auth.login', status='failure', details={'email': data['email']})
         return jsonify({'error': 'Invalid email or password'}), 401
 
     access_token = create_access_token(identity=str(user.id))
+    log_action('auth.login', user_id=user.id)
 
     return jsonify({
         'message': 'Login successful',

@@ -16,7 +16,8 @@ VALID_TYPES = ['mcq', 'short', 'long']
 @questions_bp.route('/', methods=['GET'])
 @require_permission('questions.read')
 def get_questions():
-    """Get all questions with optional filters."""
+    """Get questions. Teachers are automatically filtered to their assigned subjects."""
+    user = get_current_user()
     subject_id    = request.args.get('subject_id', type=int)
     blooms_level  = request.args.get('blooms_level')
     difficulty    = request.args.get('difficulty')
@@ -24,8 +25,25 @@ def get_questions():
 
     query = Question.query
 
-    if subject_id:
+    # Security: If teacher and NOT admin, restrict query to assigned subjects
+    if user.has_role('teacher') and not user.has_role('admin'):
+        subject_ids = [s.id for s in user.subjects]
+        if not subject_ids:
+            return jsonify({'questions': [], 'count': 0, 'message': 'No subjects assigned'}), 200
+        
+        # If they requested a specific subject_id, verify they have access to it
+        if subject_id:
+            if subject_id not in subject_ids:
+                return jsonify({'error': 'Forbidden', 'message': 'You do not have access to this subject'}), 403
+            query = query.filter_by(subject_id=subject_id)
+        else:
+            # Otherwise, show all questions from ALL their assigned subjects
+            query = query.filter(Question.subject_id.in_(subject_ids))
+    elif subject_id:
+        # Admin or other role can filter as they wish
         query = query.filter_by(subject_id=subject_id)
+
+    # Apply other filters
     if blooms_level:
         query = query.filter_by(blooms_level=blooms_level)
     if difficulty:

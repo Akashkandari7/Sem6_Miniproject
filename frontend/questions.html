@@ -1080,7 +1080,7 @@
                 <div style="font-size:0.7em;text-transform:uppercase;color:var(--gold);margin-bottom:8px">Preview</div>
                 <div id="aiText" style="margin-bottom:12px;font-weight:500"></div>
                 <div id="aiOptions" style="font-size:0.85em;color:var(--muted);margin-bottom:16px"></div>
-                <button class="btn-save" style="width:100%" onclick="saveAI()">Add to Bank</button>
+                <button class="btn-save" id="aiSaveBtn" style="width:100%" onclick="saveAI()">Add to Bank</button>
             </div>
         </div>
     </div>
@@ -1098,9 +1098,17 @@
         const diffBadge = { easy: 'b-easy', medium: 'b-medium', hard: 'b-hard' };
 
         async function loadSubjects() {
-            const res = await fetch(`${API}/subjects/`, { headers });
+            const isTeacher = user.roles && user.roles.includes('teacher') && !user.roles.includes('admin');
+            const endpoint = isTeacher ? `${API}/teacher/subjects` : `${API}/subjects/`;
+            const res = await fetch(endpoint, { headers });
             const data = await res.json();
-            (data.subjects || []).forEach(s => {
+            const subjects = data.subjects || data.data || [];
+            
+            document.getElementById('fSubject').innerHTML = '<option value="">All Subjects</option>';
+            document.getElementById('qSub').innerHTML = '<option value="">Select Subject</option>';
+            document.getElementById('aiSub').innerHTML = '';
+            
+            subjects.forEach(s => {
                 document.getElementById('fSubject').innerHTML += `<option value="${s.id}">${s.name}</option>`;
                 document.getElementById('qSub').innerHTML += `<option value="${s.id}">${s.name}</option>`;
                 document.getElementById('aiSub').innerHTML += `<option value="${s.id}">${s.name}</option>`;
@@ -1108,7 +1116,8 @@
         }
 
         async function loadQ() {
-            let url = `${API}/questions/?`;
+            const isTeacher = user.roles && user.roles.includes('teacher') && !user.roles.includes('admin');
+            let url = isTeacher ? `${API}/teacher/questions?` : `${API}/questions/?`;
             const s = document.getElementById('fSubject').value;
             const b = document.getElementById('fBlooms').value;
             const d = document.getElementById('fDiff').value;
@@ -1117,7 +1126,7 @@
             if (d) url += `difficulty=${d}&`;
             const res = await fetch(url, { headers });
             const data = await res.json();
-            const qs = data.questions || [];
+            const qs = data.questions || data.data || [];
             const el = document.getElementById('qList');
             if (!qs.length) {
                 el.innerHTML = `<div class="empty-state"><div class="empty-icon">—</div><div class="empty-text">No questions found.</div></div>`;
@@ -1177,17 +1186,29 @@
             btn.innerHTML = 'Generating<span class="loading-dots"></span>';
             
             try {
-                const res = await fetch(`${API}/questions/generate-ai`, {
+                const isTeacher = user.roles && user.roles.includes('teacher') && !user.roles.includes('admin');
+                const endpoint = isTeacher ? `${API}/teacher/questions/generate` : `${API}/questions/generate-ai`;
+                const res = await fetch(endpoint, {
                     method: 'POST',
                     headers,
-                    body: JSON.stringify({ subject_id, topic, question_type, difficulty, marks })
+                    body: JSON.stringify({ subject_id: parseInt(subject_id), topic, question_type, difficulty, marks: parseInt(marks) })
                 });
                 const data = await res.json();
                 
-                if (data.error) throw new Error(data.error);
+                if (!data.success && data.error) throw new Error(data.error);
+                if (!data.success && data.message) throw new Error(data.message);
 
-                currentAIQ = data.question;
+                currentAIQ = data.question || data.data;
                 displayAI(currentAIQ);
+                
+                if (isTeacher) {
+                    // Pre-saved in teacher flow
+                    document.getElementById('aiSaveBtn').innerHTML = '✓ Automatically Saved';
+                    document.getElementById('aiSaveBtn').disabled = true;
+                } else {
+                    document.getElementById('aiSaveBtn').innerHTML = 'Add to Bank';
+                    document.getElementById('aiSaveBtn').disabled = false;
+                }
             } catch (err) {
                 alert(err.message);
             } finally {

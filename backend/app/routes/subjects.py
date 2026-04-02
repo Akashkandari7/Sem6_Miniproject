@@ -10,8 +10,15 @@ subjects_bp = Blueprint('subjects', __name__)
 @subjects_bp.route('/', methods=['GET'])
 @require_permission('subjects.read')
 def get_subjects():
-    """Get all subjects."""
-    subjects = Subject.query.all()
+    """Get subjects. Teachers see only their assigned subjects, admins see all."""
+    from app.authorization import get_current_user
+    user = get_current_user()
+    
+    if user.has_role('teacher') and not user.has_role('admin'):
+        subjects = user.subjects
+    else:
+        subjects = Subject.query.all()
+        
     return jsonify({
         'subjects': [s.to_dict() for s in subjects],
         'count': len(subjects),

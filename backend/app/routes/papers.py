@@ -187,3 +187,90 @@ def download_paper_pdf(paper_id):
         as_attachment=True,
         download_name=f"{paper.title.replace(' ', '_')}.pdf",
     )
+@papers_bp.route('/generate-ai-syllabus', methods=['POST'])
+@require_permission('papers.create')
+def generate_ai_syllabus_paper():
+    """
+    Generate a full paper from a syllabus description using AI.
+    Saves all questions to the database.
+    """
+    data = request.get_json()
+    user = get_current_user()
+
+    required = ['title', 'subject_id', 'syllabus', 'distribution', 'duration_minutes']
+    if not all(k in data for k in required):
+        return jsonify({'error': f'Required fields: {required}'}), 400
+
+    subject = db.session.get(Subject, data['subject_id'])
+    if not subject:
+        return jsonify({'error': 'Subject not found'}), 404
+
+    # Security: Verify teacher has access to this subject
+    if not user.has_role('admin'):
+        subject_ids = [s.id for s in user.subjects]
+        if data['subject_id'] not in subject_ids:
+            return jsonify({'error': 'Forbidden', 'message': 'You are not assigned to this subject'}), 403
+
+    from app.services.ai_service import AIService
+    try:
+        # 1. Generate questions in batch
+        ai_service = AIService()
+        generated_data = ai_service.generate_questions_batch(
+            subject_name=subject.name,
+            topic=data['syllabus'],
+            distribution=data['distribution']
+        )
+
+        # 2. Create Paper object
+        paper = Paper(
+            title=data['title'],
+            total_marks=0, # Calculated after questions created
+            duration_minutes=data['duration_minutes'],
+            config={'syllabus_mode': True, 'topic': data['syllabus'], 'distribution': data['distribution']},
+            subject_id=data['subject_id'],
+            created_by=user.id
+        )
+        db.session.add(paper)
+        db.session.flush()
+
+        total_marks = 0
+        # 3. Save Questions and link to Paper
+        for q_data in generated_data:
+            q = Question(
+                text=q_data['text'],
+                question_type=q_data.get('question_type', 'short'),
+                blooms_level=q_data.get('blooms_level', 'understand'),
+                difficulty=q_data.get('difficulty', 'medium'),
+                marks=q_data.get('marks', 1),
+                option_a=q_data.get('option_a'),
+                option_b=q_data.get('option_b'),
+                option_c=q_data.get('option_c'),
+                option_d=q_data.get('option_d'),
+                correct_answer=q_data.get('correct_answer'),
+                subject_id=data['subject_id'],
+                created_by=user.id
+            )
+            db.session.add(q)
+            db.session.flush()
+            
+            paper.questions.append(q)
+            total_marks += q.marks
+
+        paper.total_marks = total_marks
+        db.session.commit()
+
+        log_action('paper.create_ai_syllabus', resource_type='paper', resource_id=paper.id,
+                   details={'subject_id': data['subject_id'], 'q_count': len(generated_data)})
+
+        paper_data = paper.to_dict()
+        paper_data['questions'] = [q.to_dict() for q in paper.questions]
+        return jsonify({
+            'success': True,
+            'message': f'Paper generated with {len(generated_data)} new questions',
+            'paper': paper_data
+        }), 201
+
+    except Exception as e:
+        db.session.rollback()
+        log_action('paper.create_ai_syllabus', status='failure', details={'error': str(e)})
+        return jsonify({'error': f'AI Paper Generation failed: {str(e)}'}), 500

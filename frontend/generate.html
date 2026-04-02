@@ -922,12 +922,53 @@
                 <div class="msg-bar error" id="errMsg"></div>
                 <div class="msg-bar success" id="sucMsg"></div>
 
-                <div class="mode-toggle-wrap">
-                    <label class="switch">
-                        <input type="checkbox" id="modeSwitch" onchange="toggleMode()">
-                        <span class="slider"></span>
-                    </label>
-                    <span class="mode-label">Manual Structure Mode</span>
+                <div class="mode-toggle-wrap" style="display: flex; gap: 24px; flex-wrap: wrap;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <input type="radio" name="genMode" id="modeSmart" value="smart" checked onchange="updateModePanels()">
+                        <label for="modeSmart" class="mode-label">Smart Question Pick</label>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <input type="radio" name="genMode" id="modeManual" value="manual" onchange="updateModePanels()">
+                        <label for="modeManual" class="mode-label">Manual Structure Mode</label>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <input type="radio" name="genMode" id="modeSyllabus" value="syllabus" onchange="updateModePanels()">
+                        <label for="modeSyllabus" class="mode-label" style="color:var(--gold); font-weight:700;">✨ AI Syllabus Mode</label>
+                    </div>
+                </div>
+
+                <!-- AI Syllabus Panel -->
+                <div id="syllabusPanel" class="config-panel" style="display: none; margin-bottom: 24px;">
+                    <div class="panel-title">
+                        <span class="panel-title-num">00</span>
+                        AI Syllabus Configuration
+                    </div>
+                    <div class="form-group">
+                        <label>Unit / Topic / Syllabus Details</label>
+                        <textarea id="syllabusText" class="form-group" style="width:100%; height:120px; background:var(--card); border:1px solid var(--border); color:var(--white); padding:16px; font-family:inherit; outline:none;" placeholder="Paste the unit syllabus or topic details here. AI will create questions based on this text."></textarea>
+                    </div>
+                    <div class="panel-title" style="margin-top:32px; border:none; padding:0; font-size:0.55em; color:var(--gold)">
+                        Marks Distribution (Questions to Create)
+                    </div>
+                    <div class="manual-grid">
+                        <div class="m-input-group">
+                            <span class="m-input-label">1 Mark Qs</span>
+                            <input type="number" class="m-input-field" id="s1" value="5" min="0">
+                        </div>
+                        <div class="m-input-group">
+                            <span class="m-input-label">3 Mark Qs</span>
+                            <input type="number" class="m-input-field" id="s3" value="2" min="0">
+                        </div>
+                        <div class="m-input-group">
+                            <span class="m-input-label">5 Mark Qs</span>
+                            <input type="number" class="m-input-field" id="s5" value="1" min="0">
+                        </div>
+                        <div class="m-input-group">
+                            <span class="m-input-label">10 Mark Qs</span>
+                            <input type="number" class="m-input-field" id="s10" value="0" min="0">
+                        </div>
+                    </div>
+                    <p class="gen-hint" style="margin-top:12px;">AI will generate these questions and save them to your Question Bank.</p>
                 </div>
 
                 <!-- Manual Structure Panel -->
@@ -1088,16 +1129,20 @@
         ];
 
         let currentPaper = null;
-        let isManualMode = false;
+        let activeMode = 'smart';
 
-        function toggleMode() {
-            isManualMode = document.getElementById('modeSwitch').checked;
-            document.getElementById('manualPanel').style.display = isManualMode ? 'block' : 'none';
-            // Hide Bloom's and Difficulty sliders if manual mode is on (they aren't used)
-            const smartConfigs = document.querySelectorAll('.config-panel');
-            // Specifically targeting the distribution panels
-            document.getElementById('smartConfigArea').children[1].style.display = isManualMode ? 'none' : 'block';
-            calcManualTotal();
+        function updateModePanels() {
+            activeMode = document.querySelector('input[name="genMode"]:checked').value;
+            
+            document.getElementById('manualPanel').style.display = (activeMode === 'manual') ? 'block' : 'none';
+            document.getElementById('syllabusPanel').style.display = (activeMode === 'syllabus') ? 'block' : 'none';
+            document.getElementById('smartConfigArea').style.display = (activeMode === 'syllabus') ? 'flex' : 'flex'; // Layout remains flex
+            
+            // Specifically hide/show distribution panels for Smart Mode
+            const distPanels = document.getElementById('smartConfigArea').children[1];
+            distPanels.style.display = (activeMode === 'smart') ? 'block' : 'none';
+            
+            if (activeMode === 'manual') calcManualTotal();
         }
 
         function calcManualTotal() {
@@ -1196,15 +1241,28 @@
             }
 
             const btn = document.getElementById('genBtn');
-            btn.innerHTML = '<span style="display:inline-block;animation:spin 1s linear infinite">◎</span> Generating...';
+            btn.innerHTML = '<span style="display:inline-block;animation:spin 1s linear infinite">◎</span> ' + 
+                            (activeMode === 'syllabus' ? 'AI Deep Generating...' : 'Generating...');
             btn.disabled = true;
             err.style.display = 'none'; suc.style.display = 'none';
 
-            const limit = parseInt(document.getElementById('maxMcqs').value);
-            let config = { question_type: qtype };
-            if (!isNaN(limit)) config.max_mcqs = limit;
+            let endpoint = `${API}/papers/generate`;
+            let payload = { title, subject_id: parseInt(subject_id), total_marks: totalMarks, duration_minutes: duration };
             
-            if (isManualMode) {
+            if (activeMode === 'syllabus') {
+                endpoint = `${API}/papers/generate-ai-syllabus`;
+                payload.syllabus = document.getElementById('syllabusText').value;
+                payload.distribution = {
+                    "1": parseInt(document.getElementById('s1').value || 0),
+                    "3": parseInt(document.getElementById('s3').value || 0),
+                    "5": parseInt(document.getElementById('s5').value || 0),
+                    "10": parseInt(document.getElementById('s10').value || 0)
+                };
+                if (!payload.syllabus) {
+                    err.textContent = '⚠ Please provide syllabus text for AI generation.';
+                    err.style.display = 'block'; btn.innerHTML = '<span>◎</span> Generate Paper Now'; btn.disabled = false; return;
+                }
+            } else if (activeMode === 'manual') {
                 const total = calcManualTotal();
                 if (total !== totalMarks) {
                     err.textContent = `⚠ Manual question total (${total} marks) does not match Paper Total (${totalMarks} marks).`;
@@ -1212,27 +1270,33 @@
                     btn.innerHTML = '<span>◎</span> Generate Paper Now'; btn.disabled = false;
                     return;
                 }
-                config.custom_distribution = {
-                    1: parseInt(document.getElementById('m1').value || 0),
-                    3: parseInt(document.getElementById('m3').value || 0),
-                    5: parseInt(document.getElementById('m5').value || 0),
-                    10: parseInt(document.getElementById('m10').value || 0)
+                payload.config = { 
+                    question_type: qtype,
+                    custom_distribution: {
+                        1: parseInt(document.getElementById('m1').value || 0),
+                        3: parseInt(document.getElementById('m3').value || 0),
+                        5: parseInt(document.getElementById('m5').value || 0),
+                        10: parseInt(document.getElementById('m10').value || 0)
+                    }
                 };
             } else {
                 const bt = getTotal(bloomsList), dt = getTotal(diffList);
                 if (bt !== 100) { err.textContent = `⚠ Bloom's distribution must total 100% (currently ${bt}%)`; err.style.display = 'block'; btn.innerHTML = '<span>◎</span> Generate Paper Now'; btn.disabled = false; return; }
                 if (dt !== 100) { err.textContent = `⚠ Difficulty distribution must total 100% (currently ${dt}%)`; err.style.display = 'block'; btn.innerHTML = '<span>◎</span> Generate Paper Now'; btn.disabled = false; return; }
 
-                config.blooms_distribution = {};
-                bloomsList.forEach(i => { const v = parseInt(document.getElementById(`sl_${i.key}`).value); if (v > 0) config.blooms_distribution[i.key] = v; });
-                config.difficulty_distribution = {};
-                diffList.forEach(i => { const v = parseInt(document.getElementById(`sl_${i.key}`).value); if (v > 0) config.difficulty_distribution[i.key] = v; });
+                payload.config = { 
+                    question_type: qtype,
+                    blooms_distribution: {},
+                    difficulty_distribution: {}
+                };
+                bloomsList.forEach(i => { const v = parseInt(document.getElementById(`sl_${i.key}`).value); if (v > 0) payload.config.blooms_distribution[i.key] = v; });
+                diffList.forEach(i => { const v = parseInt(document.getElementById(`sl_${i.key}`).value); if (v > 0) payload.config.difficulty_distribution[i.key] = v; });
             }
 
             try {
-                const res = await fetch(`${API}/papers/generate`, {
+                const res = await fetch(endpoint, {
                     method: 'POST', headers,
-                    body: JSON.stringify({ title, subject_id: parseInt(subject_id), total_marks: totalMarks, duration_minutes: duration, config })
+                    body: JSON.stringify(payload)
                 });
                 const data = await res.json();
                 if (!res.ok) { err.textContent = '⚠ ' + (data.error || 'Generation failed.'); err.style.display = 'block'; return; }

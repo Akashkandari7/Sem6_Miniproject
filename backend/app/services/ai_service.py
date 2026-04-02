@@ -70,3 +70,66 @@ class AIService:
         except Exception as e:
             print(f"AI Generation Error: {str(e)}")
             raise e
+    def generate_questions_batch(self, subject_name, topic, distribution):
+        """
+        Generates multiple questions at once based on a marks distribution.
+        Distribution: {"1": 5, "3": 2, "5": 1}
+        """
+        if not self.api_key:
+            raise ValueError("Gemini API Key is not configured.")
+
+        # Construct a readable summary of requested questions
+        req_summary = ", ".join([f"{count} questions of {marks} marks" for marks, count in distribution.items() if count > 0])
+        
+        prompt = f"""
+        Generate a batch of professional academic questions for the subject '{subject_name}' based on the topic/syllabus:
+        '{topic}'
+
+        Requested Distribution:
+        {req_summary}
+
+        For each question, randomize the Bloom's Taxonomy level (remember, understand, apply, analyze, evaluate, create) and difficulty (easy, medium, hard) appropriately for the mark value.
+
+        Format the output as a JSON ARRAY of objects. Each object must have this structure:
+        {{
+            "text": "The question text here",
+            "question_type": "mcq" | "short" | "long",
+            "blooms_level": "remember" | "understand" | "apply" | "analyze" | "evaluate" | "create",
+            "difficulty": "easy" | "medium" | "hard",
+            "marks": 5,
+            "option_a": "Option A (only if MCQ)",
+            "option_b": "Option B (only if MCQ)",
+            "option_c": "Option C (only if MCQ)",
+            "option_d": "Option D (only if MCQ)",
+            "correct_answer": "Correct Option/Answer"
+        }}
+
+        Return ONLY the JSON array. No extra text or markdown.
+        """
+
+        try:
+            response = self.model.generate_content(prompt)
+            if not response or not response.text:
+                raise ValueError("Empty response from Gemini AI.")
+            
+            content = response.text
+            # Extract JSON Array
+            json_str = ""
+            code_block_match = re.search(r'```(?:json)?\s*(\[.*?\])\s*```', content, re.DOTALL)
+            if code_block_match:
+                json_str = code_block_match.group(1)
+            else:
+                json_match = re.search(r'(\[.*\])', content, re.DOTALL)
+                if json_match:
+                    json_str = json_match.group(1)
+                else:
+                    json_str = content
+
+            questions = json.loads(json_str)
+            if not isinstance(questions, list):
+                raise ValueError("AI did not return a JSON array.")
+            
+            return questions
+        except Exception as e:
+            print(f"AI Batch Generation Error: {str(e)}")
+            raise e

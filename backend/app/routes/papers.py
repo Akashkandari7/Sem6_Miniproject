@@ -25,7 +25,7 @@ def get_papers():
 @jwt_required()
 def get_paper(paper_id):
     """Get single paper with all its questions"""
-    paper = Paper.query.get_or_404(paper_id)
+    paper = db.get_or_404(Paper, paper_id)
 
     paper_data = paper.to_dict()
     paper_data['questions'] = [q.to_dict() for q in paper.questions]
@@ -69,7 +69,7 @@ def create_paper():
         return jsonify({'error': f'Required fields: {required}'}), 400
 
     # Check subject exists
-    if not Subject.query.get(data['subject_id']):
+    if not db.session.get(Subject, data['subject_id']):
         return jsonify({'error': 'Subject not found'}), 404
 
     # Call paper generator service
@@ -115,7 +115,7 @@ def create_paper():
 @jwt_required()
 def delete_paper(paper_id):
     """Delete a paper"""
-    paper = Paper.query.get_or_404(paper_id)
+    paper = db.get_or_404(Paper, paper_id)
 
     db.session.delete(paper)
     db.session.commit()
@@ -127,7 +127,7 @@ def delete_paper(paper_id):
 @jwt_required()
 def update_paper(paper_id):
     """Update paper questions or details"""
-    paper = Paper.query.get_or_404(paper_id)
+    paper = db.get_or_404(Paper, paper_id)
     data = request.get_json()
 
     if 'title' in data:
@@ -152,7 +152,7 @@ def download_paper_pdf(paper_id):
     from flask import send_file
     from app.services.pdf_generator import generate_paper_pdf
     
-    paper = Paper.query.get_or_404(paper_id)
+    paper = db.get_or_404(Paper, paper_id)
     paper_data = paper.to_dict()
     paper_data['questions'] = [q.to_dict() for q in paper.questions]
     paper_data['subject_name'] = paper.subject.name if paper.subject else "Examination"

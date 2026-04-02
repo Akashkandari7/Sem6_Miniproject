@@ -44,7 +44,7 @@ def get_questions():
 @jwt_required()
 def get_question(question_id):
     """Get single question by ID"""
-    question = Question.query.get_or_404(question_id)
+    question = db.get_or_404(Question, question_id)
     return jsonify({'question': question.to_dict()}), 200
 
 
@@ -71,7 +71,7 @@ def create_question():
         return jsonify({'error': f'question_type must be one of {VALID_TYPES}'}), 400
 
     # Check subject exists
-    if not Subject.query.get(data['subject_id']):
+    if not db.session.get(Subject, data['subject_id']):
         return jsonify({'error': 'Subject not found'}), 404
 
     question = Question(
@@ -102,7 +102,7 @@ def create_question():
 @jwt_required()
 def update_question(question_id):
     """Update an existing question"""
-    question = Question.query.get_or_404(question_id)
+    question = db.get_or_404(Question, question_id)
     data = request.get_json()
 
     question.text = data.get('text', question.text)
@@ -142,7 +142,7 @@ def generate_ai_question():
     if not subject_id or not topic:
         return jsonify({'error': 'subject_id and topic are required'}), 400
 
-    subject = Subject.query.get(subject_id)
+    subject = db.session.get(Subject, subject_id)
     if not subject:
         return jsonify({'error': 'Subject not found'}), 404
 
@@ -183,7 +183,7 @@ def generate_ai_question():
 @jwt_required()
 def delete_question(question_id):
     """Delete a question"""
-    question = Question.query.get_or_404(question_id)
+    question = db.get_or_404(Question, question_id)
 
     db.session.delete(question)
     db.session.commit()

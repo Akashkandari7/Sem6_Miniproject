@@ -65,7 +65,7 @@ def login():
 def me():
     """Get current logged in user info"""
     user_id = get_jwt_identity()
-    user = User.query.get(user_id)
+    user = db.session.get(User, int(user_id))
 
     if not user:
         return jsonify({'error': 'User not found'}), 404

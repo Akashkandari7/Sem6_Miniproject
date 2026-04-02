@@ -21,7 +21,7 @@ def get_subjects():
 @jwt_required()
 def get_subject(subject_id):
     """Get single subject by ID"""
-    subject = Subject.query.get_or_404(subject_id)
+    subject = db.get_or_404(Subject, subject_id)
     return jsonify({'subject': subject.to_dict()}), 200
 
 
@@ -57,7 +57,7 @@ def create_subject():
 @jwt_required()
 def update_subject(subject_id):
     """Update an existing subject"""
-    subject = Subject.query.get_or_404(subject_id)
+    subject = db.get_or_404(Subject, subject_id)
     data = request.get_json()
 
     subject.name = data.get('name', subject.name)
@@ -75,7 +75,7 @@ def update_subject(subject_id):
 @jwt_required()
 def delete_subject(subject_id):
     """Delete a subject"""
-    subject = Subject.query.get_or_404(subject_id)
+    subject = db.get_or_404(Subject, subject_id)
 
     db.session.delete(subject)
     db.session.commit()

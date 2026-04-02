@@ -8,8 +8,7 @@ class AIService:
         self.api_key = api_key or os.getenv("GOOGLE_API_KEY")
         if self.api_key:
             genai.configure(api_key=self.api_key)
-        # Using gemini-flash-latest as it often has different quota or more availability
-        self.model = genai.GenerativeModel('gemini-flash-latest')
+        self.model = genai.GenerativeModel('gemini-1.5-flash-latest')
 
     def generate_question(self, subject_name, topic, question_type, difficulty, marks):
         """

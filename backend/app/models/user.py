@@ -3,6 +3,14 @@ from datetime import datetime, timezone
 import bcrypt
 
 
+# Association table — many-to-many between users and subjects (teachers assigned to subjects)
+teacher_subjects = db.Table(
+    'teacher_subjects',
+    db.Column('user_id',    db.Integer, db.ForeignKey('users.id',    ondelete='CASCADE'), primary_key=True),
+    db.Column('subject_id', db.Integer, db.ForeignKey('subjects.id', ondelete='CASCADE'), primary_key=True),
+)
+
+
 # Association table — many-to-many between users and roles
 user_roles = db.Table(
     'user_roles',
@@ -29,6 +37,12 @@ class User(db.Model):
         secondary=user_roles,
         lazy='subquery',
         backref=db.backref('users', lazy=True),
+    )
+    subjects = db.relationship(
+        'Subject',
+        secondary=teacher_subjects,
+        lazy='subquery',
+        backref=db.backref('teachers', lazy=True),
     )
 
     # ── Password helpers ───────────────────────────────────────────
@@ -75,6 +89,7 @@ class User(db.Model):
             'email': self.email,
             'roles': [r.name for r in self.roles],
             'permissions': sorted(self.get_all_permissions()),
+            'subjects': [s.to_dict() for s in self.subjects],
             'is_active': self.is_active,
             'created_at': self.created_at.isoformat(),
         }

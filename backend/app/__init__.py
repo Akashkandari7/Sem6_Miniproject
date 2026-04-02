@@ -30,11 +30,13 @@ def create_app(config_name='default'):
     from app.routes.questions import questions_bp
     from app.routes.papers import papers_bp
     from app.routes.subjects import subjects_bp
+    from app.routes.admin import admin_bp
     
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(questions_bp, url_prefix='/api/questions')
     app.register_blueprint(papers_bp, url_prefix='/api/papers')
     app.register_blueprint(subjects_bp, url_prefix='/api/subjects')
+    app.register_blueprint(admin_bp, url_prefix='/api/admin')
     
     # Auto-create tables and seed data ONLY for local/ephemeral SQLite databases.
     # Running db.create_all() against a remote PostgreSQL DB on Vercel cold starts
@@ -118,6 +120,7 @@ def _seed_initial_data(db):
         ('users.create',          'users',     'create',       'Create user accounts'),
         ('users.update',          'users',     'update',       'Edit user accounts'),
         ('users.delete',          'users',     'delete',       'Delete user accounts'),
+        ('users.assign_subjects', 'users',     'assign_subjects', 'Assign subjects to teachers'),
     ]
 
     perm_map = {}

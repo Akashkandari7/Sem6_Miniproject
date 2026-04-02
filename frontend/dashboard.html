@@ -797,6 +797,7 @@
             <a class="nav-item active" href="dashboard.html"><span class="nav-icon">◈</span> Dashboard</a>
             <a class="nav-item" href="questions.html"><span class="nav-icon">◉</span> Question Bank</a>
             <a class="nav-item" href="generate.html"><span class="nav-icon">◎</span> Generate Paper</a>
+            <a class="nav-item" href="profile.html"><span class="nav-icon">▽</span> My Profile</a>
             
             <div id="adminNav" style="display:none">
                 <div class="nav-section">Administration</div>
@@ -883,7 +884,12 @@
                 <div class="bottom-row">
                     <div class="section-panel">
                         <div class="panel-head">
-                            <span class="panel-title">Recent Papers</span>
+                            <div style="display:flex; align-items:center; gap:20px; flex:1;">
+                                <span class="panel-title">Recent Papers</span>
+                                <input type="text" id="paperSearch" placeholder="Search papers..." 
+                                    style="background:var(--black); border:1px solid var(--border); padding:6px 12px; color:var(--text); font-size:0.72em; outline:none; max-width:200px;"
+                                    oninput="filterPapers()">
+                            </div>
                             <a href="generate.html" class="btn-new">+ New</a>
                         </div>
                         <div id="papersList">
@@ -928,6 +934,7 @@
         const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
 
         const bColors = { remember: '#c9a84c', understand: '#9a8a5a', apply: '#7a9a6a', analyze: '#6a8a9a', evaluate: '#8a6a9a', create: '#9a6a7a' };
+        let allPapers = [];
 
         async function load() {
             try {
@@ -942,19 +949,8 @@
                 document.getElementById('sP').textContent = pD.count ?? 0;
 
                 const papers = pD.papers || [];
-                document.getElementById('papersList').innerHTML = papers.length === 0
-                    ? `<div class="empty-msg"><div class="empty-msg-icon">—</div><span>No papers yet. <a href="generate.html" style="color:var(--gold)">Generate one →</a></span></div>`
-                    : papers.slice(0, 5).map((p, i) => `
-                <div class="paper-item" onclick="location.href='edit-paper.html?id=${p.id}'" style="cursor:pointer">
-                    <div class="paper-num">${String(i + 1).padStart(2, '0')}</div>
-                    <div class="paper-info">
-                        <div class="paper-name">${p.title}</div>
-                        <div class="paper-meta">${p.total_marks} marks · ${p.question_count} questions</div>
-                    </div>
-                    <div style="display:flex;gap:8px;align-items:center">
-                         <span class="p-badge draft" style="cursor:pointer">EDIT</span>
-                    </div>
-                </div>`).join('');
+                allPapers = papers; // Store for filtering
+                renderPapers(allPapers);
 
                 const qs = qD.questions || [];
                 const counts = { remember: 0, understand: 0, apply: 0, analyze: 0, evaluate: 0, create: 0 };
@@ -991,6 +987,34 @@
                     }
                 }
             } catch (e) { console.error(e); }
+        }
+
+        function renderPapers(papers) {
+            const pList = document.getElementById('papersList');
+            if (papers.length === 0) {
+                pList.innerHTML = `<div class="empty-msg"><div class="empty-msg-icon">⊡</div>No papers found matching your search.</div>`;
+                return;
+            }
+            pList.innerHTML = papers.slice(0, 5).map((p, i) => `
+            <div class="paper-item" onclick="location.href='edit-paper.html?id=${p.id}'" style="cursor:pointer">
+                <div class="paper-num">${String(i + 1).padStart(2, '0')}</div>
+                <div class="paper-info">
+                    <div class="paper-name">${p.title}</div>
+                    <div class="paper-meta">${p.total_marks} marks • ${p.question_count} questions</div>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center">
+                     <span class="p-badge draft" style="cursor:pointer">EDIT</span>
+                </div>
+            </div>`).join('');
+        }
+
+        function filterPapers() {
+            const q = document.getElementById('paperSearch').value.toLowerCase();
+            const filtered = allPapers.filter(p => 
+                p.title.toLowerCase().includes(q) || 
+                (p.subject_name && p.subject_name.toLowerCase().includes(q))
+            );
+            renderPapers(filtered);
         }
 
         function logout() { localStorage.clear(); window.location.href = 'index.html'; }

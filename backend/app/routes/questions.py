@@ -291,3 +291,83 @@ def delete_question(question_id):
     log_action('question.delete', resource_type='question', resource_id=question_id)
 
     return jsonify({'message': 'Question deleted successfully'}), 200
+
+
+@questions_bp.route('/bulk', methods=['POST'])
+@require_permission('questions.create')
+def bulk_upload_questions():
+    """
+    Upload questions in bulk via CSV or Excel.
+    Expected headers: subject_id, text, marks, topic, question_type, difficulty, blooms_level
+    """
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+    
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+
+    import pandas as pd
+    import io
+
+    try:
+        if file.filename.endswith('.csv'):
+            df = pd.read_csv(io.BytesIO(file.read()))
+        elif file.filename.endswith(('.xls', '.xlsx')):
+            df = pd.read_excel(io.BytesIO(file.read()))
+        else:
+            return jsonify({'error': 'Unsupported file format. Use CSV or Excel.'}), 400
+
+        # Basic validation of required columns
+        required_cols = ['subject_id', 'text', 'marks']
+        missing = [c for c in required_cols if c not in df.columns]
+        if missing:
+            return jsonify({'error': f'Missing required columns: {missing}'}), 400
+
+        user = get_current_user()
+        user_id = user.id
+        count = 0
+        
+        # Determine allowed subjects for security check
+        if not user.has_role('admin'):
+            assigned_sids = set(s.id for s in user.subjects)
+        else:
+            assigned_sids = None # Admin can do anything
+
+        for _, row in df.iterrows():
+            sid = int(row['subject_id'])
+            
+            # Security: check if teacher is assigned to this subject
+            if assigned_sids is not None and sid not in assigned_sids:
+                continue 
+
+            q = Question(
+                text=str(row['text']),
+                marks=int(row['marks']),
+                subject_id=sid,
+                topic=str(row.get('topic', '')),
+                question_type=str(row.get('question_type', 'short')),
+                difficulty=str(row.get('difficulty', 'medium')),
+                blooms_level=str(row.get('blooms_level', 'understand')),
+                created_by=user_id,
+                option_a=str(row['option_a']) if 'option_a' in row and pd.notna(row['option_a']) else None,
+                option_b=str(row['option_b']) if 'option_b' in row and pd.notna(row['option_b']) else None,
+                option_c=str(row['option_c']) if 'option_c' in row and pd.notna(row['option_c']) else None,
+                option_d=str(row['option_d']) if 'option_d' in row and pd.notna(row['option_d']) else None,
+                correct_answer=str(row['correct_answer']) if 'correct_answer' in row and pd.notna(row['correct_answer']) else None
+            )
+            db.session.add(q)
+            count += 1
+
+        db.session.commit()
+        log_action('questions.bulk_upload', details={'count': count})
+        
+        return jsonify({
+            'success': True,
+            'message': f'Successfully uploaded {count} questions',
+            'count': count
+        }), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': f'Bulk upload failed: {str(e)}'}), 500

@@ -45,10 +45,11 @@ def create_app(config_name='default'):
         from app.models.subject import Subject
         
         db_uri = app.config.get('SQLALCHEMY_DATABASE_URI', '')
-        if db_uri.startswith('sqlite://'):
+        is_testing = app.config.get('TESTING', False)
+        if db_uri.startswith('sqlite://') and not is_testing:
             db.create_all()
-            
-            # Seed if DB is empty (local or cold start on Vercel /tmp/ db)
+
+            # Seed if DB is empty (local dev or Vercel /tmp/ cold start)
             if Subject.query.first() is None:
                 _seed_initial_data(db)
 

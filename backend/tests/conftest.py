@@ -24,7 +24,7 @@ def client(app):
 def init_database(app):
     """Seed the database with a user and a subject for tests."""
     with app.app_context():
-        user = User(username='testuser', email='test@test.com', role='teacher')
+        user = User(username='testuser', email='test@test.com')
         user.set_password('password123')
         db.session.add(user)
         

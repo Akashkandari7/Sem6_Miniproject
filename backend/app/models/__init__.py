@@ -1,4 +1,6 @@
-from app.models.user import User
-from app.models.subject import Subject
-from app.models.question import Question
-from app.models.paper import Paper
+from app.models.permission import Permission  # noqa: F401
+from app.models.role import Role              # noqa: F401
+from app.models.user import User              # noqa: F401
+from app.models.subject import Subject        # noqa: F401
+from app.models.question import Question      # noqa: F401
+from app.models.paper import Paper            # noqa: F401

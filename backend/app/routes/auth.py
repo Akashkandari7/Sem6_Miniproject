@@ -21,13 +21,16 @@ def register():
     if User.query.filter_by(username=data['username']).first():
         return jsonify({'error': 'Username already taken'}), 409
 
-    # Create user
+    # Create user and assign default 'teacher' role
+    from app.models.role import Role
     user = User(
         username=data['username'],
         email=data['email'],
-        role=data.get('role', 'teacher')
     )
     user.set_password(data['password'])
+    teacher_role = Role.query.filter_by(name='teacher').first()
+    if teacher_role:
+        user.roles = [teacher_role]
 
     db.session.add(user)
     db.session.commit()

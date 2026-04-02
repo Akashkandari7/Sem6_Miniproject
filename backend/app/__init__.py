@@ -90,17 +90,85 @@ def create_app(config_name='default'):
 
 
 def _seed_initial_data(db):
-    """Seed subjects and a default admin user for fresh DB."""
+    """Seed subjects, RBAC data, and a default admin user for fresh DB."""
     from app.models.subject import Subject
     from app.models.user import User
-    
-    # Add default subject
+    from app.models.permission import Permission
+    from app.models.role import Role
+
+    # ── Permissions ────────────────────────────────────────────────
+    _PERMISSIONS = [
+        ('questions.create',      'questions', 'create',       'Add questions to the bank'),
+        ('questions.read',        'questions', 'read',         'View questions'),
+        ('questions.update',      'questions', 'update',       'Edit existing questions'),
+        ('questions.delete',      'questions', 'delete',       'Remove questions from the bank'),
+        ('questions.generate_ai', 'questions', 'generate_ai',  'Generate questions via AI'),
+        ('papers.create',         'papers',    'create',       'Generate exam papers'),
+        ('papers.read',           'papers',    'read',         'View exam papers'),
+        ('papers.update',         'papers',    'update',       'Edit paper questions'),
+        ('papers.delete',         'papers',    'delete',       'Delete exam papers'),
+        ('papers.download_pdf',   'papers',    'download_pdf', 'Download paper as PDF'),
+        ('subjects.create',       'subjects',  'create',       'Create subjects'),
+        ('subjects.read',         'subjects',  'read',         'View subjects'),
+        ('subjects.update',       'subjects',  'update',       'Edit subjects'),
+        ('subjects.delete',       'subjects',  'delete',       'Delete subjects'),
+        ('users.read_self',       'users',     'read_self',    'View own profile'),
+        ('users.list',            'users',     'list',         'List all users'),
+        ('users.create',          'users',     'create',       'Create user accounts'),
+        ('users.update',          'users',     'update',       'Edit user accounts'),
+        ('users.delete',          'users',     'delete',       'Delete user accounts'),
+    ]
+
+    perm_map = {}
+    for name, resource, action, desc in _PERMISSIONS:
+        p = Permission(name=name, resource=resource, action=action, description=desc)
+        db.session.add(p)
+        perm_map[name] = p
+
+    # ── Roles ──────────────────────────────────────────────────────
+    def _perms(*names):
+        return [perm_map[n] for n in names]
+
+    admin_role = Role(
+        name='admin',
+        description='Full access to all resources',
+        permissions=list(perm_map.values()),
+    )
+
+    teacher_role = Role(
+        name='teacher',
+        description='Manage questions, papers, and view subjects',
+        permissions=_perms(
+            'questions.create', 'questions.read', 'questions.update',
+            'questions.delete', 'questions.generate_ai',
+            'papers.create', 'papers.read', 'papers.update',
+            'papers.delete', 'papers.download_pdf',
+            'subjects.read',
+            'users.read_self',
+        ),
+    )
+
+    viewer_role = Role(
+        name='viewer',
+        description='Read-only access to questions, papers, and subjects',
+        permissions=_perms(
+            'questions.read',
+            'papers.read', 'papers.download_pdf',
+            'subjects.read',
+            'users.read_self',
+        ),
+    )
+
+    db.session.add_all([admin_role, teacher_role, viewer_role])
+
+    # ── Default subject ────────────────────────────────────────────
     cs = Subject(name='Computer Science', code='CS101', description='Core CS subject')
     db.session.add(cs)
-    
-    # Add default admin user
-    admin = User(username='admin', email='admin@qpgen.com')
-    admin.set_password('admin123')
-    db.session.add(admin)
-    
+
+    # ── Default admin user ─────────────────────────────────────────
+    admin_user = User(username='admin', email='admin@qpgen.com')
+    admin_user.set_password('admin123')
+    admin_user.roles = [admin_role]
+    db.session.add(admin_user)
+
     db.session.commit()

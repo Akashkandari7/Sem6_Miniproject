@@ -1,7 +1,8 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import create_access_token
 from app.extensions import db
 from app.models.user import User
+from app.authorization import require_permission, get_current_user
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -10,18 +11,15 @@ auth_bp = Blueprint('auth', __name__)
 def register():
     data = request.get_json()
 
-    # Validate required fields
     if not all(k in data for k in ['username', 'email', 'password']):
         return jsonify({'error': 'username, email and password are required'}), 400
 
-    # Check if user already exists
     if User.query.filter_by(email=data['email']).first():
         return jsonify({'error': 'Email already registered'}), 409
 
     if User.query.filter_by(username=data['username']).first():
         return jsonify({'error': 'Username already taken'}), 409
 
-    # Create user and assign default 'teacher' role
     from app.models.role import Role
     user = User(
         username=data['username'],
@@ -53,7 +51,6 @@ def login():
     if not user or not user.check_password(data['password']):
         return jsonify({'error': 'Invalid email or password'}), 401
 
-    # Create JWT token
     access_token = create_access_token(identity=str(user.id))
 
     return jsonify({
@@ -64,13 +61,7 @@ def login():
 
 
 @auth_bp.route('/me', methods=['GET'])
-@jwt_required()
+@require_permission('users.read_self')
 def me():
-    """Get current logged in user info"""
-    user_id = get_jwt_identity()
-    user = db.session.get(User, int(user_id))
-
-    if not user:
-        return jsonify({'error': 'User not found'}), 404
-
-    return jsonify({'user': user.to_dict()}), 200
+    """Get current logged-in user info."""
+    return jsonify({'user': get_current_user().to_dict()}), 200

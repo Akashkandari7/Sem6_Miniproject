@@ -165,14 +165,13 @@
         if (!token) window.location.href = '../index.html';
 
         const user = JSON.parse(localStorage.getItem('user') || '{}');
-        const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
-
+        
         // Security check
         if (!user.roles || !user.roles.includes('admin')) {
             window.location.href = '../dashboard.html';
-        } else {
-            document.getElementById('adminNav').style.display = 'block';
         }
+        
+        const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
 
         let teachers = [];
         let allSubjects = [];

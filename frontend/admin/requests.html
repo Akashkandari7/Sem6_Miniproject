@@ -179,6 +179,11 @@
         const token = localStorage.getItem('token');
         if (!token) window.location.href = '../index.html';
 
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!user.roles || !user.roles.includes('admin')) {
+            window.location.href = '../dashboard.html';
+        }
+
         const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
 
         async function loadRequests() {

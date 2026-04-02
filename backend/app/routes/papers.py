@@ -27,6 +27,11 @@ def get_papers():
 def get_paper(paper_id):
     """Get a single paper with all its questions."""
     paper = db.get_or_404(Paper, paper_id)
+    user = get_current_user()
+
+    # Security: Only creator or admin can view
+    if paper.created_by != user.id and not user.has_role('admin'):
+        return jsonify({'error': 'Forbidden', 'message': 'You do not own this paper'}), 403
 
     paper_data = paper.to_dict()
     paper_data['questions'] = [q.to_dict() for q in paper.questions]
@@ -62,6 +67,13 @@ def create_paper():
 
     if not db.session.get(Subject, data['subject_id']):
         return jsonify({'error': 'Subject not found'}), 404
+
+    # Security: Verify teacher has access to this subject
+    user = get_current_user()
+    if not user.has_role('admin'):
+        subject_ids = [s.id for s in user.subjects]
+        if data['subject_id'] not in subject_ids:
+            return jsonify({'error': 'Forbidden', 'message': 'You are not assigned to this subject'}), 403
 
     result = generate_paper(
         subject_id=data['subject_id'],
@@ -107,6 +119,11 @@ def create_paper():
 def delete_paper(paper_id):
     """Delete a paper."""
     paper = db.get_or_404(Paper, paper_id)
+    user = get_current_user()
+
+    # Security: Only creator or admin can delete
+    if paper.created_by != user.id and not user.has_role('admin'):
+        return jsonify({'error': 'Forbidden', 'message': 'You do not own this paper'}), 403
 
     db.session.delete(paper)
     db.session.commit()
@@ -120,6 +137,12 @@ def delete_paper(paper_id):
 def update_paper(paper_id):
     """Update paper questions or details."""
     paper = db.get_or_404(Paper, paper_id)
+    user = get_current_user()
+
+    # Security: Only creator or admin can update
+    if paper.created_by != user.id and not user.has_role('admin'):
+        return jsonify({'error': 'Forbidden', 'message': 'You do not own this paper'}), 403
+
     data = request.get_json()
 
     if 'title' in data:
@@ -144,6 +167,12 @@ def download_paper_pdf(paper_id):
     from app.services.pdf_generator import generate_paper_pdf
 
     paper = db.get_or_404(Paper, paper_id)
+    user = get_current_user()
+
+    # Security: Only creator or admin can download
+    if paper.created_by != user.id and not user.has_role('admin'):
+        return jsonify({'error': 'Forbidden', 'message': 'You do not own this paper'}), 403
+
     paper_data = paper.to_dict()
     paper_data['questions']    = [q.to_dict() for q in paper.questions]
     paper_data['subject_name'] = paper.subject.name if paper.subject else 'Examination'

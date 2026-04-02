@@ -146,6 +146,13 @@ def create_question():
     if not db.session.get(Subject, data['subject_id']):
         return jsonify({'error': 'Subject not found'}), 404
 
+    # Security: Verify teacher has access to this subject
+    user = get_current_user()
+    if not user.has_role('admin'):
+        subject_ids = [s.id for s in user.subjects]
+        if data['subject_id'] not in subject_ids:
+            return jsonify({'error': 'Forbidden', 'message': 'You are not assigned to this subject'}), 403
+
     question = Question(
         text=data['text'],
         question_type=data['question_type'],
@@ -177,6 +184,12 @@ def create_question():
 def update_question(question_id):
     """Update an existing question."""
     question = db.get_or_404(Question, question_id)
+    user = get_current_user()
+
+    # Security: Only creator or admin can update
+    if question.created_by != user.id and not user.has_role('admin'):
+        return jsonify({'error': 'Forbidden', 'message': 'You do not own this question'}), 403
+
     data = request.get_json()
 
     question.text          = data.get('text',           question.text)
@@ -223,6 +236,13 @@ def generate_ai_question():
     if not subject:
         return jsonify({'error': 'Subject not found'}), 404
 
+    # Security: Verify teacher has access to this subject
+    user = get_current_user()
+    if not user.has_role('admin'):
+        subject_ids = [s.id for s in user.subjects]
+        if subject_id not in subject_ids:
+            return jsonify({'error': 'Forbidden', 'message': 'You are not assigned to this subject'}), 403
+
     from app.services.ai_service import AIService
     try:
         ai_service = AIService(api_key=api_key)
@@ -260,6 +280,11 @@ def generate_ai_question():
 def delete_question(question_id):
     """Delete a question."""
     question = db.get_or_404(Question, question_id)
+    user = get_current_user()
+
+    # Security: Only creator or admin can delete
+    if question.created_by != user.id and not user.has_role('admin'):
+        return jsonify({'error': 'Forbidden', 'message': 'You do not own this question'}), 403
 
     db.session.delete(question)
     db.session.commit()

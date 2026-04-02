@@ -187,3 +187,54 @@ def generate_and_save_question():
             'success': False,
             'message': f'AI Generation failed: {str(e)}'
         }), 500
+
+@teacher_bp.route('/requests/subject', methods=['POST'])
+@require_role('teacher')
+def request_subject_access():
+    """Teacher requests access to a specific subject."""
+    from app.models.subject_request import SubjectRequest
+    data = request.get_json()
+    user = get_current_user()
+    subject_id = data.get('subject_id')
+
+    if not subject_id:
+        return jsonify({'success': False, 'message': 'subject_id is required'}), 400
+
+    subject = db.session.get(Subject, subject_id)
+    if not subject:
+        return jsonify({'success': False, 'message': 'Subject not found'}), 404
+
+    # Check if already assigned
+    if subject_id in [s.id for s in user.subjects]:
+        return jsonify({'success': False, 'message': 'You already have access to this subject'}), 400
+
+    # Check if a pending request already exists
+    existing = SubjectRequest.query.filter_by(user_id=user.id, subject_id=subject_id, status='pending').first()
+    if existing:
+        return jsonify({'success': False, 'message': 'Request already pending for this subject'}), 400
+
+    req = SubjectRequest(user_id=user.id, subject_id=subject_id)
+    db.session.add(req)
+    db.session.commit()
+
+    log_action('teacher.subject_request', resource_type='subject_request', resource_id=req.id,
+               details={'subject_id': subject_id})
+
+    return jsonify({
+        'success': True,
+        'message': 'Request submitted successfully',
+        'data': req.to_dict()
+    }), 201
+
+@teacher_bp.route('/requests', methods=['GET'])
+@require_role('teacher')
+def get_my_requests():
+    """Get all subject requests made by the current teacher."""
+    from app.models.subject_request import SubjectRequest
+    user = get_current_user()
+    reqs = SubjectRequest.query.filter_by(user_id=user.id).order_by(SubjectRequest.created_at.desc()).all()
+    
+    return jsonify({
+        'success': True,
+        'data': [r.to_dict() for r in reqs]
+    }), 200

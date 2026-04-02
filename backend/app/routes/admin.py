@@ -119,3 +119,59 @@ def assign_subjects():
             'success': False,
             'message': f'Database error: {str(e)}'
         }), 500
+
+@admin_bp.route('/subject-requests', methods=['GET'])
+@require_role('admin')
+def get_subject_requests():
+    """List all teacher subject requests."""
+    from app.models.subject_request import SubjectRequest
+    status = request.args.get('status', 'pending')
+    
+    query = SubjectRequest.query
+    if status != 'all':
+        query = query.filter_by(status=status)
+        
+    reqs = query.order_by(SubjectRequest.created_at.desc()).all()
+    
+    return jsonify({
+        'success': True,
+        'data': [r.to_dict() for r in reqs],
+        'count': len(reqs)
+    }), 200
+
+@admin_bp.route('/subject-requests/<int:request_id>/action', methods=['POST'])
+@require_role('admin')
+@require_permission('users.assign_subjects')
+def handle_subject_request(request_id):
+    """Approve or reject a subject request."""
+    from app.models.subject_request import SubjectRequest
+    data = request.get_json()
+    action = data.get('action') # 'approve' or 'reject'
+    notes  = data.get('notes', '')
+
+    if action not in ['approve', 'reject']:
+        return jsonify({'success': False, 'message': 'Invalid action. Use approve or reject.'}), 400
+
+    req = db.get_or_404(SubjectRequest, request_id)
+    if req.status != 'pending':
+        return jsonify({'success': False, 'message': 'Request already processed'}), 400
+
+    if action == 'approve':
+        req.status = 'approved'
+        # Add to teacher_subjects association if not already there
+        if req.subject not in req.user.subjects:
+            req.user.subjects.append(req.subject)
+    else:
+        req.status = 'rejected'
+    
+    req.admin_notes = notes
+    db.session.commit()
+
+    log_action('admin.subject_request_action', resource_type='subject_request', resource_id=req.id,
+               details={'action': action, 'user_id': req.user_id, 'subject_id': req.subject_id})
+
+    return jsonify({
+        'success': True,
+        'message': f'Request {action}ed successfully'
+    }), 200
+  

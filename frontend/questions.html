@@ -633,7 +633,7 @@
         }
 
         /* Modal */
-        .overlay {
+        .overlay, .modal-overlay {
             position: fixed;
             inset: 0;
             background: rgba(0, 0, 0, 0.85);
@@ -647,7 +647,7 @@
             backdrop-filter: blur(4px);
         }
 
-        .overlay.open {
+        .overlay.open, .modal-overlay.open {
             opacity: 1;
             pointer-events: all;
         }
@@ -1026,7 +1026,10 @@
             </div>
             <div class="m-footer">
                 <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-                <button class="btn-save" onclick="addQ()" id="addBtn">Save Question</button>
+                <div style="display:flex;gap:12px">
+                    <button class="btn-new" onclick="openReqModal()" style="background:transparent;border-color:var(--muted);color:var(--muted)">More Subjects?</button>
+                    <button class="btn-save" onclick="addQ()" id="addBtn">Save Question</button>
+                </div>
             </div>
         </div>
     </div>
@@ -1158,6 +1161,58 @@
             el.innerHTML = html;
         }
 
+        async function openReqModal() {
+            document.getElementById('reqOverlay').classList.add('open');
+            const resAll = await fetch(`${API}/subjects/`, { headers });
+            const allD = await resAll.json();
+            const allSubs = allD.subjects || [];
+
+            const resReq = await fetch(`${API}/teacher/requests`, { headers });
+            const reqD = await resReq.json();
+            const myReqs = reqD.data || [];
+            
+            const pendingIds = myReqs.filter(r => r.status === 'pending').map(r => r.subject_id);
+            const mySubIds = (user.subjects || []).map(s => s.id);
+
+            let html = '';
+            allSubs.forEach(s => {
+                let btn = `<button class="btn-new" onclick="reqSub(${s.id})">Request Access</button>`;
+                if (mySubIds.includes(s.id)) {
+                    btn = `<span style="color:var(--gold);font-size:0.7em;font-weight:700">✓ ASSIGNED</span>`;
+                } else if (pendingIds.includes(s.id)) {
+                    btn = `<span style="color:var(--muted);font-size:0.75em">Pending Review</span>`;
+                }
+                
+                html += `
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:rgba(255,255,255,0.02);border-radius:4px">
+                    <div>
+                        <div style="font-size:0.85em;font-weight:600">${s.name}</div>
+                        <div style="font-family:'DM Mono',monospace;font-size:0.65em;color:var(--muted)">${s.code}</div>
+                    </div>
+                    <div>${btn}</div>
+                </div>`;
+            });
+            document.getElementById('allSubList').innerHTML = html || '<div class="empty-text">No other subjects available.</div>';
+        }
+
+        function closeReqModal() { document.getElementById('reqOverlay').classList.remove('open'); }
+        function handleReqOverlay(e) { if (e.target === document.getElementById('reqOverlay')) closeReqModal(); }
+
+        async function reqSub(id) {
+            const res = await fetch(`${API}/teacher/requests/subject`, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify({ subject_id: id })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('Request submitted! Admin will review it shortly.');
+                openReqModal();
+            } else {
+                alert(data.message || 'Request failed');
+            }
+        }
+
         async function delQ(id) {
             if (!confirm('Delete this question?')) return;
             await fetch(`${API}/questions/${id}`, { method: 'DELETE', headers });
@@ -1274,6 +1329,21 @@
         loadSubjects(); loadQ();
     </script>
     <script src="theme.js"></script>
+    <!-- Subject Request Modal -->
+    <div id="reqOverlay" class="modal-overlay" onclick="handleReqOverlay(event)">
+        <div class="modal">
+            <div class="m-head">
+                <div class="m-title">Request Subject Access</div>
+                <button class="m-close" onclick="closeReqModal()">✕</button>
+            </div>
+            <div class="m-body">
+                <p style="font-size:0.85em;color:var(--muted);margin-bottom:24px">Browse subjects and request access to manage their questions.</p>
+                <div id="allSubList" style="display:flex;flex-direction:column;gap:12px">
+                    <!-- Dynamic List -->
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

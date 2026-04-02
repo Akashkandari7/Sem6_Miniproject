@@ -249,6 +249,31 @@
             color: var(--muted);
         }
 
+        .badge-notify {
+            background: var(--gold);
+            color: var(--black);
+            font-size: 0.85em;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: auto;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        .alert-bar {
+            background: rgba(201, 168, 76, 0.1);
+            border: 1px solid var(--border);
+            padding: 12px 20px;
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.82em;
+            color: var(--white);
+            animation: fadeUp 0.6s ease both;
+        }
+
         /* ── MAIN ── */
         .main {
             margin-left: var(--sw);
@@ -776,6 +801,10 @@
             <div id="adminNav" style="display:none">
                 <div class="nav-section">Administration</div>
                 <a class="nav-item" href="admin/teachers.html"><span class="nav-icon">⬡</span> Teachers</a>
+                <a class="nav-item" href="admin/requests.html">
+                    <span class="nav-icon">◉</span> Requests
+                    <span id="nAdmin" class="badge-notify" style="display:none">0</span>
+                </a>
             </div>
             <div class="sidebar-bottom">
                 <div class="user-tile" onclick="logout()">
@@ -800,6 +829,11 @@
             </div>
 
             <div class="content">
+                <div id="nTeacher" class="alert-bar" style="display:none">
+                    <span style="color:var(--gold)">◉</span> 
+                    <span>You have <strong id="nTCount">0</strong> pending subject requests. Check back later for approval.</span>
+                </div>
+
                 <div class="stats-row">
                     <div class="stat-tile">
                         <div class="stat-index">01 / QUESTIONS</div>
@@ -938,6 +972,24 @@
                         el.style.width = el.dataset.target + '%';
                     });
                 });
+                
+                // Notifications
+                if (user.roles.includes('admin')) {
+                    const rR = await fetch(`${API}/admin/subject-requests?status=pending`, { headers });
+                    const rD = await rR.json();
+                    if (rD.count > 0) {
+                        document.getElementById('nAdmin').textContent = rD.count;
+                        document.getElementById('nAdmin').style.display = 'inline-block';
+                    }
+                } else {
+                    const rR = await fetch(`${API}/teacher/requests`, { headers });
+                    const rD = await rR.json();
+                    const pending = (rD.data || []).filter(r => r.status === 'pending').length;
+                    if (pending > 0) {
+                        document.getElementById('nTCount').textContent = pending;
+                        document.getElementById('nTeacher').style.display = 'flex';
+                    }
+                }
             } catch (e) { console.error(e); }
         }
 

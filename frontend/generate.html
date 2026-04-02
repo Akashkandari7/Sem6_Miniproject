@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QPGen — Generate Paper</title>
+    <title>QPGen — Design Lab</title>
     <link
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap"
         rel="stylesheet">
@@ -18,59 +18,18 @@
         }
 
         :root {
-            --black: #080808;
-            --deep: #0e0e0e;
-            --surface: #141414;
-            --card: #1a1a1a;
-            --border: rgba(255, 255, 255, 0.07);
-            --border-strong: rgba(255, 255, 255, 0.12);
+            --black: #050505;
+            --deep: #0a0a0a;
+            --surface: #0f0f0f;
+            --card: rgba(25, 25, 25, 0.6);
+            --border: rgba(255, 255, 255, 0.08);
             --gold: #c9a84c;
             --gold-light: #e2c07a;
-            --gold-dim: rgba(201, 168, 76, 0.12);
+            --violet: #8e44ad;
             --white: #f5f0e8;
             --muted: #5a5a5a;
-            --text: #b8b3a8;
-            --sw: 220px;
-        }
-
-        [data-theme="light"] {
-            --black: #ffffff;
-            --deep: rgba(249, 247, 242, 0.85);
-            --surface: #ffffff;
-            --card: #ffffff;
-            --card-hover: #f9f8f4;
-            --border: rgba(177, 148, 64, 0.08);
-            --border-strong: rgba(177, 148, 64, 0.15);
-            --gold: #ad8d3a;
-            --gold-light: #c5a65c;
-            --gold-dim: rgba(173, 141, 58, 0.04);
-            --gold-glow: rgba(173, 141, 58, 0.1);
-            --white: #121210;
-            --muted: #8c8880;
-            --text: #4d4a44;
-        }
-
-        [data-theme="light"] body::after {
-            opacity: 0.04;
-            filter: contrast(120%) brightness(110%);
-        }
-
-        [data-theme="light"] .sidebar,
-        [data-theme="light"] .header {
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-        }
-
-        [data-theme="light"] .config-panel,
-        [data-theme="light"] .preview-panel {
-            box-shadow: 
-                0 4px 6px -1px rgba(0, 0, 0, 0.02),
-                0 20px 25px -5px rgba(173, 141, 58, 0.03);
-            border: 1px solid var(--border);
-        }
-
-        [data-theme="light"] body::after {
-            opacity: 0.06;
+            --text: #a8a39a;
+            --sw: 240px;
         }
 
         html,
@@ -78,15 +37,23 @@
             background: var(--black);
             color: var(--white);
             font-family: 'DM Sans', sans-serif;
+            min-height: 100vh;
         }
 
-        body::after {
-            content: '';
+        .ambient-bg {
             position: fixed;
             inset: 0;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+            z-index: -1;
             pointer-events: none;
-            z-index: 9999;
+        }
+
+        .glow {
+            position: absolute;
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(201, 168, 76, 0.04) 0%, transparent 70%);
+            top: -200px;
+            right: -200px;
         }
 
         .layout {
@@ -94,9 +61,11 @@
             min-height: 100vh;
         }
 
+        /* ── SIDEBAR ── */
         .sidebar {
             width: var(--sw);
-            background: var(--deep);
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(20px);
             border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
@@ -105,36 +74,25 @@
             left: 0;
             bottom: 0;
             z-index: 50;
-            padding: 32px 20px;
+            padding: 40px 24px;
         }
 
-        .sidebar-logo {
+        .logo {
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-bottom: 48px;
-            padding: 0 4px;
+            margin-bottom: 60px;
         }
 
         .logo-mark {
-            width: 34px;
-            height: 34px;
+            width: 32px;
+            height: 32px;
             border: 1px solid var(--gold);
             display: flex;
             align-items: center;
             justify-content: center;
             font-family: 'Playfair Display', serif;
-            font-size: 1em;
             color: var(--gold);
-            position: relative;
-            flex-shrink: 0;
-        }
-
-        .logo-mark::before {
-            content: '';
-            position: absolute;
-            inset: 3px;
-            background: var(--gold-dim);
         }
 
         .logo-text {
@@ -145,969 +103,322 @@
             text-transform: uppercase;
         }
 
-        .nav-section {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.6em;
-            letter-spacing: 3px;
-            color: var(--muted);
-            text-transform: uppercase;
-            padding: 0 8px;
-            margin-bottom: 10px;
-        }
-
         .nav-item {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 12px 10px;
-            color: var(--muted);
+            gap: 14px;
+            padding: 12px 14px;
+            color: var(--text);
             text-decoration: none;
             font-size: 0.85em;
-            font-weight: 500;
             transition: all 0.3s;
-            border-left: 2px solid transparent;
-            margin-bottom: 2px;
+            margin-bottom: 4px;
         }
 
-        .nav-item:hover {
-            color: var(--text);
-            background: rgba(255, 255, 255, 0.03);
-        }
-
+        .nav-item:hover,
         .nav-item.active {
             color: var(--gold);
-            border-left-color: var(--gold);
-            background: var(--gold-dim);
+            background: rgba(201, 168, 76, 0.04);
         }
 
-        .nav-icon {
-            width: 18px;
-            text-align: center;
-            font-size: 0.9em;
-        }
-
-        .sidebar-bottom {
-            margin-top: auto;
-            border-top: 1px solid var(--border);
-            padding-top: 20px;
-        }
-
-        .user-tile {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: 1px solid transparent;
-        }
-
-        .user-tile:hover {
-            background: rgba(255, 255, 255, 0.03);
-            border-color: var(--border);
-        }
-
-        .avatar {
-            width: 34px;
-            height: 34px;
-            background: var(--gold-dim);
-            border: 1px solid rgba(201, 168, 76, 0.3);
-            color: var(--gold);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Playfair Display', serif;
-            font-size: 0.85em;
-            font-weight: 700;
-            flex-shrink: 0;
-        }
-
-        .user-name {
-            font-size: 0.8em;
-            font-weight: 600;
-            color: var(--text);
-        }
-
-        .user-sub {
-            font-size: 0.68em;
-            color: var(--muted);
-        }
-
+        /* ── MAIN ── */
         .main {
             margin-left: var(--sw);
             flex: 1;
         }
 
-        .page-banner {
-            background: var(--deep);
-            border-bottom: 1px solid var(--border);
-            padding: 56px 60px;
-            position: relative;
-            overflow: hidden;
+        .page-header {
+            padding: 80px 80px 40px;
+            background: linear-gradient(to bottom, var(--deep), transparent);
         }
 
-        .page-banner::before {
-            content: '';
-            position: absolute;
-            width: 500px;
-            height: 400px;
-            background: radial-gradient(ellipse, rgba(201, 168, 76, 0.07) 0%, transparent 60%);
-            top: -150px;
-            right: -100px;
-        }
-
-        .banner-kicker {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.68em;
-            letter-spacing: 3px;
-            color: var(--gold);
-            text-transform: uppercase;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .banner-kicker::before {
-            content: '';
-            width: 24px;
-            height: 1px;
-            background: var(--gold);
-        }
-
-        .banner-title {
+        .page-header h1 {
             font-family: 'Playfair Display', serif;
-            font-size: 3em;
+            font-size: 4em;
             font-weight: 900;
+            letter-spacing: -2px;
             line-height: 1;
-            letter-spacing: -1.5px;
-            color: var(--white);
-            margin-bottom: 12px;
-            position: relative;
-            z-index: 1;
         }
 
-        .banner-title em {
+        .page-header h1 em {
             font-style: italic;
             color: var(--gold);
         }
 
-        .banner-sub {
-            color: var(--muted);
-            font-size: 0.85em;
-            position: relative;
-            z-index: 1;
-        }
-
-        .banner-deco {
-            position: absolute;
-            right: 60px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-family: 'Playfair Display', serif;
-            font-size: 12em;
-            font-style: italic;
-            color: rgba(201, 168, 76, 0.04);
-            line-height: 1;
-            user-select: none;
-            pointer-events: none;
-        }
-
+        /* ── CONFIG PANEL ── */
         .content {
-            padding: 48px 60px;
-        }
-
-        .msg-bar {
-            padding: 14px 18px;
-            font-size: 0.82em;
-            margin-bottom: 28px;
-            display: none;
-            border-left: 3px solid;
-            font-weight: 500;
-        }
-
-        .msg-bar.error {
-            background: rgba(220, 38, 38, 0.08);
-            border-color: #dc2626;
-            color: #fca5a5;
-        }
-
-        .msg-bar.success {
-            background: rgba(201, 168, 76, 0.08);
-            border-color: var(--gold);
-            color: var(--gold-light);
+            padding: 0 80px 80px;
         }
 
         .two-col {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 2px;
-            background: var(--border);
-            margin-bottom: 2px;
+            gap: 40px;
         }
 
-        .config-panel {
+        .card {
             background: var(--surface);
-            padding: 36px;
+            border: 1px solid var(--border);
+            padding: 40px;
         }
 
-        .panel-title {
+        .card-title {
             font-family: 'DM Mono', monospace;
-            font-size: 0.62em;
-            letter-spacing: 3px;
-            text-transform: uppercase;
+            font-size: 0.7em;
+            letter-spacing: 2px;
             color: var(--muted);
-            margin-bottom: 28px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid var(--border);
+            text-transform: uppercase;
+            margin-bottom: 24px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
 
-        .panel-title-num {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.6em;
-            color: rgba(201, 168, 76, 0.2);
-            font-style: italic;
-            font-weight: 700;
-            line-height: 1;
-            margin-top: -2px;
-        }
-
-        .form-group {
-            margin-bottom: 22px;
-        }
-
+        .form-group { margin-bottom: 24px; }
         .form-group label {
             display: block;
             font-family: 'DM Mono', monospace;
-            font-size: 0.6em;
-            letter-spacing: 2.5px;
-            text-transform: uppercase;
+            font-size: 0.65em;
+            letter-spacing: 2px;
             color: var(--muted);
             margin-bottom: 10px;
         }
 
-        .form-group input,
-        .form-group select {
+        .form-group input, .form-group select {
             width: 100%;
-            background: var(--card);
+            background: var(--deep);
             border: 1px solid var(--border);
             color: var(--white);
-            padding: 12px 16px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.88em;
+            padding: 16px;
+            font-family: inherit;
             outline: none;
-            transition: all 0.3s;
-            appearance: none;
+            transition: border-color 0.3s;
         }
 
-        .form-group select {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%235a5a5a' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 14px center;
-            background-color: var(--card);
-            padding-right: 36px;
+        /* Distribution Grid */
+        .dist-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
         }
 
-        .form-group input:focus,
-        .form-group select:focus {
-            border-color: var(--gold);
-            box-shadow: 0 0 0 1px rgba(201, 168, 76, 0.15);
+        .dist-item {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 20px;
+            border: 1px solid var(--border);
         }
 
-        .form-group input::placeholder {
-            color: var(--muted);
-        }
-
-        .form-group select option {
-            background: var(--card);
-        }
-
-        /* Sliders */
-        .slider-group {
-            margin-bottom: 20px;
-        }
-
-        .slider-header {
+        .dist-head {
             display: flex;
             justify-content: space-between;
-            align-items: baseline;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
 
-        .slider-label {
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.82em;
-            font-weight: 500;
-            color: var(--text);
-        }
-
-        .slider-value {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.1em;
-            font-style: italic;
-            color: var(--gold);
-            font-weight: 700;
-        }
-
-        .slider-track {
-            position: relative;
-            height: 3px;
-            background: rgba(255, 255, 255, 0.06);
-        }
-
-        .slider-fill {
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            background: var(--gold);
-            pointer-events: none;
-            transition: width 0.1s;
-        }
+        .dist-lbl { font-size: 0.8em; color: var(--text); }
+        .dist-val { font-family: 'DM Mono'; color: var(--gold); font-size: 0.9em; }
 
         input[type="range"] {
             width: 100%;
+            height: 2px;
+            background: var(--border);
             appearance: none;
-            -webkit-appearance: none;
-            height: 3px;
-            background: transparent;
-            position: relative;
-            cursor: pointer;
             outline: none;
         }
 
         input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 16px;
-            height: 16px;
-            border: 2px solid var(--gold);
-            background: var(--black);
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            background: var(--gold);
+            border-radius: 50%;
             cursor: pointer;
-            transition: all 0.2s;
-            border-radius: 0;
         }
 
-        input[type="range"]::-webkit-slider-thumb:hover {
-            background: var(--gold-dim);
-            transform: scale(1.2);
-        }
-
-        .total-line {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 0;
-            margin-top: 12px;
-            border-top: 1px solid var(--border);
-        }
-
-        .total-label {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.62em;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: var(--muted);
-            flex: 1;
-        }
-
-        .total-val {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.1em;
-            font-style: italic;
-            font-weight: 700;
-        }
-
-        .total-val.ok {
-            color: var(--gold);
-        }
-
-        .total-val.err {
-            color: #dc6464;
-        }
-
-        .generate-bar {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-top: none;
-            padding: 24px 36px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .btn-generate {
-            font-family: 'DM Sans', sans-serif;
-            font-weight: 700;
-            font-size: 0.95em;
-            letter-spacing: 1px;
-            padding: 16px 40px;
+        .btn-gen {
+            width: 100%;
+            padding: 20px;
             background: var(--gold);
             color: var(--black);
+            font-weight: 700;
             border: none;
             cursor: pointer;
+            margin-top: 40px;
+            font-family: 'DM Mono', monospace;
+            letter-spacing: 2px;
             transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 10px;
         }
 
-        .btn-generate:hover {
-            background: var(--gold-light);
-            transform: translateY(-2px);
-        }
+        .btn-gen:hover { background: var(--gold-light); transform: translateY(-3px); }
+        .btn-gen:disabled { opacity: 0.4; transform: none; }
 
-        .btn-generate:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .gen-hint {
-            font-size: 0.78em;
-            color: var(--muted);
-        }
-
-        /* RESULT */
-        .result-wrap {
-            border: 1px solid var(--border);
-            background: var(--surface);
-            margin-top: 48px;
+        /* Neural Loading Overlay */
+        .neural-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 5000;
             display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
         }
 
-        .result-header {
-            background: linear-gradient(135deg, rgba(201, 168, 76, 0.12), rgba(201, 168, 76, 0.04));
-            border-bottom: 1px solid rgba(201, 168, 76, 0.2);
-            padding: 36px 40px;
+        .neural-hex {
+            width: 80px;
+            height: 80px;
+            border: 2px solid var(--gold);
+            animation: rotate 4s linear infinite;
+        }
+
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* PREVIEW WRAP */
+        .preview-wrap {
+            margin-top: 60px;
+            display: none;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .preview-head {
+            background: var(--surface);
+            padding: 40px;
+            border: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .result-title {
+        .preview-title {
             font-family: 'Playfair Display', serif;
-            font-size: 1.8em;
-            font-weight: 900;
-            color: var(--white);
-            letter-spacing: -0.5px;
-            margin-bottom: 6px;
+            font-size: 2em;
         }
 
-        .result-sub {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.65em;
-            letter-spacing: 2px;
-            color: var(--gold);
-            text-transform: uppercase;
-        }
-
-        .result-check {
-            font-family: 'Playfair Display', serif;
-            font-size: 2.5em;
-            font-style: italic;
-            color: var(--gold);
-        }
-
-        .result-stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
+        .q-preview-item {
+            padding: 30px 40px;
+            background: rgba(255, 255, 255, 0.01);
             border-bottom: 1px solid var(--border);
-        }
-
-        .rstat {
-            padding: 28px 32px;
-            border-right: 1px solid var(--border);
-            text-align: center;
-        }
-
-        .rstat:last-child {
-            border-right: none;
-        }
-
-        .rstat-num {
-            font-family: 'Playfair Display', serif;
-            font-size: 2.8em;
-            font-weight: 900;
-            letter-spacing: -2px;
-            color: var(--white);
-            line-height: 1;
-            margin-bottom: 8px;
-        }
-
-        .rstat-lbl {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.6em;
-            letter-spacing: 2.5px;
-            text-transform: uppercase;
-            color: var(--muted);
-        }
-
-        .result-questions {
-            padding: 0;
-        }
-
-        .rq {
             display: flex;
-            align-items: flex-start;
             gap: 24px;
-            padding: 24px 40px;
-            border-bottom: 1px solid var(--border);
-            transition: background 0.2s;
         }
 
-        .rq:last-child {
-            border-bottom: none;
-        }
+        .q-preview-num { font-family: 'DM Mono'; color: var(--muted); width: 24px; }
+        .q-preview-text { flex: 1; font-size: 0.95em; line-height: 1.7; color: var(--text); }
+        .q-preview-marks { color: var(--gold); font-family: 'DM Mono'; font-size: 0.8em; }
 
-        .rq:hover {
-            background: rgba(255, 255, 255, 0.015);
-        }
-
-        .rq-num {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.1em;
-            font-style: italic;
-            color: rgba(201, 168, 76, 0.25);
-            width: 32px;
-            flex-shrink: 0;
-            padding-top: 2px;
-        }
-
-        .rq-text {
-            flex: 1;
-            font-size: 0.88em;
-            line-height: 1.7;
-            color: var(--text);
-        }
-
-        .rq-badge {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.58em;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            padding: 3px 8px;
-            border: 1px solid;
-            margin-left: 10px;
-            vertical-align: middle;
-        }
-
-        .rq-pts {
-            font-family: 'Playfair Display', serif;
-            font-size: 1em;
-            font-style: italic;
-            color: var(--gold);
-            flex-shrink: 0;
-            white-space: nowrap;
-        }
-
-        .b-remember {
-            border-color: rgba(201, 168, 76, 0.4);
-            color: var(--gold);
-        }
-
-        .b-understand {
-            border-color: rgba(100, 150, 220, 0.4);
-            color: #7090cc;
-        }
-
-        .b-apply {
-            border-color: rgba(100, 200, 130, 0.4);
-            color: #64c882;
-        }
-
-        .b-analyze {
-            border-color: rgba(220, 180, 80, 0.4);
-            color: #dcb450;
-        }
-
-        .b-evaluate {
-            border-color: rgba(220, 100, 100, 0.4);
-            color: #dc6464;
-        }
-
-        .b-create {
-            border-color: rgba(200, 100, 180, 0.4);
-            color: #c864b4;
-        }
-
-        @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(14px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .content {
-            animation: fadeUp 0.5s 0.1s ease both;
-        }
-
-        .result-wrap {
-            animation: fadeUp 0.5s ease both;
-        }
-
-        /* Theme Toggle */
-        .theme-toggle {
-            width: 100%;
-            padding: 10px;
-            margin-top: 12px;
-            border: 1px solid var(--border);
-            background: transparent;
-            color: var(--gold);
-            font-size: 0.8em;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all 0.3s;
-            font-family: 'DM Mono', monospace;
-            letter-spacing: 1px;
-        }
-
-        .theme-toggle:hover {
-            border-color: var(--gold);
-            background: var(--gold-dim);
-        }
-
-        .theme-toggle-icon {
-            font-size: 1.1em;
-        }
-        /* Mode Switch */
-        .mode-toggle-wrap {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 24px;
-            padding: 16px;
-            background: var(--card);
-            border: 1px solid var(--border);
-        }
-        
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 44px;
-            height: 22px;
-        }
-        
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            inset: 0;
-            background-color: var(--surface);
-            transition: .4s;
-            border: 1px solid var(--border-strong);
-        }
-        
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 14px;
-            width: 14px;
-            left: 3px;
-            bottom: 3px;
-            background-color: var(--muted);
-            transition: .4s;
-        }
-        
-        input:checked + .slider {
-            background-color: var(--gold-dim);
-            border-color: var(--gold);
-        }
-        
-        input:checked + .slider:before {
-            transform: translateX(22px);
-            background-color: var(--gold);
-        }
-        
-        .mode-label {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.65em;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: var(--text);
-        }
-
-        .manual-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
-            margin-top: 12px;
-        }
-
-        .m-input-group {
-            background: var(--card);
-            padding: 12px 16px;
-            border: 1px solid var(--border);
-        }
-
-        .m-input-label {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.58em;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            color: var(--muted);
-            margin-bottom: 8px;
-            display: block;
-        }
-
-        .m-input-field {
-            width: 100%;
-            background: transparent;
-            border: none;
-            border-bottom: 1px solid var(--border);
-            color: var(--gold);
-            font-family: 'Playfair Display', serif;
-            font-size: 1.3em;
-            font-style: italic;
-            font-weight: 700;
-            outline: none;
-            padding: 4px 0;
-        }
-
-        .m-input-field:focus {
-            border-color: var(--gold);
-        }
     </style>
 </head>
 
 <body>
+    <div class="ambient-bg"><div class="glow"></div></div>
+
     <div class="layout">
         <aside class="sidebar">
-            <div class="sidebar-logo">
+            <div class="logo">
                 <div class="logo-mark">Q</div>
                 <div class="logo-text">QPGen</div>
             </div>
-            <div class="nav-section">Workspace</div>
-            <a class="nav-item" href="dashboard.html"><span class="nav-icon">◈</span> Dashboard</a>
-            <a class="nav-item" href="questions.html"><span class="nav-icon">◉</span> Question Bank</a>
-            <a class="nav-item active" href="generate.html"><span class="nav-icon">◎</span> Generate Paper</a>
-            <div class="sidebar-bottom">
-                <div class="user-tile" onclick="logout()">
-                    <div class="avatar" id="av">N</div>
-                    <div>
-                        <div class="user-name" id="uName">User</div>
-                        <div class="user-sub">Sign out</div>
-                    </div>
-                </div>
-                <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle theme">
-                    <span class="theme-toggle-icon">☀</span>
-                </button>
+            <div class="nav-section" style="font-family:'DM Mono'; font-size:0.6em; text-transform:uppercase; color:var(--muted); margin-bottom:12px;">Workspace</div>
+            <a href="dashboard.html" class="nav-item">Dashboard</a>
+            <a href="questions.html" class="nav-item">Question Bank</a>
+            <a href="generate.html" class="nav-item active">Generate Paper</a>
+            <div style="margin-top:auto;">
+                <div id="uName" style="font-size:0.8em; margin-bottom:12px; color:var(--text);">Professor</div>
+                <a href="#" class="btn-gen" style="padding:10px; font-size:0.6em; text-align:center; display:block;" onclick="logout()">Logout</a>
             </div>
         </aside>
 
         <main class="main">
-            <div class="page-banner">
-                <div class="banner-kicker">AI-Powered</div>
-                <h1 class="banner-title">Generate <em>Paper.</em></h1>
-                <p class="banner-sub">Configure Bloom's distribution · Smart question selection</p>
-                <div class="banner-deco">◎</div>
-            </div>
+            <header class="page-header">
+                <p style="font-family:'DM Mono'; letter-spacing:2px; font-size:0.7em; color:var(--gold); text-transform:uppercase;">Synthesis Lab</p>
+                <h1>Cognitive<br><em>Composer.</em></h1>
+            </header>
 
             <div class="content">
-                <div class="msg-bar error" id="errMsg"></div>
-                <div class="msg-bar success" id="sucMsg"></div>
+                <div id="msg" class="msg-bar"></div>
 
-                <div class="mode-toggle-wrap" style="display: flex; gap: 24px; flex-wrap: wrap;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <input type="radio" name="genMode" id="modeSmart" value="smart" checked onchange="updateModePanels()">
-                        <label for="modeSmart" class="mode-label">Smart Question Pick</label>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <input type="radio" name="genMode" id="modeManual" value="manual" onchange="updateModePanels()">
-                        <label for="modeManual" class="mode-label">Manual Structure Mode</label>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <input type="radio" name="genMode" id="modeSyllabus" value="syllabus" onchange="updateModePanels()">
-                        <label for="modeSyllabus" class="mode-label" style="color:var(--gold); font-weight:700;">✨ AI Syllabus Mode</label>
-                    </div>
-                </div>
-
-                <!-- AI Syllabus Panel -->
-                <div id="syllabusPanel" class="config-panel" style="display: none; margin-bottom: 24px;">
-                    <div class="panel-title">
-                        <span class="panel-title-num">00</span>
-                        AI Syllabus Configuration
-                    </div>
-                    <div class="form-group">
-                        <label>Unit / Topic / Syllabus Details</label>
-                        <textarea id="syllabusText" class="form-group" style="width:100%; height:120px; background:var(--card); border:1px solid var(--border); color:var(--white); padding:16px; font-family:inherit; outline:none;" placeholder="Paste the unit syllabus or topic details here. AI will create questions based on this text."></textarea>
-                    </div>
-                    <div class="panel-title" style="margin-top:32px; border:none; padding:0; font-size:0.55em; color:var(--gold)">
-                        Marks Distribution (Questions to Create)
-                    </div>
-                    <div class="manual-grid">
-                        <div class="m-input-group">
-                            <span class="m-input-label">1 Mark Qs</span>
-                            <input type="number" class="m-input-field" id="s1" value="5" min="0">
-                        </div>
-                        <div class="m-input-group">
-                            <span class="m-input-label">3 Mark Qs</span>
-                            <input type="number" class="m-input-field" id="s3" value="2" min="0">
-                        </div>
-                        <div class="m-input-group">
-                            <span class="m-input-label">5 Mark Qs</span>
-                            <input type="number" class="m-input-field" id="s5" value="1" min="0">
-                        </div>
-                        <div class="m-input-group">
-                            <span class="m-input-label">10 Mark Qs</span>
-                            <input type="number" class="m-input-field" id="s10" value="0" min="0">
-                        </div>
-                    </div>
-                    <p class="gen-hint" style="margin-top:12px;">AI will generate these questions and save them to your Question Bank.</p>
-                </div>
-
-                <!-- Manual Structure Panel -->
-                <div id="manualPanel" class="config-panel" style="display: none; margin-bottom: 24px;">
-                    <div class="panel-title">
-                        <span class="panel-title-num">00</span>
-                        Question Counts by Marks
-                    </div>
-                    <div class="manual-grid">
-                        <div class="m-input-group">
-                            <span class="m-input-label">1 Mark (MCQ)</span>
-                            <input type="number" class="m-input-field" id="m1" value="0" min="0" oninput="calcManualTotal()">
-                        </div>
-                        <div class="m-input-group">
-                            <span class="m-input-label">3 Marks (Short)</span>
-                            <input type="number" class="m-input-field" id="m3" value="0" min="0" oninput="calcManualTotal()">
-                        </div>
-                        <div class="m-input-group">
-                            <span class="m-input-label">5 Marks (Long)</span>
-                            <input type="number" class="m-input-field" id="m5" value="0" min="0" oninput="calcManualTotal()">
-                        </div>
-                        <div class="m-input-group">
-                            <span class="m-input-label">10 Marks (Major)</span>
-                            <input type="number" class="m-input-field" id="m10" value="0" min="0" oninput="calcManualTotal()">
-                        </div>
-                    </div>
-                    <div class="total-line">
-                        <span class="total-label">Calculated Marks Total</span>
-                        <span class="total-val err" id="mTotalDisplay">0</span>
-                    </div>
-                </div>
-
-                <div class="two-col" id="smartConfigArea">
-                    <!-- LEFT: Paper Details -->
-                    <div class="config-panel">
-                        <div class="panel-title">
-                            <span class="panel-title-num">01</span>
-                            Paper Details
+                <div class="two-col">
+                    <div class="card">
+                        <div class="card-title"><span>01</span> Neural Configuration</div>
+                        
+                        <div class="form-group">
+                            <label>Curriculum Strata</label>
+                            <select id="sSub" onchange="loadStats()"></select>
                         </div>
                         <div class="form-group">
-                            <label>Paper Title</label>
-                            <input type="text" id="title" placeholder="e.g. CS101 Mid Term Exam">
+                            <label>Archives Title</label>
+                            <input type="text" id="sTitle" placeholder="End-Term Evaluation (2025)...">
                         </div>
+                        
                         <div class="form-group">
-                            <label>Subject</label>
-                            <select id="subject">
-                                <option value="">Select subject...</option>
-                            </select>
+                            <label>Duration (Minutes)</label>
+                            <input type="number" id="sDuration" value="180" min="30" max="300">
                         </div>
+                        
                         <div class="form-group">
-                            <label>Total Marks</label>
-                            <input type="number" id="marks" placeholder="100" min="1">
-                        </div>
-                        <div class="form-group">
-                            <label>Duration (minutes)</label>
-                            <input type="number" id="dur" placeholder="180" min="1">
-                        </div>
-                        <div class="form-group">
-                            <label>Question Type</label>
-                            <select id="qtype">
-                                <option value="mixed">Mixed (All Types)</option>
-                                <option value="mcq">MCQ Only</option>
-                                <option value="short">Short Answer Only</option>
-                                <option value="long">Long Answer Only</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Maximum MCQs Allowed</label>
-                            <input type="number" id="maxMcqs" placeholder="No limit" min="1">
-                            <span class="gen-hint" style="margin-top:4px">Limits 1-mark questions</span>
-                        </div>
-                    </div>
-
-                    <!-- RIGHT: Distributions -->
-                    <div>
-                        <div class="config-panel" style="border-left: 1px solid var(--border); margin-bottom: 2px;">
-                            <div class="panel-title">
-                                <span class="panel-title-num">02</span>
-                                Bloom's Distribution
-                            </div>
-                            <div id="bloomSliders"></div>
-                            <div class="total-line">
-                                <span class="total-label">Total</span>
-                                <span class="total-val ok" id="bTotal">100%</span>
+                            <label>Methodology</label>
+                            <div style="display:flex; gap:12px; margin-top:10px;">
+                                <button id="modeManual" onclick="setMode('manual')" style="flex:1; padding:12px; background:var(--gold-dim); color:var(--gold); border:1px solid var(--gold); cursor:pointer;">Handcrafted</button>
+                                <button id="modeAI" onclick="setMode('ai')" style="flex:1; padding:12px; background:var(--deep); color:var(--muted); border:1px solid var(--border); cursor:pointer;">AI Synthesis</button>
                             </div>
                         </div>
 
-                        <div class="config-panel"
-                            style="border-left: 1px solid var(--border); border-top: 1px solid var(--border);">
-                            <div class="panel-title">
-                                <span class="panel-title-num">03</span>
-                                Difficulty Split
-                            </div>
-                            <div id="diffSliders"></div>
-                            <div class="total-line">
-                                <span class="total-label">Total</span>
-                                <span class="total-val ok" id="dTotal">100%</span>
+                        <div id="aiBlock" style="display:none;">
+                            <div class="form-group">
+                                <label>Domain Constraints (Optional)</label>
+                                <textarea id="aiTopic" rows="2" style="width:100%; background:var(--deep); border:1px solid var(--border); color:var(--white); padding:12px;" placeholder="Focus on specific topics..."></textarea>
                             </div>
                         </div>
                     </div>
+
+                    <div class="card">
+                        <div class="card-title"><span>02</span> Marks Distribution</div>
+                        
+                        <div class="dist-grid">
+                            <div class="dist-item">
+                                <div class="dist-head"><span class="dist-lbl">1 MARK ITEMS</span><span class="dist-val" id="v1">0</span></div>
+                                <input type="range" id="m1" min="0" max="20" value="0" oninput="updateDist()">
+                            </div>
+                            <div class="dist-item">
+                                <div class="dist-head"><span class="dist-lbl">3 MARK ITEMS</span><span class="dist-val" id="v3">0</span></div>
+                                <input type="range" id="m3" min="0" max="10" value="0" oninput="updateDist()">
+                            </div>
+                            <div class="dist-item">
+                                <div class="dist-head"><span class="dist-lbl">5 MARK ITEMS</span><span class="dist-val" id="v5">0</span></div>
+                                <input type="range" id="m5" min="0" max="10" value="0" oninput="updateDist()">
+                            </div>
+                            <div class="dist-item">
+                                <div class="dist-head"><span class="dist-lbl">10 MARK ITEMS</span><span class="dist-val" id="v10">0</span></div>
+                                <input type="range" id="m10" min="0" max="5" value="0" oninput="updateDist()">
+                            </div>
+                        </div>
+
+                        <div style="margin-top:32px; border-top:1px solid var(--border); padding-top:20px; display:flex; justify-content:space-between;">
+                            <span style="font-family:'DM Mono'; font-size:0.6em; color:var(--muted); letter-spacing:1px;">TOTAL MARK ARCHITECTURE</span>
+                            <span id="vTotal" style="font-family:'Playfair Display'; color:var(--gold); font-weight:900; font-size:1.5em;">0 / 100</span>
+                        </div>
+
+                        <button id="btnGen" class="btn-gen" onclick="composerAction()">Initiate Synthesis →</button>
+                    </div>
                 </div>
 
-                <div class="generate-bar">
-                    <button class="btn-generate" id="genBtn" onclick="generate()">
-                        <span>◎</span> Generate Paper Now
-                    </button>
-                    <span class="gen-hint" id="genHint">All totals must equal 100%</span>
-                </div>
-
-                <!-- Result -->
-                <div class="result-wrap" id="resultCard">
-                    <div class="success-header">
-                        <div class="sh-left">
-                            <h2 class="sh-title" id="rTitle"></h2>
-                            <div class="sh-meta" id="rSub"></div>
+                <div id="result" class="preview-wrap">
+                    <div class="preview-head">
+                        <div>
+                            <div class="preview-title" id="rTitle">Evaluation Paper</div>
+                            <div style="font-family:'DM Mono'; font-size:0.7em; color:var(--muted);" id="rSub">SUBJECT ALLOCATION</div>
                         </div>
-                        <div class="actions" style="margin-left:auto; display:flex; gap:12px;">
-                            <button class="btn" style="background:var(--surface); color:var(--gold); border-color:var(--gold)" onclick="downloadPdf()">Download PDF</button>
-                            <div class="success-check">✓</div>
-                        </div>
+                        <button class="btn-gen" style="width:auto; padding:12px 32px;" onclick="downloadPdf()">Download PDF ↓</button>
                     </div>
-                    <div class="result-stats">
-                        <div class="rstat">
-                            <div class="rstat-num" id="rQ">—</div>
-                            <div class="rstat-lbl">Questions</div>
-                        </div>
-                        <div class="rstat">
-                            <div class="rstat-num" id="rM">—</div>
-                            <div class="rstat-lbl">Total Marks</div>
-                        </div>
-                        <div class="rstat">
-                            <div class="rstat-num" id="rD">—</div>
-                            <div class="rstat-lbl">Duration</div>
-                        </div>
-                    </div>
-                    <div class="result-questions" id="rQs"></div>
+                    <div id="qList" style="background:var(--surface); border:1px solid var(--border); border-top:none;"></div>
                 </div>
             </div>
         </main>
+    </div>
+
+    <div id="neural" class="neural-overlay">
+        <div class="neural-hex"></div>
+        <div style="font-family:'DM Mono'; color:var(--gold); letter-spacing:3px; font-size:0.8em; margin-top:20px;">CALCULATING NEURAL PATHWAYS</div>
     </div>
 
     <script>
@@ -1115,258 +426,126 @@
         const token = localStorage.getItem('token');
         if (!token) window.location.href = 'index.html';
         const user = JSON.parse(localStorage.getItem('user') || '{}');
-        document.getElementById('uName').textContent = user.username || 'User';
-        document.getElementById('av').textContent = (user.username || 'U')[0].toUpperCase();
         const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
 
-        const bloomsList = [
-            { key: 'remember', label: 'Remember', def: 20 },
-            { key: 'understand', label: 'Understand', def: 30 },
-            { key: 'apply', label: 'Apply', def: 30 },
-            { key: 'analyze', label: 'Analyze', def: 10 },
-            { key: 'evaluate', label: 'Evaluate', def: 5 },
-            { key: 'create', label: 'Create', def: 5 },
-        ];
-
+        document.getElementById('uName').textContent = user.username;
+        let mode = 'manual';
         let currentPaper = null;
-        let activeMode = 'smart';
-
-        function updateModePanels() {
-            activeMode = document.querySelector('input[name="genMode"]:checked').value;
-            
-            document.getElementById('manualPanel').style.display = (activeMode === 'manual') ? 'block' : 'none';
-            document.getElementById('syllabusPanel').style.display = (activeMode === 'syllabus') ? 'block' : 'none';
-            document.getElementById('smartConfigArea').style.display = (activeMode === 'syllabus') ? 'flex' : 'flex'; // Layout remains flex
-            
-            // Specifically hide/show distribution panels for Smart Mode
-            const distPanels = document.getElementById('smartConfigArea').children[1];
-            distPanels.style.display = (activeMode === 'smart') ? 'block' : 'none';
-            
-            if (activeMode === 'manual') calcManualTotal();
-        }
-
-        function calcManualTotal() {
-            const m1 = parseInt(document.getElementById('m1').value || 0);
-            const m3 = parseInt(document.getElementById('m3').value || 0);
-            const m5 = parseInt(document.getElementById('m5').value || 0);
-            const m10 = parseInt(document.getElementById('m10').value || 0);
-            const total = (m1 * 1) + (m3 * 3) + (m5 * 5) + (m10 * 10);
-            
-            const display = document.getElementById('mTotalDisplay');
-            display.textContent = total;
-            
-            const target = parseInt(document.getElementById('marks').value || 0);
-            const limit = parseInt(document.getElementById('maxMcqs').value || 999);
-            
-            if (total === target && target > 0 && m1 <= limit) {
-                display.className = 'total-val ok';
-            } else {
-                display.className = 'total-val err';
-            }
-
-            if (m1 > limit) {
-                document.getElementById('errMsg').textContent = `⚠ MCQ count (${m1}) exceeds the set limit (${limit}).`;
-                document.getElementById('errMsg').style.display = 'block';
-            } else {
-                document.getElementById('errMsg').style.display = 'none';
-            }
-
-            return total;
-        }
-
-        const diffList = [
-            { key: 'easy', label: 'Easy', def: 30 },
-            { key: 'medium', label: 'Medium', def: 50 },
-            { key: 'hard', label: 'Hard', def: 20 },
-        ];
-
-        function buildSliders(items, containerId) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = items.map(item => `
-            <div class="slider-group">
-                <div class="slider-header">
-                    <span class="slider-label">${item.label}</span>
-                    <span class="slider-value" id="sv_${item.key}">${item.def}%</span>
-                </div>
-                <div class="slider-track">
-                    <div class="slider-fill" id="sf_${item.key}" style="width:${item.def}%"></div>
-                    <input type="range" min="0" max="100" value="${item.def}" id="sl_${item.key}"
-                        oninput="syncSlider('${item.key}'); checkTotals()">
-                </div>
-            </div>`).join('');
-        }
-
-        function syncSlider(key) {
-            const v = document.getElementById(`sl_${key}`).value;
-            document.getElementById(`sv_${key}`).textContent = v + '%';
-            document.getElementById(`sf_${key}`).style.width = v + '%';
-        }
-
-        function getTotal(items) {
-            return items.reduce((s, i) => s + parseInt(document.getElementById(`sl_${i.key}`).value), 0);
-        }
-
-        function checkTotals() {
-            const bt = getTotal(bloomsList), dt = getTotal(diffList);
-            const bEl = document.getElementById('bTotal'), dEl = document.getElementById('dTotal');
-            bEl.textContent = bt + '%';
-            bEl.className = `total-val ${bt === 100 ? 'ok' : 'err'}`;
-            dEl.textContent = dt + '%';
-            dEl.className = `total-val ${dt === 100 ? 'ok' : 'err'}`;
-
-            const hint = document.getElementById('genHint');
-            if (bt === 100 && dt === 100) { hint.textContent = 'Ready to generate'; hint.style.color = 'var(--gold)'; }
-            else { hint.textContent = 'Totals must equal 100%'; hint.style.color = 'var(--muted)'; }
-        }
 
         async function loadSubjects() {
-            const res = await fetch(`${API}/subjects/`, { headers });
-            const data = await res.json();
-            (data.subjects || []).forEach(s => {
-                document.getElementById('subject').innerHTML += `<option value="${s.id}">${s.name} (${s.code})</option>`;
-            });
+            try {
+                const res = await fetch(`${API}/teacher/subjects`, { headers });
+                const d = await res.json();
+                const list = d.data || [];
+                document.getElementById('sSub').innerHTML = list.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+                updateDist();
+            } catch (e) { console.error(e); }
         }
 
-        async function generate() {
-            const title = document.getElementById('title').value.trim();
-            const subject_id = document.getElementById('subject').value;
-            const totalMarks = parseInt(document.getElementById('marks').value);
-            const duration = parseInt(document.getElementById('dur').value);
-            const qtype = document.getElementById('qtype').value;
-            const err = document.getElementById('errMsg'), suc = document.getElementById('sucMsg');
+        function setMode(m) {
+            mode = m;
+            document.getElementById('modeManual').style.background = m === 'manual' ? 'var(--gold-dim)' : 'var(--deep)';
+            document.getElementById('modeManual').style.color = m === 'manual' ? 'var(--gold)' : 'var(--muted)';
+            document.getElementById('modeAI').style.background = m === 'ai' ? 'var(--gold-dim)' : 'var(--deep)';
+            document.getElementById('modeAI').style.color = m === 'ai' ? 'var(--gold)' : 'var(--muted)';
+            document.getElementById('aiBlock').style.display = m === 'ai' ? 'block' : 'none';
+        }
 
-            if (!title || !subject_id || !totalMarks || !duration) {
-                err.textContent = '⚠ Fill in all paper details before generating.';
-                err.style.display = 'block'; suc.style.display = 'none'; return;
-            }
+        function updateDist() {
+            const m1 = parseInt(document.getElementById('m1').value);
+            const m3 = parseInt(document.getElementById('m3').value);
+            const m5 = parseInt(document.getElementById('m5').value);
+            const m10 = parseInt(document.getElementById('m10').value);
+            
+            document.getElementById('v1').textContent = m1;
+            document.getElementById('v3').textContent = m3;
+            document.getElementById('v5').textContent = m5;
+            document.getElementById('v10').textContent = m10;
+            
+            const total = (m1*1) + (m3*3) + (m5*5) + (m10*10);
+            document.getElementById('vTotal').textContent = `${total} / 100`;
+            document.getElementById('vTotal').style.color = total > 100 ? '#e74c3c' : 'var(--gold)';
+            document.getElementById('btnGen').disabled = total === 0 || total > 100;
+        }
 
-            const btn = document.getElementById('genBtn');
-            btn.innerHTML = '<span style="display:inline-block;animation:spin 1s linear infinite">◎</span> ' + 
-                            (activeMode === 'syllabus' ? 'AI Deep Generating...' : 'Generating...');
-            btn.disabled = true;
-            err.style.display = 'none'; suc.style.display = 'none';
+        async function composerAction() {
+            const m1 = parseInt(document.getElementById('m1').value);
+            const m3 = parseInt(document.getElementById('m3').value);
+            const m5 = parseInt(document.getElementById('m5').value);
+            const m10 = parseInt(document.getElementById('m10').value);
+            const totalMarks = (m1*1) + (m3*3) + (m5*5) + (m10*10);
+            const duration = parseInt(document.getElementById('sDuration').value);
+            const title = document.getElementById('sTitle').value || 'New Examination Paper';
+            const subjectId = parseInt(document.getElementById('sSub').value);
 
             let endpoint = `${API}/papers/generate`;
-            let payload = { title, subject_id: parseInt(subject_id), total_marks: totalMarks, duration_minutes: duration };
-            
-            if (activeMode === 'syllabus') {
-                endpoint = `${API}/papers/generate-ai-syllabus`;
-                payload.syllabus = document.getElementById('syllabusText').value;
-                payload.distribution = {
-                    "1": parseInt(document.getElementById('s1').value || 0),
-                    "3": parseInt(document.getElementById('s3').value || 0),
-                    "5": parseInt(document.getElementById('s5').value || 0),
-                    "10": parseInt(document.getElementById('s10').value || 0)
-                };
-                if (!payload.syllabus) {
-                    err.textContent = '⚠ Please provide syllabus text for AI generation.';
-                    err.style.display = 'block'; btn.innerHTML = '<span>◎</span> Generate Paper Now'; btn.disabled = false; return;
-                }
-            } else if (activeMode === 'manual') {
-                const total = calcManualTotal();
-                if (total !== totalMarks) {
-                    err.textContent = `⚠ Manual question total (${total} marks) does not match Paper Total (${totalMarks} marks).`;
-                    err.style.display = 'block';
-                    btn.innerHTML = '<span>◎</span> Generate Paper Now'; btn.disabled = false;
-                    return;
-                }
-                payload.config = { 
-                    question_type: qtype,
-                    custom_distribution: {
-                        1: parseInt(document.getElementById('m1').value || 0),
-                        3: parseInt(document.getElementById('m3').value || 0),
-                        5: parseInt(document.getElementById('m5').value || 0),
-                        10: parseInt(document.getElementById('m10').value || 0)
-                    }
+            let payload = {
+                title,
+                subject_id: subjectId,
+                duration_minutes: duration,
+                total_marks: totalMarks
+            };
+
+            if (mode === 'manual') {
+                payload.config = {
+                    question_type: 'mixed',
+                    marks_distribution: { 1: m1, 3: m3, 5: m5, 10: m10 }
                 };
             } else {
-                const bt = getTotal(bloomsList), dt = getTotal(diffList);
-                if (bt !== 100) { err.textContent = `⚠ Bloom's distribution must total 100% (currently ${bt}%)`; err.style.display = 'block'; btn.innerHTML = '<span>◎</span> Generate Paper Now'; btn.disabled = false; return; }
-                if (dt !== 100) { err.textContent = `⚠ Difficulty distribution must total 100% (currently ${dt}%)`; err.style.display = 'block'; btn.innerHTML = '<span>◎</span> Generate Paper Now'; btn.disabled = false; return; }
-
-                payload.config = { 
-                    question_type: qtype,
-                    blooms_distribution: {},
-                    difficulty_distribution: {}
-                };
-                bloomsList.forEach(i => { const v = parseInt(document.getElementById(`sl_${i.key}`).value); if (v > 0) payload.config.blooms_distribution[i.key] = v; });
-                diffList.forEach(i => { const v = parseInt(document.getElementById(`sl_${i.key}`).value); if (v > 0) payload.config.difficulty_distribution[i.key] = v; });
+                endpoint = `${API}/papers/generate-ai-syllabus`;
+                payload.syllabus = document.getElementById('aiTopic').value || 'General curriculum';
+                payload.distribution = { 1: m1, 3: m3, 5: m5, 10: m10 };
             }
 
+            document.getElementById('neural').style.display = 'flex';
             try {
-                const res = await fetch(endpoint, {
-                    method: 'POST', headers,
-                    body: JSON.stringify(payload)
-                });
-                const data = await res.json();
-                if (!res.ok) { err.textContent = '⚠ ' + (data.error || 'Generation failed.'); err.style.display = 'block'; return; }
-                suc.textContent = '✓ Paper generated successfully.'; suc.style.display = 'block';
-                showResult(data.paper);
-            } catch { err.textContent = '⚠ Cannot reach server.'; err.style.display = 'block'; }
-            finally { btn.innerHTML = '<span>◎</span> Generate Paper Now'; btn.disabled = false; }
+                const res = await fetch(endpoint, { method: 'POST', headers, body: JSON.stringify(payload) });
+                const d = await res.json();
+                if (res.ok) {
+                    currentPaper = d.paper;
+                    renderResult(d.paper);
+                } else alert(d.error || d.message || 'Synthesis error.');
+            } catch (e) { alert('Archival link failed.'); }
+            finally { document.getElementById('neural').style.display = 'none'; }
         }
 
-        const bbMap = { remember: 'b-remember', understand: 'b-understand', apply: 'b-apply', analyze: 'b-analyze', evaluate: 'b-evaluate', create: 'b-create' };
-
-        function showResult(p) {
-            currentPaper = p;
-            const card = document.getElementById('resultCard');
-            card.style.display = 'block';
+        function renderResult(p) {
+            document.getElementById('result').style.display = 'block';
             document.getElementById('rTitle').textContent = p.title;
-            document.getElementById('rSub').textContent = `Generated · ${new Date(p.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`;
-            document.getElementById('rQ').textContent = p.question_count;
-            document.getElementById('rM').textContent = p.total_marks;
-            document.getElementById('rD').textContent = p.duration_minutes + 'm';
-            document.getElementById('rQs').innerHTML = (p.questions || []).map((q, i) => `
-            <div class="rq">
-                <div class="rq-num">${String(i + 1).padStart(2, '0')}</div>
-                <div class="rq-text">${q.text}<span class="rq-badge ${bbMap[q.blooms_level] || ''}">${q.blooms_level}</span></div>
-                <div class="rq-pts">${q.marks} pts</div>
-            </div>`).join('');
-            card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            document.getElementById('rSub').textContent = document.getElementById('sSub').options[document.getElementById('sSub').selectedIndex].text.toUpperCase();
+            
+            document.getElementById('qList').innerHTML = p.questions.map((q, i) => `
+                <div class="q-preview-item">
+                    <div class="q-preview-num">${String(i+1).padStart(2, '0')}</div>
+                    <div class="q-preview-text">
+                        ${q.text}
+                        <span class="rq-badge b-${q.blooms_level}">${q.blooms_level}</span>
+                    </div>
+                    <div class="q-preview-marks">${q.marks} PTS</div>
+                </div>
+            `).join('');
+            
+            window.scrollTo({ top: document.getElementById('result').offsetTop - 40, behavior: 'smooth' });
+        }
+
+        async function downloadPdf() {
+            if (!currentPaper) return;
+            try {
+                const res = await fetch(`${API}/papers/${currentPaper.id}/pdf`, { headers });
+                const blob = await res.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `QPGen_${currentPaper.title.replace(/\s+/g, '_')}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+            } catch (e) { alert('PDF Synthesis failed.'); }
         }
 
         function logout() { localStorage.clear(); window.location.href = 'index.html'; }
-
-        buildSliders(bloomsList, 'bloomSliders');
-        buildSliders(diffList, 'diffSliders');
-        checkTotals();
         loadSubjects();
-
-        // Add spin animation
-        const style = document.createElement('style');
-        style.textContent = '@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }';
-        document.head.appendChild(style);
-        async function downloadPdf() {
-            if (!currentPaper) {
-                alert('Please generate a paper first.');
-                return;
-            }
-            
-            try {
-                const response = await fetch(`${API}/papers/${currentPaper.id}/pdf`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (response.ok) {
-                    const blob = await response.blob();
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `${currentPaper.title.replace(/\s+/g, '_')}.pdf`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    window.URL.revokeObjectURL(url);
-                } else {
-                    alert('Failed to generate PDF. Please try again.');
-                }
-            } catch (e) {
-                console.error(e);
-                alert('Error downloading PDF. Check server connection.');
-            }
-        }
     </script>
-    <script src="theme.js"></script>
 </body>
 
 </html>

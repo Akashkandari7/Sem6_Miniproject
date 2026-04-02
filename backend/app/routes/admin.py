@@ -175,3 +175,34 @@ def handle_subject_request(request_id):
         'message': f'Request {action}ed successfully'
     }), 200
   
+
+@admin_bp.route('/support', methods=['GET'])
+@require_role('admin')
+def get_support_messages():
+    """List all support tickets sent by teachers."""
+    from app.models.support_message import SupportMessage
+    status = request.args.get('status', 'pending')
+    
+    query = SupportMessage.query
+    if status != 'all':
+        query = query.filter_by(status=status)
+        
+    messages = query.order_by(SupportMessage.created_at.desc()).all()
+    
+    return jsonify({
+        'success': True,
+        'data': [m.to_dict() for m in messages],
+        'count': len(messages)
+    }), 200
+
+@admin_bp.route('/support/<int:message_id>/resolve', methods=['POST'])
+@require_role('admin')
+def resolve_support_message(message_id):
+    """Mark a support ticket as resolved."""
+    from app.models.support_message import SupportMessage
+    msg = db.get_or_404(SupportMessage, message_id)
+    msg.status = 'resolved'
+    db.session.commit()
+    
+    log_action('admin.support_resolve', resource_type='support_message', resource_id=message_id)
+    return jsonify({'success': True, 'message': 'Ticket resolved successfully'}), 200

@@ -61,9 +61,10 @@ def create_paper():
     """
     data = request.get_json()
 
-    required = ['title', 'subject_id', 'total_marks', 'duration_minutes', 'config']
+    required = ['title', 'subject_id', 'duration_minutes', 'config']
     if not all(k in data for k in required):
-        return jsonify({'error': f'Required fields: {required}'}), 400
+        missing = [k for k in required if k not in data]
+        return jsonify({'error': f'Required fields: {missing}'}), 400
 
     if not db.session.get(Subject, data['subject_id']):
         return jsonify({'error': 'Subject not found'}), 404
@@ -254,7 +255,7 @@ def generate_ai_syllabus_paper():
             db.session.flush()
             
             paper.questions.append(q)
-            total_marks += q.marks
+            total_marks += int(q.marks)
 
         paper.total_marks = total_marks
         db.session.commit()

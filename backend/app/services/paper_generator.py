@@ -9,7 +9,8 @@ def generate_paper(subject_id, total_marks, config):
     3. Smart Mode Pass 2: Backfill remaining marks from the subject pool.
     """
 
-    custom_dist = config.get('custom_distribution') # e.g., {1: 20, 3: 10, 5: 10, 10: 10}
+    # Handle distribution: 'custom_distribution' (legacy) or 'marks_distribution' (new UI)
+    custom_dist = config.get('marks_distribution') or config.get('custom_distribution')
     max_mcqs = config.get('max_mcqs') # e.g., 10
     
     selected_questions = []

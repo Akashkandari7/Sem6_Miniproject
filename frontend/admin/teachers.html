@@ -4,178 +4,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QPGen — Manage Teachers</title>
+    <title>QPGen Admin — Faculty Archives</title>
     <link
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap"
         rel="stylesheet">
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --black: #080808; --deep: #0e0e0e; --surface: #141414; --card: #1a1a1a;
-            --border: rgba(255, 255, 255, 0.07); --border-strong: rgba(255, 255, 255, 0.12);
-            --gold: #c9a84c; --gold-light: #e2c07a; --gold-dim: rgba(201, 168, 76, 0.12);
-            --white: #f5f0e8; --muted: #5a5a5a; --text: #b8b3a8; --sw: 240px;
+            --black: #050505; --deep: #0a0a0a; --surface: #0f0f0f;
+            --card: rgba(25, 25, 25, 0.6); --border: rgba(255, 255, 255, 0.08);
+            --gold: #c9a84c; --gold-light: #e2c07a; --violet: #8e44ad;
+            --white: #f5f0e8; --muted: #5a5a5a; --text: #a8a39a; --sw: 240px;
         }
-        [data-theme="light"] {
-            --black: #ffffff; --deep: #f9f8f4; --surface: #ffffff; --card: #ffffff;
-            --border: rgba(177, 148, 64, 0.08); --border-strong: rgba(177, 148, 64, 0.15);
-            --gold: #ad8d3a; --gold-light: #c5a65c; --gold-dim: rgba(173, 141, 58, 0.04);
-            --white: #121210; --muted: #8c8880; --text: #4d4a44;
-        }
-        html, body { height: 100%; background: var(--black); color: var(--white); font-family: 'DM Sans', sans-serif; overflow-x: hidden; }
+
+        html, body { background: var(--black); color: var(--white); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
+        .ambient-bg { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+        .glow { position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, rgba(142, 68, 173, 0.05) 0%, transparent 70%); top: -100px; left: -100px; }
+
         .layout { display: flex; min-height: 100vh; }
-        
-        /* Sidebar */
-        .sidebar { width: var(--sw); background: var(--deep); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 50; padding: 32px 24px; }
-        .sidebar-logo { display: flex; align-items: center; gap: 12px; margin-bottom: 48px; }
-        .logo-mark { width: 34px; height: 34px; border: 1px solid var(--gold); display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; color: var(--gold); position: relative; }
+
+        /* ── SIDEBAR ── */
+        .sidebar { width: var(--sw); background: rgba(10,10,10,0.8); backdrop-filter: blur(20px); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 50; padding: 40px 24px; }
+        .logo { display: flex; align-items: center; gap: 12px; margin-bottom: 60px; }
+        .logo-mark { width: 32px; height: 32px; border: 1px solid var(--gold); display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; color: var(--gold); }
         .logo-text { font-family: 'DM Mono', monospace; font-size: 0.75em; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; }
-        .nav-section { font-family: 'DM Mono', monospace; font-size: 0.6em; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; margin: 24px 0 12px 10px; }
-        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 12px; color: var(--muted); text-decoration: none; font-size: 0.85em; font-weight: 500; transition: all 0.3s; border-radius: 4px; margin-bottom: 4px; }
-        .nav-item:hover { color: var(--text); background: rgba(255, 255, 255, 0.03); }
-        .nav-item.active { color: var(--gold); background: var(--gold-dim); }
-        .nav-icon { width: 18px; text-align: center; }
-
-        .main { margin-left: var(--sw); flex: 1; padding: 64px 60px; }
-        .page-header { margin-bottom: 48px; }
-        .page-kicker { font-family: 'DM Mono', monospace; font-size: 0.7em; color: var(--gold); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 12px; }
-        .page-title { font-family: 'Playfair Display', serif; font-size: 3em; font-weight: 900; color: var(--white); }
         
-        /* Table */
-        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 2px; }
-        .table-wrap { overflow-x: auto; }
+        .nav-section { font-family: 'DM Mono', monospace; font-size: 0.6em; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; margin: 24px 0 12px; }
+        .nav-item { display: flex; align-items: center; gap: 14px; padding: 12px 14px; color: var(--text); text-decoration: none; font-size: 0.85em; transition: all 0.3s; margin-bottom: 4px; }
+        .nav-item:hover, .nav-item.active { color: var(--gold); background: rgba(201, 168, 76, 0.04); }
+        .nav-item.active::before { content: ''; position: absolute; left: -24px; top: 10%; bottom: 10%; width: 3px; background: var(--gold); }
+
+        /* ── MAIN ── */
+        .main { margin-left: var(--sw); flex: 1; padding: 80px; }
+        .page-hdr { margin-bottom: 60px; }
+        .page-hdr p { font-family: 'DM Mono', monospace; font-size: 0.7em; color: var(--gold); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 12px; }
+        .page-hdr h1 { font-family: 'Playfair Display', serif; font-size: 3.5em; font-weight: 900; letter-spacing: -2px; line-height: 1; }
+        .page-hdr h1 em { font-style: italic; color: var(--gold); }
+
+        /* ── ARCHIVE TABLE ── */
+        .table-panel { background: var(--surface); border: 1px solid var(--border); overflow: hidden; animation: fadeIn 0.8s ease; }
         table { width: 100%; border-collapse: collapse; text-align: left; }
-        th { font-family: 'DM Mono', monospace; font-size: 0.65em; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); padding: 20px 24px; background: var(--deep); border-bottom: 1px solid var(--border); }
-        td { padding: 20px 24px; font-size: 0.88em; border-bottom: 1px solid var(--border); color: var(--text); }
-        tr:hover td { background: rgba(255,255,255,0.02); }
-        
-        .badge { display: inline-block; padding: 4px 10px; font-family: 'DM Mono', monospace; font-size: 0.6em; letter-spacing: 1px; border: 1px solid var(--border); border-radius: 20px; color: var(--muted); margin-right: 6px; margin-bottom: 4px; }
-        .badge-gold { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
-        
-        .btn-action { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 8px 16px; font-family: 'DM Mono', monospace; font-size: 0.7em; letter-spacing: 1px; cursor: pointer; transition: all 0.3s; }
-        .btn-action:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
+        th { padding: 20px 32px; font-family: 'DM Mono', monospace; font-size: 0.65em; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); border-bottom: 1px solid var(--border); background: var(--deep); }
+        td { padding: 24px 32px; font-size: 0.9em; border-bottom: 1px solid var(--border); color: var(--text); transition: background 0.3s; }
+        tr:hover td { background: rgba(255, 255, 255, 0.02); }
 
-        /* Modal */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
-        .modal { background: var(--surface); border: 1px solid var(--border-strong); width: 100%; max-width: 500px; animation: modalUp 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
-        @keyframes modalUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .modal-head { padding: 24px 32px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .modal-title { font-family: 'Playfair Display', serif; font-size: 1.4em; }
-        .modal-close { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1.2em; }
-        .modal-body { padding: 32px; }
-        .modal-foot { padding: 20px 32px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 12px; }
-        
-        .form-group { margin-bottom: 24px; }
-        label { display: block; font-family: 'DM Mono', monospace; font-size: 0.65em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
-        .subject-list { display: grid; grid-template-columns: 1fr; gap: 8px; max-height: 250px; overflow-y: auto; padding-right: 10px; }
-        .subject-opt { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--deep); border: 1px solid var(--border); cursor: pointer; transition: all 0.2s; }
-        .subject-opt:hover { border-color: var(--border-strong); }
-        .subject-opt.selected { border-color: var(--gold); background: var(--gold-dim); }
-        .subject-opt input { display: none; }
-        
-        .btn-save { background: var(--gold); color: var(--black); border: none; padding: 10px 24px; font-family: 'DM Mono', monospace; font-size: 0.75em; font-weight: 600; cursor: pointer; transition: all 0.3s; }
-        .btn-save:hover:not(:disabled) { background: var(--gold-light); transform: translateY(-1px); }
-        .btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
+        .badge { display: inline-block; padding: 4px 10px; font-family: 'DM Mono', monospace; font-size: 0.6em; border: 1px solid var(--border); margin-right: 6px; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; }
+        .badge-gold { border-color: var(--gold); color: var(--gold); }
 
-        .loading-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 200; }
-        .spinner { width: 30px; height: 30px; border: 2px solid var(--gold-dim); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        .btn { padding: 10px 20px; font-family: 'DM Mono', monospace; font-size: 0.65em; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: all 0.3s; border: 1px solid var(--border); background: transparent; color: var(--text); }
+        .btn:hover { border-color: var(--gold); color: var(--gold); background: rgba(201,168,76,0.05); }
 
-        .toast { position: fixed; bottom: 40px; right: 40px; padding: 16px 24px; background: var(--surface); border: 1px solid var(--gold); color: var(--gold); font-size: 0.9em; transform: translateY(100px); opacity: 0; transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); z-index: 300; }
-        .toast.show { transform: translateY(0); opacity: 1; }
-        .toast.error { border-color: #dc6464; color: #dc6464; }
+        /* ── MODAL ── */
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(20px); z-index: 1000; display: none; align-items: center; justify-content: center; animation: fadeIn 0.3s ease; }
+        .modal { width: 100%; max-width: 550px; background: var(--surface); border: 1px solid var(--border); padding: 50px; position: relative; }
+        .m-title { font-family: 'Playfair Display', serif; font-size: 1.8em; margin-bottom: 32px; text-align: center; }
+        
+        .subj-list { display: grid; gap: 8px; max-height: 300px; overflow-y: auto; padding-right: 12px; }
+        .subj-item { display: flex; align-items: center; gap: 16px; padding: 16px; background: var(--deep); border: 1px solid var(--border); cursor: pointer; transition: all 0.2s; }
+        .subj-item.selected { border-color: var(--gold); background: rgba(201,168,76,0.05); }
+        .subj-item i { font-family: 'DM Mono'; font-size: 0.7em; color: var(--muted); }
+
+        .btn-save { width: 100%; margin-top: 32px; padding: 16px; background: var(--gold); color: var(--black); border: none; font-weight: 700; font-family: 'DM Mono'; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: 0.3s; }
+        .btn-save:hover { background: var(--gold-light); transform: translateY(-2px); }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
     </style>
 </head>
 
 <body>
+    <div class="ambient-bg"><div class="glow"></div></div>
+
     <div class="layout">
         <aside class="sidebar">
-            <div class="sidebar-logo">
-                <div class="logo-mark">Q</div>
-                <div class="logo-text">QPGen</div>
-            </div>
+            <div class="logo"><div class="logo-mark">Q</div><div class="logo-text">QPGen</div></div>
             <div class="nav-section">Workspace</div>
-            <a class="nav-item" href="../dashboard.html"><span class="nav-icon">◈</span> Dashboard</a>
-            <a class="nav-item" href="../questions.html"><span class="nav-icon">◉</span> Question Bank</a>
-            <a class="nav-item" href="../generate.html"><span class="nav-icon">◎</span> Generate Paper</a>
-            
-            <div id="adminNav" style="display:none">
-                <div class="nav-section">Administration</div>
-                <a class="nav-item active" href="teachers.html"><span class="nav-icon">⬡</span> Teachers</a>
-                <a class="nav-item" href="subjects.html" style="opacity:0.5; pointer-events:none"><span class="nav-icon">◈</span> Subjects</a>
-            </div>
+            <a href="../dashboard.html" class="nav-item">Dashboard</a>
+            <a href="../questions.html" class="nav-item">Question Bank</a>
+            <a href="../generate.html" class="nav-item">Generate Paper</a>
+            <div class="nav-section">Administration</div>
+            <a href="teachers.html" class="nav-item active">Faculty Archives</a>
+            <a href="requests.html" class="nav-item">Subject Requests</a>
+            <div style="margin-top: auto;"><a href="#" class="nav-item" onclick="logout()">Sign Out</a></div>
         </aside>
 
         <main class="main">
-            <header class="page-header">
-                <div class="page-kicker">Manage Access</div>
-                <h1 class="page-title">Teachers <em>Repository.</em></h1>
+            <header class="page-hdr">
+                <p>System Administration</p>
+                <h1>Faculty<br><em>Access Hub.</em></h1>
             </header>
 
-            <div class="card">
-                <div class="table-wrap">
-                    <table id="teacherTable">
-                        <thead>
-                            <tr>
-                                <th>Teacher Name</th>
-                                <th>Email Address</th>
-                                <th>Assigned Subjects</th>
-                                <th style="text-align:right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="teacherList">
-                            <tr>
-                                <td colspan="4" style="text-align:center; padding: 60px; color: var(--muted)">Loading teachers...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+            <div class="table-panel">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Faculty Member</th>
+                            <th>Neural Identifier (Email)</th>
+                            <th>Allocated Domains</th>
+                            <th style="text-align:right">Management</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tList">
+                        <tr><td colspan="4" style="text-align:center; padding:100px; font-family:'DM Mono'; color:var(--muted);">SYNCHRONIZING RECORDS...</td></tr>
+                    </tbody>
+                </table>
             </div>
         </main>
     </div>
 
     <!-- Modal -->
-    <div class="modal-overlay" id="modalOverlay">
+    <div class="overlay" id="mOverlay">
         <div class="modal">
-            <div class="modal-head">
-                <span class="modal-title" id="teacherName">Assign Subjects</span>
-                <button class="modal-close" onclick="closeModal()">✕</button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label>Select Subjects</label>
-                    <div class="subject-list" id="subjectList">
-                        <!-- Loaded via JS -->
-                    </div>
-                </div>
-            </div>
-            <div class="modal-foot">
-                <button class="btn-action" onclick="closeModal()" style="border:none">Cancel</button>
-                <button class="btn-save" id="saveBtn" onclick="saveAssignment()">Save Assignment</button>
-            </div>
+            <div style="position:absolute; top:30px; right:30px; cursor:pointer; color:var(--muted);" onclick="closeModal()">✕</div>
+            <h2 class="m-title" id="mUser">Domain Allocation</h2>
+            <div class="subj-list" id="sList"></div>
+            <button class="btn-save" id="saveBtn" onclick="saveAssignment()">Update Access Protocols →</button>
         </div>
     </div>
-
-    <div id="toast" class="toast">Action completed successfully.</div>
-    <div id="loading" class="loading-overlay"><div class="spinner"></div></div>
 
     <script>
         const API = 'http://127.0.0.1:5000/api';
         const token = localStorage.getItem('token');
-        if (!token) window.location.href = '../index.html';
-
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        
-        // Security check
-        if (!user.roles || !user.roles.includes('admin')) {
-            window.location.href = '../dashboard.html';
-        }
-        
         const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
 
-        let teachers = [];
-        let allSubjects = [];
-        let currentTeacherId = null;
+        let teachers = [], allSubjects = [], activeId = null;
 
         async function init() {
             try {
@@ -183,119 +135,63 @@
                     fetch(`${API}/admin/teachers`, { headers }),
                     fetch(`${API}/subjects/`, { headers })
                 ]);
-                
-                const tData = await tR.json();
-                const sData = await sR.json();
-                
-                teachers = tData.teachers || [];
-                allSubjects = sData.subjects || [];
-                
-                renderTeachers();
-            } catch (e) {
-                showToast('Failed to load data', true);
-            }
+                const tD = await tR.json(), sD = await sR.json();
+                teachers = tD.teachers || [];
+                allSubjects = sD.subjects || [];
+                render();
+            } catch (e) { console.error(e); }
         }
 
-        function renderTeachers() {
-            const list = document.getElementById('teacherList');
-            if (!teachers.length) {
-                list.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 60px; color: var(--muted)">No teachers found.</td></tr>';
+        function render() {
+            const list = document.getElementById('tList');
+            if (teachers.length === 0) {
+                list.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:100px; color:var(--muted);">NO RECORDS FOUND</td></tr>';
                 return;
             }
-
             list.innerHTML = teachers.map((t, idx) => `
                 <tr>
-                    <td style="color:var(--white); font-weight:600">${t.username}</td>
-                    <td>${t.email}</td>
-                    <td>
-                        ${t.subjects.length > 0 
-                            ? t.subjects.map(s => `<span class="badge badge-gold">${s.code}</span>`).join('')
-                            : '<span class="badge">No subjects</span>'}
-                    </td>
-                    <td style="text-align:right">
-                        <button class="btn-action" onclick="openModal(${idx})">Manage Access</button>
-                    </td>
+                    <td style="color:var(--white); font-weight:600;">${t.username}</td>
+                    <td style="font-family:'DM Mono'; font-size:0.8em; color:var(--muted);">${t.email}</td>
+                    <td>${t.subjects.length > 0 ? t.subjects.map(s => `<span class="badge badge-gold">${s.code}</span>`).join('') : '<span class="badge">None</span>'}</td>
+                    <td style="text-align:right;"><button class="btn" onclick="openModal(${idx})">Manage Access</button></td>
                 </tr>
             `).join('');
         }
 
         function openModal(idx) {
             const t = teachers[idx];
-            currentTeacherId = t.id;
-            document.getElementById('teacherName').textContent = `Manage: ${t.username}`;
-            
+            activeId = t.id;
+            document.getElementById('mUser').textContent = `Allocating: ${t.username}`;
             const assignedIds = t.subjects.map(s => s.id);
-            const list = document.getElementById('subjectList');
-            
-            list.innerHTML = allSubjects.map(s => `
-                <div class="subject-opt ${assignedIds.includes(s.id) ? 'selected' : ''}" 
-                     data-id="${s.id}" 
-                     onclick="toggleSubject(this)">
-                    <div>
-                        <div style="font-weight:600; font-size:0.9em">${s.name}</div>
-                        <div style="font-family:'DM Mono',monospace; font-size:0.7em; color:var(--muted)">${s.code}</div>
+            document.getElementById('sList').innerHTML = allSubjects.map(s => `
+                <div class="subj-item ${assignedIds.includes(s.id) ? 'selected' : ''}" data-id="${s.id}" onclick="this.classList.toggle('selected')">
+                    <div style="flex:1;">
+                        <div style="font-size:0.9em; font-weight:600;">${s.name}</div>
+                        <i>${s.code}</i>
                     </div>
                 </div>
             `).join('');
-            
-            document.getElementById('modalOverlay').style.display = 'flex';
+            document.getElementById('mOverlay').style.display = 'flex';
         }
 
-        function toggleSubject(el) {
-            el.classList.toggle('selected');
-        }
-
-        function closeModal() {
-            document.getElementById('modalOverlay').style.display = 'none';
-        }
+        function closeModal() { document.getElementById('mOverlay').style.display = 'none'; }
 
         async function saveAssignment() {
-            const selectedIds = Array.from(document.querySelectorAll('.subject-opt.selected'))
-                                     .map(el => parseInt(el.dataset.id));
-            
+            const ids = Array.from(document.querySelectorAll('.subj-item.selected')).map(el => parseInt(el.dataset.id));
             const btn = document.getElementById('saveBtn');
-            const loader = document.getElementById('loading');
-            
-            btn.disabled = true;
-            btn.textContent = 'Saving...';
-            loader.style.display = 'flex';
-
+            btn.disabled = true; btn.textContent = 'TRANSMITTING...';
             try {
                 const res = await fetch(`${API}/admin/assign-subjects`, {
-                    method: 'POST',
-                    headers,
-                    body: JSON.stringify({
-                        teacher_id: currentTeacherId,
-                        subject_ids: selectedIds
-                    })
+                    method: 'POST', headers, body: JSON.stringify({ teacher_id: activeId, subject_ids: ids })
                 });
-                
-                const data = await res.json();
-                
-                if (data.success) {
-                    showToast('Subjects assigned successfully');
-                    closeModal();
-                    await init(); // Refresh list
-                } else {
-                    showToast(data.message || 'Assignment failed', true);
-                }
-            } catch (e) {
-                showToast('Network error occurred', true);
-            } finally {
-                btn.disabled = false;
-                btn.textContent = 'Save Assignment';
-                loader.style.display = 'none';
-            }
+                if (res.ok) { closeModal(); init(); } else alert('Update Failed');
+            } catch (e) { alert('System Link Failure'); }
+            finally { btn.disabled = false; btn.textContent = 'Update Access Protocols →'; }
         }
 
-        function showToast(msg, isError = false) {
-            const t = document.getElementById('toast');
-            t.textContent = msg;
-            t.className = `toast ${isError ? 'error' : ''} show`;
-            setTimeout(() => t.classList.remove('show'), 3000);
-        }
-
+        function logout() { localStorage.clear(); window.location.href = '../index.html'; }
         init();
     </script>
 </body>
+
 </html>

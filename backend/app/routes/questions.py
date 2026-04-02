@@ -41,11 +41,68 @@ def get_questions():
     }), 200
 
 
+@questions_bp.route('/my-subjects', methods=['GET'])
+@require_permission('questions.read')
+def get_my_questions():
+    """Get questions only for subjects assigned to the current teacher."""
+    user = get_current_user()
+    
+    # Extract subject IDs from teacher_subjects
+    subject_ids = [s.id for s in user.subjects]
+    
+    if not subject_ids and not user.has_role('admin'):
+        return jsonify({
+            'success': True,
+            'data': [],
+            'count': 0,
+            'message': 'No subjects assigned to this teacher'
+        }), 200
+
+    # Filtering parameters
+    blooms_level  = request.args.get('blooms_level')
+    difficulty    = request.args.get('difficulty')
+    limit         = request.args.get('limit', type=int, default=50)
+    offset        = request.args.get('offset', type=int, default=0)
+
+    # Base query: filter by subject_id list
+    query = Question.query
+    if not user.has_role('admin'):
+        query = query.filter(Question.subject_id.in_(subject_ids))
+    
+    # Optional filters
+    if blooms_level:
+        query = query.filter_by(blooms_level=blooms_level)
+    if difficulty:
+        query = query.filter_by(difficulty=difficulty)
+        
+    total_count = query.count()
+    questions = query.offset(offset).limit(limit).all()
+
+    return jsonify({
+        'success': True,
+        'data': [q.to_dict() for q in questions],
+        'count': total_count,
+        'limit': limit,
+        'offset': offset
+    }), 200
+
+
 @questions_bp.route('/<int:question_id>', methods=['GET'])
 @require_permission('questions.read')
 def get_question(question_id):
-    """Get a single question by ID."""
+    """Get a single question by ID with security check."""
     question = db.get_or_404(Question, question_id)
+    user = get_current_user()
+    
+    # Security: If not admin, verify subject access
+    if not user.has_role('admin'):
+        subject_ids = [s.id for s in user.subjects]
+        if question.subject_id not in subject_ids:
+            return jsonify({
+                'error': 'Forbidden',
+                'message': 'You do not have access to questions from this subject'
+            }), 403
+            
     return jsonify({'question': question.to_dict()}), 200
 
 

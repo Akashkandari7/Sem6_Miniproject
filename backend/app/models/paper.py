@@ -1,5 +1,5 @@
 from app.extensions import db
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 # Association table - links papers to questions (many-to-many)
@@ -31,7 +31,7 @@ class Paper(db.Model):
     # Foreign keys
     subject_id = db.Column(db.Integer, db.ForeignKey('subjects.id'), nullable=False)
     created_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     # Many-to-many relationship with questions
     questions = db.relationship('Question', secondary=paper_questions,

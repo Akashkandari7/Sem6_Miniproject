@@ -5,7 +5,7 @@ Flask-RESTful==0.3.10
 # Database
 Flask-SQLAlchemy==3.1.1
 Flask-Migrate==4.0.5
-SQLAlchemy==2.0.30
+SQLAlchemy==2.0.36
 psycopg2-binary==2.9.9
 gunicorn==21.2.0
 

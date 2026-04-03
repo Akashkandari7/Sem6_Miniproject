@@ -6,6 +6,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'
 
 from app import create_app
 
-# Set config based on environment variable (default to development)
-config_name = os.getenv('APP_CONFIG', 'development')
+# Set config based on environment variable (default to production on Vercel)
+config_name = os.getenv('APP_CONFIG', 'production')
 app = create_app(config_name)

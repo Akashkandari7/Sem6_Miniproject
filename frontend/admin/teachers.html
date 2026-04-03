@@ -236,7 +236,7 @@
     </div>
 
     <script>
-        const API = 'http://127.0.0.1:5000/api';
+        const API = '/api';
         const token = localStorage.getItem('token');
         const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
         const user = JSON.parse(localStorage.getItem('user') || '{}');

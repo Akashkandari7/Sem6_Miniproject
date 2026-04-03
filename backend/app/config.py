@@ -24,7 +24,7 @@ class ProductionConfig(Config):
     DEBUG = False
     
     # Handle uri prefix for newer SQLAlchemy versions
-    db_url = os.getenv('DATABASE_URL', 'sqlite:////tmp/qpgen.db')
+    db_url = os.getenv('DATABASE_URL', 'sqlite:////tmp/qpgen.db').strip()
     if db_url and db_url.startswith("postgres://"):
         db_url = db_url.replace("postgres://", "postgresql://", 1)
         

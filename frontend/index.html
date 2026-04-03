@@ -4,222 +4,1098 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QPGen — The Standard in Academic Synthesis</title>
+    <title>QPGen — AI Question Paper Generator for Educators</title>
+    <meta name="description"
+        content="QPGen helps faculty generate balanced, Bloom's-aligned question papers in minutes using AI. Built for educators, by design.">
     <link
-        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
         rel="stylesheet">
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
         :root {
-            --black: #050505; --deep: #0a0a0a; --surface: #0f0f0f;
-            --card: rgba(20, 20, 20, 0.6); --border: rgba(255, 255, 255, 0.06);
-            --gold: #c9a84c; --gold-light: #e2c07a; --gold-dim: rgba(201, 168, 76, 0.08);
-            --white: #f5f0e8; --muted: #5a5a5a; --text: #a8a39a; --glow: rgba(201, 168, 76, 0.2);
+            --bg: #f8f9fc;
+            --surface: #ffffff;
+            --surface-alt: #f1f4f9;
+            --border: #e4e8f0;
+            --border-strong: #cdd5e0;
+            --text-primary: #0f1724;
+            --text-secondary: #4a5568;
+            --text-muted: #8a97ab;
+            --blue: #2563eb;
+            --blue-light: #3b82f6;
+            --blue-dim: #eff6ff;
+            --blue-mid: #dbeafe;
+            --green: #059669;
+            --green-dim: #ecfdf5;
+            --purple: #7c3aed;
+            --purple-dim: #f5f3ff;
+            --amber: #d97706;
+            --amber-dim: #fffbeb;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
+            --shadow-lg: 0 12px 40px rgba(0,0,0,0.1), 0 4px 12px rgba(0,0,0,0.06);
+            --radius: 14px;
+            --radius-sm: 8px;
+            --radius-lg: 20px;
         }
 
         html, body {
-            background: var(--black); color: var(--white); font-family: 'DM Sans', sans-serif;
-            scroll-behavior: smooth; overflow-x: hidden;
+            background: var(--bg);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+            line-height: 1.6;
         }
 
-        .ambient-bg { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
-        .glow { position: absolute; width: 800px; height: 800px; background: radial-gradient(circle, rgba(201, 168, 76, 0.04) 0%, transparent 70%); top: -200px; right: -200px; }
+        /* ── DECORATIVE BG SYSTEM ── */
+        .bg-system {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+            background-color: var(--bg);
+            /* Subtle Dot Grid */
+            background-image: radial-gradient(#2563eb15 1.5px, transparent 1.5px);
+            background-size: 32px 32px;
+        }
 
+        .bg-lines {
+            position: absolute;
+            inset: 0;
+            opacity: 0.3;
+        }
+
+        .floater {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            z-index: -1;
+            animation: float 20s infinite alternate cubic-bezier(0.45, 0, 0.55, 1);
+        }
+
+        .f1 { width: 400px; height: 400px; background: #dbeafe; top: -100px; right: -100px; animation-delay: 0s; }
+        .f2 { width: 300px; height: 300px; background: #e0f2fe; bottom: 10%; left: -50px; animation-delay: -5s; }
+        .f3 { width: 500px; height: 500px; background: #f0f7ff; top: 40%; right: 20%; animation-delay: -10s; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(40px, 60px) scale(1.1); }
+        }
+
+        /* ── HEADER ── */
         header {
-            position: fixed; top: 0; left: 0; right: 0; padding: 30px 60px;
-            display: flex; justify-content: space-between; align-items: center;
-            z-index: 1000; backdrop-filter: blur(20px); border-bottom: 1px solid var(--border);
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            padding: 0 60px;
+            height: 68px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: rgba(248, 249, 252, 0.92);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
         }
 
-        .logo { display: flex; align-items: center; gap: 14px; }
-        .logo-mark { width: 34px; height: 34px; border: 1px solid var(--gold); display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; color: var(--gold); position: relative; }
-        .logo-text { font-family: 'DM Mono', monospace; font-size: 0.75em; letter-spacing: 4px; color: var(--muted); text-transform: uppercase; }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: inherit;
+        }
+        .logo-icon {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, var(--blue) 0%, #1d4ed8 100%);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            color: white;
+            font-size: 0.85em;
+            font-weight: 800;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+        .logo-name {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.1em;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.3px;
+        }
+        .logo-name span { color: var(--blue); }
 
-        .nav-links { display: flex; gap: 40px; font-family: 'DM Mono', monospace; font-size: 0.62em; letter-spacing: 2px; text-transform: uppercase; align-items: center; }
-        .nav-link { color: var(--muted); text-decoration: none; transition: 0.3s; }
-        .nav-link:hover { color: var(--white); }
+        nav { display: flex; align-items: center; gap: 8px; }
+        .nav-link {
+            padding: 8px 16px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.88em;
+            font-weight: 500;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s;
+        }
+        .nav-link:hover { background: var(--surface-alt); color: var(--text-primary); }
 
-        /* ── HERO SECTION ── */
-        .hero { min-height: 100vh; display: flex; align-items: center; padding: 120px 80px; position: relative; }
-        .hero-content { width: 55%; z-index: 20; }
-        .hero-kicker { font-family: 'DM Mono'; font-size: 0.7em; letter-spacing: 4px; color: var(--gold); text-transform: uppercase; margin-bottom: 30px; display: flex; align-items: center; gap: 16px; }
-        .hero-kicker::before { content: ''; width: 30px; height: 1px; background: var(--gold); }
-        
-        .hero-title { font-family: 'Playfair Display', serif; font-size: 5.8em; font-weight: 900; line-height: 0.95; letter-spacing: -3px; margin-bottom: 40px; }
-        .hero-title em { font-style: italic; color: var(--gold); }
-        .hero-sub { font-size: 1.15em; color: var(--text); line-height: 1.8; margin-bottom: 50px; max-width: 520px; font-weight: 300; }
-        
-        .hero-actions { display: flex; gap: 24px; }
-        .btn { padding: 18px 46px; font-family: 'DM Mono'; font-size: 0.75em; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; transition: 0.4s; text-decoration: none; display: inline-block; border: 1px solid var(--border); }
-        .btn-primary { background: var(--gold); color: var(--black); border: none; font-weight: 700; box-shadow: 0 10px 40px -10px var(--glow); }
-        .btn-primary:hover { transform: translateY(-4px); background: var(--gold-light); }
-        .btn-secondary:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); transform: translateY(-4px); }
+        .btn-nav {
+            padding: 9px 20px;
+            font-size: 0.88em;
+            font-weight: 600;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: none;
+        }
+        .btn-nav-outline {
+            background: transparent;
+            border: 1.5px solid var(--border-strong);
+            color: var(--text-secondary);
+        }
+        .btn-nav-outline:hover {
+            border-color: var(--blue);
+            color: var(--blue);
+            background: var(--blue-dim);
+        }
+        .btn-nav-primary {
+            background: var(--blue);
+            color: white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        }
+        .btn-nav-primary:hover {
+            background: var(--blue-light);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35);
+        }
 
-        /* ── NEURAL TERMINAL (The Space Filler) ── */
-        .terminal-wrap { position: absolute; right: 80px; top: 120px; bottom: 80px; width: 40%; background: rgba(5,5,5,0.8); border: 1px solid var(--border); backdrop-filter: blur(20px); overflow: hidden; padding: 30px; box-shadow: -40px 40px 100px rgba(0,0,0,0.5); display: flex; flex-direction: column; gap: 15px; }
-        .term-head { display: flex; gap: 8px; margin-bottom: 10px; }
-        .term-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
-        .term-dot.active { background: var(--gold); }
-        
-        .term-line { font-family: 'DM Mono'; font-size: 0.65em; line-height: 1.6; color: var(--muted); white-space: nowrap; animation: scrollLine 20s linear infinite; }
-        .term-line.code { color: var(--gold); opacity: 0.6; }
-        .term-line.status { color: #f5f0e8; font-weight: 500; }
+        /* ── HERO ── */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 100px 60px 60px;
+            position: relative;
+            z-index: 1;
+            gap: 60px;
+        }
+        .hero-left { flex: 1; max-width: 560px; }
+        .hero-right { flex: 1; display: flex; justify-content: center; align-items: center; }
 
-        @keyframes scrollLine { from { transform: translateY(0); } to { transform: translateY(-100%); } }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px 6px 8px;
+            background: var(--blue-dim);
+            border: 1.5px solid var(--blue-mid);
+            border-radius: 100px;
+            font-size: 0.75em;
+            font-weight: 600;
+            color: var(--blue);
+            margin-bottom: 28px;
+        }
+        .badge-dot {
+            width: 6px; height: 6px;
+            background: var(--blue);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        .hero-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 3.4em;
+            font-weight: 800;
+            line-height: 1.15;
+            letter-spacing: -1.5px;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+        }
+        .hero-title .highlight {
+            color: var(--blue);
+            position: relative;
+        }
+        .hero-title .highlight::after {
+            content: '';
+            position: absolute;
+            bottom: 2px; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--blue), var(--blue-light));
+            border-radius: 2px;
+            opacity: 0.3;
+        }
+
+        .hero-sub {
+            font-size: 1.05em;
+            color: var(--text-secondary);
+            line-height: 1.75;
+            margin-bottom: 36px;
+            font-weight: 400;
+        }
+
+        .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+        .btn-hero-primary {
+            padding: 13px 28px;
+            background: var(--blue);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
+        }
+        .btn-hero-primary:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(37, 99, 235, 0.4);
+        }
+        .btn-hero-secondary {
+            padding: 13px 24px;
+            background: var(--surface);
+            color: var(--text-secondary);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 0.95em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-hero-secondary:hover {
+            border-color: var(--blue);
+            color: var(--blue);
+            background: var(--blue-dim);
+        }
+
+        .trust-strip {
+            margin-top: 40px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .trust-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.82em;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        .trust-check {
+            width: 16px; height: 16px;
+            background: var(--green-dim);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--green);
+            font-size: 0.6em;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+        .trust-sep { width: 1px; height: 16px; background: var(--border); }
+
+        /* ── HERO CARD (Right side visual) ── */
+        .hero-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 440px;
+            overflow: hidden;
+        }
+        .hc-header {
+            padding: 18px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .hc-avatar {
+            width: 32px; height: 32px;
+            background: linear-gradient(135deg, #818cf8, #6366f1);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            color: white;
+            font-size: 0.7em;
+            font-weight: 700;
+        }
+        .hc-title { font-size: 0.85em; font-weight: 600; color: var(--text-primary); }
+        .hc-sub { font-size: 0.72em; color: var(--text-muted); }
+        .hc-status {
+            margin-left: auto;
+            padding: 4px 10px;
+            border-radius: 100px;
+            font-size: 0.7em;
+            font-weight: 600;
+            background: var(--green-dim);
+            color: var(--green);
+        }
+        .hc-body { padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+
+        .hc-section-label {
+            font-size: 0.65em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+        .hc-info-row {
+            background: var(--surface-alt);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+        }
+        .hc-info-row .label { font-size: 0.7em; color: var(--text-muted); font-weight: 500; }
+        .hc-info-row .value { font-size: 0.88em; font-weight: 600; color: var(--text-primary); margin-top: 2px; }
+
+        .hc-bloom-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+        }
+        .hc-bloom-item {
+            border-radius: var(--radius-sm);
+            padding: 10px;
+            text-align: center;
+        }
+        .hc-bloom-item .bl-label { font-size: 0.65em; font-weight: 600; margin-bottom: 4px; }
+        .hc-bloom-item .bl-val { font-size: 0.85em; font-weight: 800; }
+
+        .bl-remember { background: var(--amber-dim); color: var(--amber); }
+        .bl-understand { background: var(--blue-dim); color: var(--blue); }
+        .bl-analyze { background: var(--purple-dim); color: var(--purple); }
+
+        .hc-prog-bar {
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+        .hc-prog-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--blue) 0%, var(--blue-light) 100%);
+            border-radius: 3px;
+            animation: fillBar 2s ease-out forwards;
+        }
+        @keyframes fillBar { from { width: 0; } to { width: var(--w); } }
+
+        .hc-q-list { display: flex; flex-direction: column; gap: 8px; }
+        .hc-q-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px 12px;
+            background: var(--surface-alt);
+            border-radius: var(--radius-sm);
+            border-left: 3px solid transparent;
+            font-size: 0.78em;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+        .hc-q-item.q-mem { border-left-color: var(--amber); }
+        .hc-q-item.q-und { border-left-color: var(--blue); }
+        .hc-q-item.q-app { border-left-color: var(--green); }
+        .hc-q-num {
+            font-weight: 700;
+            font-size: 0.9em;
+            color: var(--text-muted);
+            min-width: 16px;
+        }
+
+        .hc-action-row {
+            display: flex;
+            gap: 8px;
+            padding: 16px 20px;
+            border-top: 1px solid var(--border);
+            background: var(--surface-alt);
+        }
+        .hc-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: var(--radius-sm);
+            font-size: 0.78em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        .hc-btn-primary { background: var(--blue); color: white; }
+        .hc-btn-primary:hover { background: #1d4ed8; }
+        .hc-btn-outline {
+            background: var(--surface);
+            color: var(--text-secondary);
+            border: 1.5px solid var(--border);
+        }
+        .hc-btn-outline:hover { border-color: var(--blue); color: var(--blue); }
+
+        /* ── STATS BAR ── */
+        .stats-bar {
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            padding: 32px 60px;
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0;
+        }
+        .stat-item {
+            text-align: center;
+            padding: 0 32px;
+            border-right: 1px solid var(--border);
+        }
+        .stat-item:last-child { border-right: none; }
+        .stat-number {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 2.2em;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: -1px;
+            display: block;
+        }
+        .stat-label {
+            font-size: 0.82em;
+            color: var(--text-muted);
+            font-weight: 500;
+            margin-top: 4px;
+        }
+
+        /* ── HOW IT WORKS ── */
+        .section { padding: 90px 60px; position: relative; z-index: 1; }
+        .section-alt { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+
+        .section-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--blue);
+            margin-bottom: 16px;
+        }
+        .section-tag::before { content: ''; width: 16px; height: 2px; background: var(--blue); border-radius: 1px; }
+
+        .section-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 2.2em;
+            font-weight: 800;
+            letter-spacing: -1px;
+            color: var(--text-primary);
+            margin-bottom: 14px;
+            line-height: 1.2;
+        }
+        .section-sub {
+            font-size: 1em;
+            color: var(--text-secondary);
+            max-width: 520px;
+            line-height: 1.7;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-top: 56px;
+        }
+        .step-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 32px;
+            transition: all 0.3s;
+            position: relative;
+        }
+        .step-card:hover {
+            border-color: var(--blue);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-4px);
+        }
+        .step-num {
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800;
+            font-size: 0.95em;
+            margin-bottom: 20px;
+        }
+        .step-n1 { background: var(--blue-dim); color: var(--blue); }
+        .step-n2 { background: var(--purple-dim); color: var(--purple); }
+        .step-n3 { background: var(--green-dim); color: var(--green); }
+
+        .step-card h3 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.05em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+        .step-card p { font-size: 0.88em; color: var(--text-secondary); line-height: 1.7; }
 
         /* ── FEATURES ── */
-        .features { padding: 120px 80px; background: var(--surface); position: relative; }
-        .feat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; margin-top: 80px; }
-        .feat-card { background: var(--card); padding: 50px; border: 1px solid var(--border); transition: 0.4s; position: relative; }
-        .feat-card:hover { border-color: var(--gold); transform: translateY(-10px); }
-        .feat-card h3 { font-family: 'Playfair Display'; font-size: 1.6em; margin-bottom: 20px; color: var(--white); }
-        .feat-card p { color: var(--text); font-size: 0.95em; line-height: 1.8; }
+        .feat-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 56px;
+        }
+        .feat-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px;
+            transition: all 0.3s;
+        }
+        .feat-card:hover {
+            background: var(--surface);
+            border-color: var(--border-strong);
+            box-shadow: var(--shadow-sm);
+            transform: translateY(-2px);
+        }
+        .feat-icon {
+            width: 44px; height: 44px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3em;
+            margin-bottom: 16px;
+        }
+        .fi-blue { background: var(--blue-dim); }
+        .fi-green { background: var(--green-dim); }
+        .fi-purple { background: var(--purple-dim); }
+        .fi-amber { background: var(--amber-dim); }
+        .fi-blue2 { background: #e0f2fe; }
+        .fi-red { background: #fef2f2; }
+
+        .feat-card h3 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.95em;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+        .feat-card p { font-size: 0.83em; color: var(--text-secondary); line-height: 1.65; }
+
+        /* ── CTA SECTION ── */
+        .cta-section {
+            padding: 80px 60px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            background: linear-gradient(135deg, #f0f7ff 0%, #f8f9fc 50%, #f0fdf4 100%);
+            border-top: 1px solid var(--border);
+        }
+        .cta-section .section-title { max-width: 560px; margin: 0 auto 16px; }
+        .cta-section .section-sub { margin: 0 auto 36px; text-align: center; }
+        .cta-actions { display: flex; justify-content: center; gap: 14px; }
 
         /* ── AUTH MODAL ── */
-        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.94); backdrop-filter: blur(15px); z-index: 2000; display: none; align-items: center; justify-content: center; }
-        .auth-card { width: 100%; max-width: 500px; background: var(--surface); border: 1px solid var(--border); padding: 60px; position: relative; }
-        .auth-close { position: absolute; top: 25px; right: 25px; font-size: 1.5em; color: var(--muted); cursor: pointer; transition: 0.3s; }
-        .auth-close:hover { color: var(--white); }
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 36, 0.5);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .auth-card {
+            width: 100%;
+            max-width: 460px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            position: relative;
+        }
+        .auth-header {
+            padding: 28px 32px 0;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+        }
+        .auth-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .auth-close {
+            width: 32px; height: 32px;
+            border-radius: var(--radius-sm);
+            border: 1.5px solid var(--border);
+            background: transparent;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--text-muted);
+            font-size: 1.1em;
+            transition: all 0.2s;
+        }
+        .auth-close:hover { background: var(--surface-alt); color: var(--text-primary); }
 
-        .auth-tabs { display: flex; margin-bottom: 40px; border-bottom: 1px solid var(--border); }
-        .tab { flex: 1; padding: 15px; text-align: center; font-family: 'DM Mono'; font-size: 0.7em; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); cursor: pointer; transition: 0.3s; }
-        .tab.active { color: var(--gold); border-bottom: 2px solid var(--gold); }
+        .auth-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            padding: 18px 32px 0;
+            gap: 0;
+            margin-top: 20px;
+        }
+        .tab {
+            flex: 1;
+            padding: 10px 6px;
+            text-align: center;
+            font-size: 0.85em;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+        }
+        .tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+        .tab:hover:not(.active) { color: var(--text-secondary); }
 
-        .field { margin-bottom: 25px; }
-        .field label { display: block; font-family: 'DM Mono'; font-size: 0.6em; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
-        .field input { width: 100%; background: var(--deep); border: 1px solid var(--border); color: var(--white); padding: 18px; outline: none; font-family: inherit; transition: border-color 0.3s; }
-        .field input:focus { border-color: var(--gold); }
+        .auth-body { padding: 24px 32px 32px; }
 
-        .btn-auth { width: 100%; padding: 20px; background: var(--gold); color: var(--black); border: none; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: 0.3s; }
-        .btn-auth:hover { background: var(--gold-light); transform: translateY(-2px); }
+        .field { margin-bottom: 18px; }
+        .field label {
+            display: block;
+            font-size: 0.8em;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 7px;
+        }
+        .field input {
+            width: 100%;
+            background: var(--surface-alt);
+            border: 1.5px solid var(--border);
+            color: var(--text-primary);
+            padding: 11px 14px;
+            border-radius: var(--radius-sm);
+            outline: none;
+            font-family: inherit;
+            font-size: 0.92em;
+            transition: all 0.2s;
+        }
+        .field input:focus {
+            border-color: var(--blue);
+            background: var(--surface);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+        }
+        .field input::placeholder { color: var(--text-muted); }
 
+        .btn-auth {
+            width: 100%;
+            padding: 13px;
+            background: var(--blue);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-weight: 700;
+            font-size: 0.92em;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.3px;
+            margin-top: 4px;
+        }
+        .btn-auth:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(37, 99, 235, 0.3);
+        }
+
+        .auth-footer-note {
+            text-align: center;
+            font-size: 0.75em;
+            color: var(--text-muted);
+            margin-top: 16px;
+        }
+
+        /* ── FOOTER ── */
+        footer {
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            padding: 28px 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            z-index: 1;
+        }
+        .footer-brand { display: flex; align-items: center; gap: 10px; }
+        .footer-copy { font-size: 0.8em; color: var(--text-muted); }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 900px) {
+            header { padding: 0 24px; }
+            .hero { flex-direction: column; padding: 100px 24px 48px; gap: 40px; }
+            .hero-left { max-width: 100%; }
+            .hero-right { width: 100%; }
+            .hero-title { font-size: 2.4em; }
+            .stats-bar { grid-template-columns: repeat(2, 1fr); padding: 32px 24px; }
+            .steps-grid, .feat-grid { grid-template-columns: 1fr; }
+            .section { padding: 60px 24px; }
+            footer { padding: 24px; flex-direction: column; gap: 12px; text-align: center; }
+        }
     </style>
 </head>
 
 <body>
-    <div class="ambient-bg"><div class="glow"></div></div>
-
-    <header>
-        <div class="logo">
-            <div class="logo-mark">Q</div>
-            <div class="logo-name">QPGen</div>
+    <!-- Premium Background System -->
+    <div class="bg-system">
+        <div class="floater f1"></div>
+        <div class="floater f2"></div>
+        <div class="floater f3"></div>
+        <div class="bg-lines">
+            <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0,200 C200,150 400,250 600,200 S1000,150 1440,200" stroke="#2563eb" stroke-width="0.8" fill="none" opacity="0.3"/>
+                <path d="M0,350 C300,300 500,400 800,350 S1200,300 1440,350" stroke="#2563eb" stroke-width="0.6" fill="none" opacity="0.2"/>
+                <path d="M0,500 C250,450 550,550 850,500 S1300,450 1440,500" stroke="#2563eb" stroke-width="0.5" fill="none" opacity="0.15"/>
+                <path d="M0,650 C400,600 700,700 1000,650 S1350,600 1440,650" stroke="#2563eb" stroke-width="0.4" fill="none" opacity="0.1"/>
+            </svg>
         </div>
-        <nav class="nav-links">
-            <a href="#philosophy" class="nav-link">Our Vision</a>
-            <a href="#" class="nav-link" onclick="openAuth('login')">Faculty Access</a>
-            <a href="#" class="btn btn-secondary" style="padding:10px 24px; font-size:0.6em;" onclick="openAuth('register')">Institutional Setup</a>
+    </div>
+
+    <!-- HEADER -->
+    <header>
+        <a class="logo" href="#">
+            <div class="logo-icon">QP</div>
+            <span class="logo-name">QP<span>Gen</span></span>
+        </a>
+        <nav>
+            <a href="#features" class="nav-link">Features</a>
+            <a href="#how-it-works" class="nav-link">How it Works</a>
+            <a href="#" class="btn-nav btn-nav-outline" onclick="openAuth('login')">Sign In</a>
+            <a href="#" class="btn-nav btn-nav-primary" onclick="openAuth('register')">Get Started →</a>
         </nav>
     </header>
 
+    <!-- HERO -->
     <section class="hero">
-        <div class="hero-content">
-            <div class="hero-kicker">Smart Assessment Suite</div>
-            <h1 class="hero-title">The New<br>Standard in<br><em>Exam Generation.</em></h1>
-            <p class="hero-sub">Harness advanced artificial intelligence to architect professional question papers. Maintain perfect balance and Bloom's alignment with institutional precision.</p>
+        <div class="hero-left">
+            <div class="badge">
+                <div class="badge-dot"></div>
+                For Educators &amp; Faculty
+            </div>
+            <h1 class="hero-title">Generate <span class="highlight">Question Papers</span> the Smart Way</h1>
+            <p class="hero-sub">QPGen uses AI to create balanced, Bloom's Taxonomy-aligned question papers in minutes. Designed for professors and teachers — no tech expertise needed.</p>
             <div class="hero-actions">
-                <a href="#" class="btn btn-primary" onclick="openAuth('register')">Request Access</a>
-                <a href="#philosophy" class="btn btn-secondary">Explore Methodology</a>
+                <a href="#" class="btn-hero-primary" onclick="openAuth('register')">
+                    <span>Start Generating Free</span>
+                    <span>→</span>
+                </a>
+                <a href="#how-it-works" class="btn-hero-secondary">See how it works</a>
+            </div>
+            <div class="trust-strip">
+                <div class="trust-item">
+                    <div class="trust-check">✓</div>
+                    Free to start
+                </div>
+                <div class="trust-sep"></div>
+                <div class="trust-item">
+                    <div class="trust-check">✓</div>
+                    Bloom's aligned
+                </div>
+                <div class="trust-sep"></div>
+                <div class="trust-item">
+                    <div class="trust-check">✓</div>
+                    Export to PDF
+                </div>
             </div>
         </div>
 
-        <div class="terminal-wrap">
-            <div class="term-head"><div class="term-dot active"></div><div class="term-dot"></div><div class="term-dot"></div></div>
-            <div class="term-line status">INITIALIZING NEURAL LINK... [OK]</div>
-            <div class="term-line code">> FETCHING SYLLABUS DATA...</div>
-            <div class="term-line code">> CALCULATING BLOOM'S PERCENTILES...</div>
-            <div class="term-line">> ANALYSIS: Topic "Quantum Field Theory" identified.</div>
-            <div class="term-line code">> SYNTHESIZING MCQ ARCHIVE [400+ ITEMS FOUND]</div>
-            <div class="term-line status">> STATUS: SYNTHESIZING PAPER-092-B</div>
-            <div class="term-line code">> BALANCING COGNITIVE LOAD: MEDIUM [OPTIMIZED]</div>
-            <div class="term-line">> GENERATING 10-MARK SYNTHESIS QUESTION...</div>
-            <div class="term-line code">> VALIDATING STRUCTURAL INTEGRITY... 100%</div>
-            <div class="term-line status">ARCHIVE UPDATE COMPLETE. EXPORT READY.</div>
-            <!-- More scrolling lines -->
-            <div class="term-line code">> CACHING ASSESSMENT VECTORS...</div>
-            <div class="term-line">> RELINKING INSTITUTIONAL ACCESS CONTROL...</div>
-            <div class="term-line code">> NEURAL WEIGHTS REBALANCED [VERSION 4.2.1]</div>
+        <div class="hero-right">
+            <!-- Live Preview Card -->
+            <div class="hero-card">
+                <div class="hc-header">
+                    <div class="hc-avatar">CS</div>
+                    <div>
+                        <div class="hc-title">Computer Science – Mid Sem</div>
+                        <div class="hc-sub">Unit 2: Data Structures &amp; Algorithms</div>
+                    </div>
+                    <div class="hc-status">Ready</div>
+                </div>
+                <div class="hc-body">
+                    <div>
+                        <div class="hc-section-label">Bloom's Distribution</div>
+                        <div class="hc-bloom-grid">
+                            <div class="hc-bloom-item bl-remember">
+                                <div class="bl-label">Remember</div>
+                                <div class="bl-val">30%</div>
+                            </div>
+                            <div class="hc-bloom-item bl-understand">
+                                <div class="bl-label">Understand</div>
+                                <div class="bl-val">40%</div>
+                            </div>
+                            <div class="hc-bloom-item bl-analyze">
+                                <div class="bl-label">Analyze</div>
+                                <div class="bl-val">30%</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="hc-section-label">Generation Progress</div>
+                        <div style="font-size:0.75em; color: var(--text-muted); margin-bottom:6px;">Synthesizing questions...</div>
+                        <div class="hc-prog-bar"><div class="hc-prog-fill" style="--w:78%"></div></div>
+                        <div style="font-size:0.7em; color:var(--blue); margin-top:5px; font-weight:600;">78% complete</div>
+                    </div>
+                    <div>
+                        <div class="hc-section-label">Generated Questions</div>
+                        <div class="hc-q-list">
+                            <div class="hc-q-item q-mem"><span class="hc-q-num">Q1.</span> Define time complexity of Merge Sort and state its best-case performance.</div>
+                            <div class="hc-q-item q-und"><span class="hc-q-num">Q2.</span> Explain the difference between a stack and a queue with real-world examples.</div>
+                            <div class="hc-q-item q-app"><span class="hc-q-num">Q3.</span> Apply Dijkstra's algorithm to find the shortest path in the given graph.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="hc-action-row">
+                    <button class="hc-btn hc-btn-primary">📄 Download PDF</button>
+                    <button class="hc-btn hc-btn-outline">✏️ Edit Paper</button>
+                </div>
+            </div>
         </div>
     </section>
 
-    <section class="features" id="philosophy">
-        <div style="text-align:center;">
-            <p style="font-family:'DM Mono'; font-size:0.7em; color:var(--gold); letter-spacing:4px; text-transform:uppercase;">Methodological Pillars</p>
-            <h2 style="font-family:'Playfair Display'; font-size:3.5em; margin-top:20px;">Institutional Rigor.<br>AI Efficiency.</h2>
+    <!-- STATS BAR -->
+    <div class="stats-bar">
+        <div class="stat-item">
+            <span class="stat-number">1,200+</span>
+            <div class="stat-label">Question Papers Generated</div>
         </div>
+        <div class="stat-item">
+            <span class="stat-number">50+</span>
+            <div class="stat-label">Departments Onboarded</div>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">6</span>
+            <div class="stat-label">Bloom's Taxonomy Levels</div>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">&lt;3 min</span>
+            <div class="stat-label">Average Paper Generation Time</div>
+        </div>
+    </div>
+
+    <!-- HOW IT WORKS -->
+    <section class="section" id="how-it-works">
+        <div class="section-tag">How it Works</div>
+        <h2 class="section-title">From syllabus to paper<br>in three simple steps</h2>
+        <p class="section-sub">No complicated setup. QPGen guides you through a structured workflow that ensures every paper is complete and balanced.</p>
+        <div class="steps-grid">
+            <div class="step-card">
+                <div class="step-num step-n1">01</div>
+                <h3>Set Up Your Course</h3>
+                <p>Enter your subject, unit topics, total marks, and exam type. QPGen understands your curriculum structure automatically.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-num step-n2">02</div>
+                <h3>Configure the Balance</h3>
+                <p>Select the Bloom's Taxonomy distribution — how many questions should test memory, understanding, application, or analysis.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-num step-n3">03</div>
+                <h3>Generate &amp; Export</h3>
+                <p>Receive a fully formatted question paper in seconds. Review, make edits if needed, then download as a professional PDF.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="section section-alt" id="features">
+        <div class="section-tag">Features</div>
+        <h2 class="section-title">Everything a faculty member needs</h2>
+        <p class="section-sub">Built with the real needs of professors and teachers in mind — practical, reliable, and easy to use.</p>
         <div class="feat-grid">
             <div class="feat-card">
-                <h3>Smart AI Generation</h3>
-                <p>Advanced algorithmic generation of academic questions. Our engine interprets raw syllabus data to project questions across six cognitive domains.</p>
+                <div class="feat-icon fi-blue">🧠</div>
+                <h3>AI Question Generation</h3>
+                <p>Automatically generate relevant, subject-specific questions from your syllabus topics using advanced AI models.</p>
             </div>
             <div class="feat-card">
-                <h3>Balanced Exams</h3>
-                <p>Standardized balancing protocols ensure that your examinations meet University requirements for difficulty, Bloom's level, and mark allocation.</p>
+                <div class="feat-icon fi-green">⚖️</div>
+                <h3>Bloom's Taxonomy Alignment</h3>
+                <p>Ensure cognitive balance across all six levels — remember, understand, apply, analyze, evaluate, and create.</p>
             </div>
             <div class="feat-card">
-                <h3>Enterprise Security</h3>
-                <p>Proprietary access controls protecting your intellectual property. Our system architecture ensures that assessment data remains sovereign.</p>
+                <div class="feat-icon fi-purple">📄</div>
+                <h3>Formatted PDF Export</h3>
+                <p>Download papers with proper university-style formatting including headers, marks distribution, and organized sections.</p>
+            </div>
+            <div class="feat-card">
+                <div class="feat-icon fi-amber">📚</div>
+                <h3>Paper Archive</h3>
+                <p>All generated papers are saved to your account. Access, reuse, or modify previous papers for different semesters.</p>
+            </div>
+            <div class="feat-card">
+                <div class="feat-icon fi-blue2">🔒</div>
+                <h3>Faculty-only Access</h3>
+                <p>Institution-level access control ensures only verified faculty members can log in and generate papers.</p>
+            </div>
+            <div class="feat-card">
+                <div class="feat-icon fi-red">🎯</div>
+                <h3>Mark-wise Distribution</h3>
+                <p>Set 2-mark, 5-mark, and 10-mark sections. QPGen automatically distributes questions to match your schema.</p>
             </div>
         </div>
     </section>
 
+    <!-- CTA -->
+    <section class="cta-section">
+        <div class="section-tag" style="justify-content: center;">Ready to Try It?</div>
+        <h2 class="section-title">Start generating better question papers today</h2>
+        <p class="section-sub">Join faculty members who are saving hours of paper-setting work with QPGen.</p>
+        <div class="cta-actions">
+            <a href="#" class="btn-hero-primary" onclick="openAuth('register')">Create Free Account →</a>
+            <a href="#" class="btn-hero-secondary" onclick="openAuth('login')">Sign In to Dashboard</a>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-brand">
+            <div class="logo-icon" style="width:28px; height:28px; font-size:0.7em;">QP</div>
+            <span style="font-size:0.9em; font-weight:600; color: var(--text-primary);">QPGen</span>
+        </div>
+        <div class="footer-copy">© 2026 QPGen. Built for educators. All rights reserved.</div>
+        <div class="footer-copy">An Academic Project</div>
+    </footer>
+
+    <!-- AUTH MODAL -->
     <div class="overlay" id="authBox">
         <div class="auth-card">
-            <div class="auth-close" onclick="closeAuth()">✕</div>
+            <div class="auth-header">
+                <div class="auth-logo">
+                    <div class="logo-icon" style="width:30px; height:30px; font-size:0.72em;">QP</div>
+                    <span style="font-size:0.95em; font-weight:700;">QPGen</span>
+                </div>
+                <button class="auth-close" onclick="closeAuth()">✕</button>
+            </div>
             <div class="auth-tabs">
                 <div class="tab" id="tLog" onclick="setTab('login')">Faculty Sign In</div>
-                <div class="tab" id="tReg" onclick="setTab('register')">Institutional Onboarding</div>
+                <div class="tab" id="tReg" onclick="setTab('register')">Create Account</div>
             </div>
-
-            <div id="pLog" style="display:none;">
-                <div class="field"><label>Institutional Email</label><input type="email" id="le" placeholder="dean@university.edu"></div>
-                <div class="field"><label>Security Passport</label><input type="password" id="lp" placeholder="••••••••"></div>
-                <button class="btn-auth" onclick="login()">Access Workspace →</button>
-            </div>
-            
-            <div id="pReg" style="display:none;">
-                <div class="field"><label>Full Legal Name</label><input type="text" id="rn" placeholder="Dr. Julian Vane"></div>
-                <div class="field"><label>Academic Email</label><input type="email" id="re" placeholder="prof@university.edu"></div>
-                <div class="field"><label>Account Passport</label><input type="password" id="rp" placeholder="••••••••"></div>
-                <button class="btn-auth" onclick="register()">Submit Dossier →</button>
+            <div class="auth-body">
+                <div id="pLog" style="display:none;">
+                    <div class="field">
+                        <label>Institutional Email</label>
+                        <input type="email" id="le" placeholder="professor@university.edu">
+                    </div>
+                    <div class="field">
+                        <label>Password</label>
+                        <input type="password" id="lp" placeholder="Enter your password">
+                    </div>
+                    <button class="btn-auth" onclick="login()">Sign In to Dashboard →</button>
+                    <div class="auth-footer-note">Don't have an account? <a href="#" onclick="setTab('register')" style="color:var(--blue); font-weight:600;">Create one →</a></div>
+                </div>
+                <div id="pReg" style="display:none;">
+                    <div class="field">
+                        <label>Full Name</label>
+                        <input type="text" id="rn" placeholder="Dr. Anita Sharma">
+                    </div>
+                    <div class="field">
+                        <label>Institutional Email</label>
+                        <input type="email" id="re" placeholder="anita@university.edu">
+                    </div>
+                    <div class="field">
+                        <label>Password</label>
+                        <input type="password" id="rp" placeholder="Create a strong password">
+                    </div>
+                    <button class="btn-auth" onclick="register()">Create Account →</button>
+                    <div class="auth-footer-note">Already registered? <a href="#" onclick="setTab('login')" style="color:var(--blue); font-weight:600;">Sign in →</a></div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        const API = 'http://127.0.0.1:5000/api';
+        const API = '/api';
+
         function openAuth(t) { document.getElementById('authBox').style.display = 'flex'; setTab(t); }
         function closeAuth() { document.getElementById('authBox').style.display = 'none'; }
         function setTab(t) {
-            document.getElementById('tLog').className = 'tab ' + (t==='login'?'active':'');
-            document.getElementById('tReg').className = 'tab ' + (t==='register'?'active':'');
-            document.getElementById('pLog').style.display = t==='login' ? 'block' : 'none';
-            document.getElementById('pReg').style.display = t==='register' ? 'block' : 'none';
+            document.getElementById('tLog').className = 'tab ' + (t === 'login' ? 'active' : '');
+            document.getElementById('tReg').className = 'tab ' + (t === 'register' ? 'active' : '');
+            document.getElementById('pLog').style.display = t === 'login' ? 'block' : 'none';
+            document.getElementById('pReg').style.display = t === 'register' ? 'block' : 'none';
         }
 
         async function login() {
-            const email = document.getElementById('le').value, password = document.getElementById('lp').value;
-            if(!email || !password) return alert('Information Required');
+            const email = document.getElementById('le').value;
+            const password = document.getElementById('lp').value;
+            if (!email || !password) return alert('Please fill in all fields.');
             try {
-                const res = await fetch(`${API}/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
+                const res = await fetch(`${API}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
                 const d = await res.json();
-                if (res.ok) { localStorage.setItem('token', d.access_token); localStorage.setItem('user', JSON.stringify(d.user)); window.location.href = 'dashboard.html'; }
-                else alert(d.error);
-            } catch { alert('System Offline'); }
+                if (res.ok) {
+                    localStorage.setItem('token', d.access_token);
+                    localStorage.setItem('user', JSON.stringify(d.user));
+                    window.location.href = 'dashboard.html';
+                } else {
+                    alert(d.error || 'Login failed. Please check your credentials.');
+                }
+            } catch {
+                alert('Unable to connect to server. Please try again.');
+            }
         }
 
         async function register() {
-            const username = document.getElementById('rn').value, email = document.getElementById('re').value, password = document.getElementById('rp').value;
-            if(!username || !email || !password) return alert('Dossier Incomplete');
+            const username = document.getElementById('rn').value;
+            const email = document.getElementById('re').value;
+            const password = document.getElementById('rp').value;
+            if (!username || !email || !password) return alert('Please fill in all fields.');
             try {
-                const res = await fetch(`${API}/auth/register`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, email, password }) });
-                if (res.ok) { alert('Onboarding initiated. Proceed to sign in.'); setTab('login'); }
-                else alert('Registration failed');
-            } catch { alert('Server link lost'); }
+                const res = await fetch(`${API}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password })
+                });
+                if (res.ok) {
+                    alert('Account created! You can now sign in.');
+                    setTab('login');
+                } else {
+                    const d = await res.json();
+                    alert(d.error || 'Registration failed. Please try again.');
+                }
+            } catch {
+                alert('Unable to connect to server. Please try again.');
+            }
         }
 
-        document.getElementById('authBox').onclick = (e) => { if(e.target.id==='authBox') closeAuth(); };
+        document.getElementById('authBox').addEventListener('click', (e) => {
+            if (e.target.id === 'authBox') closeAuth();
+        });
+
         if (localStorage.getItem('token')) window.location.href = 'dashboard.html';
     </script>
 </body>
-
 </html>

@@ -8,191 +8,37 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap"
         rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
     <style>
-        *,
-        *::before,
-        *::after {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --black: #050505;
-            --deep: #0a0a0a;
-            --surface: #0f0f0f;
-            --card: rgba(25, 25, 25, 0.6);
-            --border: rgba(255, 255, 255, 0.08);
-            --gold: #c9a84c;
-            --gold-light: #e2c07a;
-            --violet: #8e44ad;
-            --white: #f5f0e8;
-            --muted: #5a5a5a;
-            --text: #a8a39a;
-            --sw: 240px;
-        }
-
-        html,
-        body {
-            background: var(--black);
-            color: var(--white);
-            font-family: 'DM Sans', sans-serif;
-            min-height: 100vh;
-        }
-
-        .ambient-bg {
-            position: fixed;
-            inset: 0;
-            z-index: -1;
-            pointer-events: none;
-        }
-
-        .glow {
-            position: absolute;
-            width: 800px;
-            height: 800px;
-            background: radial-gradient(circle, rgba(201, 168, 76, 0.04) 0%, transparent 70%);
-            top: -200px;
-            right: -200px;
-        }
-
-        .layout {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /* ── SIDEBAR ── */
-        .sidebar {
-            width: var(--sw);
-            background: rgba(10, 10, 10, 0.8);
-            backdrop-filter: blur(20px);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            position: fixed;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            z-index: 50;
-            padding: 40px 24px;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 60px;
-        }
-
-        .logo-mark {
-            width: 32px;
-            height: 32px;
-            border: 1px solid var(--gold);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Playfair Display', serif;
-            color: var(--gold);
-        }
-
-        .logo-text {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.75em;
-            letter-spacing: 3px;
-            color: var(--muted);
-            text-transform: uppercase;
-        }
-
-        .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 12px 14px;
-            color: var(--text);
-            text-decoration: none;
-            font-size: 0.85em;
-            transition: all 0.3s;
-            margin-bottom: 4px;
-        }
-
-        .nav-item:hover,
-        .nav-item.active {
-            color: var(--gold);
-            background: rgba(201, 168, 76, 0.04);
-        }
-
-        /* ── MAIN ── */
-        .main {
-            margin-left: var(--sw);
-            flex: 1;
-        }
-
-        .page-header {
-            padding: 80px 80px 40px;
-            background: linear-gradient(to bottom, var(--deep), transparent);
-        }
-
-        .page-header h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 4em;
-            font-weight: 900;
-            letter-spacing: -2px;
-            line-height: 1;
-        }
-
-        .page-header h1 em {
-            font-style: italic;
-            color: var(--gold);
-        }
-
-        /* ── CONFIG PANEL ── */
-        .content {
-            padding: 0 80px 80px;
-        }
-
         .two-col {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 40px;
+            gap: 32px;
         }
 
         .card {
             background: var(--surface);
             border: 1px solid var(--border);
             padding: 40px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
         }
 
         .card-title {
             font-family: 'DM Mono', monospace;
-            font-size: 0.7em;
+            font-size: 0.75em;
             letter-spacing: 2px;
-            color: var(--muted);
+            color: var(--text-muted);
             text-transform: uppercase;
-            margin-bottom: 24px;
+            margin-bottom: 32px;
             display: flex;
             align-items: center;
             gap: 12px;
         }
 
-        .form-group { margin-bottom: 24px; }
-        .form-group label {
-            display: block;
-            font-family: 'DM Mono', monospace;
-            font-size: 0.65em;
-            letter-spacing: 2px;
-            color: var(--muted);
-            margin-bottom: 10px;
-        }
-
-        .form-group input, .form-group select {
-            width: 100%;
-            background: var(--deep);
-            border: 1px solid var(--border);
-            color: var(--white);
-            padding: 16px;
-            font-family: inherit;
-            outline: none;
-            transition: border-color 0.3s;
+        .card-title span {
+            color: var(--brand);
+            font-weight: 700;
         }
 
         /* Distribution Grid */
@@ -203,59 +49,107 @@
         }
 
         .dist-item {
-            background: rgba(255, 255, 255, 0.02);
+            background: white;
             padding: 20px;
             border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            transition: all 0.3s;
+        }
+
+        .dist-item:hover {
+            border-color: var(--brand);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
         }
 
         .dist-head {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
         }
 
-        .dist-lbl { font-size: 0.8em; color: var(--text); }
-        .dist-val { font-family: 'DM Mono'; color: var(--gold); font-size: 0.9em; }
+        .dist-lbl {
+            font-size: 0.75em;
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
 
+        .dist-val {
+            font-family: 'DM Mono';
+            color: var(--brand);
+            font-size: 1em;
+            font-weight: 700;
+        }
+
+        /* Premium Range Slider */
         input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
             width: 100%;
-            height: 2px;
-            background: var(--border);
-            appearance: none;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 100px;
             outline: none;
+            margin: 12px 0;
+            transition: all 0.2s;
         }
-
         input[type="range"]::-webkit-slider-thumb {
-            appearance: none;
-            width: 12px;
-            height: 12px;
-            background: var(--gold);
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border: 2px solid var(--brand);
             border-radius: 50%;
             cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+            background: var(--brand);
+            box-shadow: 0 0 0 5px var(--brand-dim);
         }
 
         .btn-gen {
             width: 100%;
-            padding: 20px;
-            background: var(--gold);
-            color: var(--black);
+            padding: 18px;
+            background: var(--grad-blue);
+            color: white;
             font-weight: 700;
             border: none;
             cursor: pointer;
             margin-top: 40px;
             font-family: 'DM Mono', monospace;
             letter-spacing: 2px;
+            text-transform: uppercase;
             transition: all 0.3s;
+            border-radius: 8px;
+            font-size: 0.85em;
+            box-shadow: 0 4px 12px rgba(37,99,235,0.25);
         }
 
-        .btn-gen:hover { background: var(--gold-light); transform: translateY(-3px); }
-        .btn-gen:disabled { opacity: 0.4; transform: none; }
+        .btn-gen:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(37,99,235,0.35);
+        }
+
+        .btn-gen:disabled {
+            opacity: 0.5;
+            background: #cbd5e1;
+            box-shadow: none;
+            transform: none;
+            cursor: not-allowed;
+        }
 
         /* Neural Loading Overlay */
         .neural-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.95);
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
             z-index: 5000;
             display: none;
             flex-direction: column;
@@ -265,13 +159,17 @@
         }
 
         .neural-hex {
-            width: 80px;
-            height: 80px;
-            border: 2px solid var(--gold);
-            animation: rotate 4s linear infinite;
+            width: 60px;
+            height: 60px;
+            border: 3px solid var(--brand);
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
 
-        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
 
         /* PREVIEW WRAP */
         .preview-wrap {
@@ -284,63 +182,144 @@
             background: var(--surface);
             padding: 40px;
             border: 1px solid var(--border);
+            border-radius: var(--radius) var(--radius) 0 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: var(--shadow-sm);
         }
 
         .preview-title {
             font-family: 'Playfair Display', serif;
-            font-size: 2em;
+            font-size: 2.2em;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .preview-body {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-top: none;
+            border-radius: 0 0 var(--radius) var(--radius);
+            box-shadow: var(--shadow-sm);
         }
 
         .q-preview-item {
-            padding: 30px 40px;
-            background: rgba(255, 255, 255, 0.01);
+            padding: 32px 40px;
             border-bottom: 1px solid var(--border);
             display: flex;
             gap: 24px;
+            transition: background 0.2s;
+        }
+        .q-preview-item:last-child { border-bottom: none; }
+        .q-preview-item:hover { background: var(--bg); }
+
+        .q-preview-num {
+            font-family: 'DM Mono';
+            color: var(--text-muted);
+            font-size: 0.9em;
+            font-weight: 600;
+            width: 28px;
         }
 
-        .q-preview-num { font-family: 'DM Mono'; color: var(--muted); width: 24px; }
-        .q-preview-text { flex: 1; font-size: 0.95em; line-height: 1.7; color: var(--text); }
-        .q-preview-marks { color: var(--gold); font-family: 'DM Mono'; font-size: 0.8em; }
+        .q-preview-text {
+            flex: 1;
+            font-size: 1.05em;
+            line-height: 1.7;
+            color: var(--text-primary);
+        }
 
+        .q-preview-marks {
+            color: var(--brand);
+            font-family: 'DM Mono';
+            font-size: 0.85em;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .rq-badge {
+            display: inline-block;
+            margin-left: 12px;
+            font-family: 'DM Mono';
+            font-size: 0.6em;
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+        .b-remember { background: #fef3c7; color: #d97706; }
+        .b-understand { background: #dbeafe; color: #2563eb; }
+        .b-apply { background: #d1fae5; color: #10b981; }
+        .b-analyze { background: #ede9fe; color: #8b5cf6; }
+        .b-evaluate { background: #ffe4e6; color: #f43f5e; }
+        .b-create { background: #e0f2fe; color: #06b6d4; }
     </style>
 </head>
 
 <body>
-    <div class="ambient-bg"><div class="glow"></div></div>
+    <div class="ambient-bg">
+        <div class="glow-1"></div>
+        <div class="glow-2"></div>
+    </div>
 
     <div class="layout">
         <aside class="sidebar">
-            <div class="logo">
-                <div class="logo-mark">Q</div>
-                <div class="logo-text">QPGen</div>
+            <a href="dashboard.html" class="logo">
+                <div class="logo-mark">QP</div>
+                <span class="logo-text">QPGen</span>
+            </a>
+
+            <div class="nav-section">Workspace</div>
+            <a href="dashboard.html" class="nav-item">
+                <span class="nav-icon">▤</span> Dashboard
+            </a>
+            <a href="questions.html" class="nav-item">
+                <span class="nav-icon">⚄</span> Question Bank
+            </a>
+            <a href="generate.html" class="nav-item active">
+                <span class="nav-icon">✦</span> Generate Paper
+            </a>
+
+            <div class="nav-section">Management</div>
+            <a href="profile.html" class="nav-item">
+                <span class="nav-icon">👤</span> Account Profile
+            </a>
+
+            <div id="adminArea" style="display: none;">
+                <div class="nav-section">University Admin</div>
+                <a href="admin/teachers.html" class="nav-item">
+                    <span class="nav-icon">⌘</span> Manage Faculty
+                </a>
+                <a href="admin/requests.html" class="nav-item">
+                    <span class="nav-icon">✉</span> Access Requests
+                </a>
             </div>
-            <div class="nav-section" style="font-family:'DM Mono'; font-size:0.6em; text-transform:uppercase; color:var(--muted); margin-bottom:12px;">Workspace</div>
-            <a href="dashboard.html" class="nav-item">Dashboard</a>
-            <a href="questions.html" class="nav-item">Question Bank</a>
-            <a href="generate.html" class="nav-item active">Generate Paper</a>
-            <div style="margin-top:auto;">
-                <div id="uName" style="font-size:0.8em; margin-bottom:12px; color:var(--text);">Professor</div>
-                <a href="#" class="btn-gen" style="padding:10px; font-size:0.6em; text-align:center; display:block;" onclick="logout()">Logout</a>
+
+            <div class="sidebar-footer">
+                <div class="user-pill" onclick="location.href='profile.html'">
+                    <div class="avatar" id="av">P</div>
+                    <div class="user-meta">
+                        <div class="user-name" id="uName">Professor</div>
+                        <div class="user-email" id="uEmail">prof@univ.edu</div>
+                    </div>
+                </div>
+                <button class="btn btn-danger" style="width: 100%; margin-top: 16px; font-size: 0.7em;" onclick="logout()">Secure Logout</button>
             </div>
         </aside>
 
         <main class="main">
-            <header class="page-header">
-                <p style="font-family:'DM Mono'; letter-spacing:2px; font-size:0.7em; color:var(--gold); text-transform:uppercase;">Synthesis Lab</p>
+            <header class="page-header animate-fade">
+                <p>Synthesis Lab</p>
                 <h1>Cognitive<br><em>Composer.</em></h1>
             </header>
 
-            <div class="content">
+            <div class="content animate-fade">
                 <div id="msg" class="msg-bar"></div>
 
                 <div class="two-col">
                     <div class="card">
                         <div class="card-title"><span>01</span> Neural Configuration</div>
-                        
+
                         <div class="form-group">
                             <label>Curriculum Strata</label>
                             <select id="sSub" onchange="loadStats()"></select>
@@ -349,56 +328,62 @@
                             <label>Archives Title</label>
                             <input type="text" id="sTitle" placeholder="End-Term Evaluation (2025)...">
                         </div>
-                        
+
                         <div class="form-group">
                             <label>Duration (Minutes)</label>
                             <input type="number" id="sDuration" value="180" min="30" max="300">
                         </div>
-                        
-                        <div class="form-group">
-                            <label>Methodology</label>
-                            <div style="display:flex; gap:12px; margin-top:10px;">
-                                <button id="modeManual" onclick="setMode('manual')" style="flex:1; padding:12px; background:var(--gold-dim); color:var(--gold); border:1px solid var(--gold); cursor:pointer;">Handcrafted</button>
-                                <button id="modeAI" onclick="setMode('ai')" style="flex:1; padding:12px; background:var(--deep); color:var(--muted); border:1px solid var(--border); cursor:pointer;">AI Synthesis</button>
+
+                        <div class="form-group" style="background: #f1f5f9; padding: 6px; border-radius: 12px; margin-top: 32px;">
+                            <div style="display:flex; gap:4px;">
+                                <button id="modeManual" onclick="setMode('manual')"
+                                    style="flex:1; padding:12px; background:white; color:var(--brand); border:none; cursor:pointer; border-radius: 8px; font-family: 'DM Mono'; font-weight: 700; font-size: 0.7em; text-transform: uppercase; letter-spacing: 1px; box-shadow: var(--shadow-sm);">Handcrafted</button>
+                                <button id="modeAI" onclick="setMode('ai')"
+                                    style="flex:1; padding:12px; background:transparent; color:var(--text-muted); border:none; cursor:pointer; border-radius: 8px; font-family: 'DM Mono'; font-weight: 700; font-size: 0.7em; text-transform: uppercase; letter-spacing: 1px;">AI Synthesis</button>
                             </div>
                         </div>
 
-                        <div id="aiBlock" style="display:none;">
+                        <div id="aiBlock" style="display:none; transition: all 0.3s;">
                             <div class="form-group">
                                 <label>Domain Constraints (Optional)</label>
-                                <textarea id="aiTopic" rows="2" style="width:100%; background:var(--deep); border:1px solid var(--border); color:var(--white); padding:12px;" placeholder="Focus on specific topics..."></textarea>
+                                <textarea id="aiTopic" rows="3" placeholder="Focus on specific topics..."></textarea>
                             </div>
                         </div>
                     </div>
 
                     <div class="card">
                         <div class="card-title"><span>02</span> Marks Distribution</div>
-                        
+
                         <div class="dist-grid">
                             <div class="dist-item">
-                                <div class="dist-head"><span class="dist-lbl">1 MARK ITEMS</span><span class="dist-val" id="v1">0</span></div>
+                                <div class="dist-head"><span class="dist-lbl">1 MARK ITEMS</span><span class="dist-val"
+                                        id="v1">0</span></div>
                                 <input type="range" id="m1" min="0" max="20" value="0" oninput="updateDist()">
                             </div>
                             <div class="dist-item">
-                                <div class="dist-head"><span class="dist-lbl">3 MARK ITEMS</span><span class="dist-val" id="v3">0</span></div>
-                                <input type="range" id="m3" min="0" max="10" value="0" oninput="updateDist()">
+                                <div class="dist-head"><span class="dist-lbl">3 MARK ITEMS</span><span class="dist-val"
+                                        id="v3">0</span></div>
+                                <input type="range" id="m3" min="0" max="15" value="0" oninput="updateDist()">
                             </div>
                             <div class="dist-item">
-                                <div class="dist-head"><span class="dist-lbl">5 MARK ITEMS</span><span class="dist-val" id="v5">0</span></div>
+                                <div class="dist-head"><span class="dist-lbl">5 MARK ITEMS</span><span class="dist-val"
+                                        id="v5">0</span></div>
                                 <input type="range" id="m5" min="0" max="10" value="0" oninput="updateDist()">
                             </div>
                             <div class="dist-item">
-                                <div class="dist-head"><span class="dist-lbl">10 MARK ITEMS</span><span class="dist-val" id="v10">0</span></div>
+                                <div class="dist-head"><span class="dist-lbl">10 MARK ITEMS</span><span class="dist-val"
+                                        id="v10">0</span></div>
                                 <input type="range" id="m10" min="0" max="5" value="0" oninput="updateDist()">
                             </div>
                         </div>
 
-                        <div style="margin-top:32px; border-top:1px solid var(--border); padding-top:20px; display:flex; justify-content:space-between;">
-                            <span style="font-family:'DM Mono'; font-size:0.6em; color:var(--muted); letter-spacing:1px;">TOTAL MARK ARCHITECTURE</span>
-                            <span id="vTotal" style="font-family:'Playfair Display'; color:var(--gold); font-weight:900; font-size:1.5em;">0 / 100</span>
+                        <div style="margin-top:40px; border-top:1px solid var(--border); padding-top:24px; display:flex; justify-content:space-between; align-items: center;">
+                            <div>
+                                <div style="font-family:'DM Mono'; font-size:0.65em; color:var(--text-muted); letter-spacing:2px; text-transform: uppercase;">Total Score</div>
+                                <div id="vTotal" style="font-family:'Playfair Display'; color:var(--brand); font-weight:900; font-size:2em;">0 / 100</div>
+                            </div>
+                            <button id="btnGen" class="btn-gen" style="width: auto; margin-top: 0; padding: 18px 48px;" onclick="composerAction()">Initiate Synthesis →</button>
                         </div>
-
-                        <button id="btnGen" class="btn-gen" onclick="composerAction()">Initiate Synthesis →</button>
                     </div>
                 </div>
 
@@ -406,11 +391,11 @@
                     <div class="preview-head">
                         <div>
                             <div class="preview-title" id="rTitle">Evaluation Paper</div>
-                            <div style="font-family:'DM Mono'; font-size:0.7em; color:var(--muted);" id="rSub">SUBJECT ALLOCATION</div>
+                            <div style="font-family:'DM Mono'; font-size:0.75em; color:var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; margin-top: 4px;" id="rSub">SUBJECT ALLOCATION</div>
                         </div>
-                        <button class="btn-gen" style="width:auto; padding:12px 32px;" onclick="downloadPdf()">Download PDF ↓</button>
+                        <button class="btn-gen" style="width:auto; padding:12px 32px; margin-top: 0;" onclick="downloadPdf()">Download PDF ↓</button>
                     </div>
-                    <div id="qList" style="background:var(--surface); border:1px solid var(--border); border-top:none;"></div>
+                    <div class="preview-body" id="qList"></div>
                 </div>
             </div>
         </main>
@@ -418,7 +403,7 @@
 
     <div id="neural" class="neural-overlay">
         <div class="neural-hex"></div>
-        <div style="font-family:'DM Mono'; color:var(--gold); letter-spacing:3px; font-size:0.8em; margin-top:20px;">CALCULATING NEURAL PATHWAYS</div>
+        <div style="font-family:'DM Mono'; color:var(--brand); letter-spacing:3px; font-size:0.85em; font-weight: 700;">CALCULATING NEURAL PATHWAYS</div>
     </div>
 
     <script>
@@ -429,6 +414,9 @@
         const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
 
         document.getElementById('uName').textContent = user.username;
+        document.getElementById('av').textContent = (user.username || 'P')[0].toUpperCase();
+        if (user.roles && user.roles.includes('admin')) document.getElementById('adminArea').style.display = 'block';
+
         let mode = 'manual';
         let currentPaper = null;
 
@@ -444,11 +432,26 @@
 
         function setMode(m) {
             mode = m;
-            document.getElementById('modeManual').style.background = m === 'manual' ? 'var(--gold-dim)' : 'var(--deep)';
-            document.getElementById('modeManual').style.color = m === 'manual' ? 'var(--gold)' : 'var(--muted)';
-            document.getElementById('modeAI').style.background = m === 'ai' ? 'var(--gold-dim)' : 'var(--deep)';
-            document.getElementById('modeAI').style.color = m === 'ai' ? 'var(--gold)' : 'var(--muted)';
-            document.getElementById('aiBlock').style.display = m === 'ai' ? 'block' : 'none';
+            const btnManual = document.getElementById('modeManual');
+            const btnAI = document.getElementById('modeAI');
+            
+            if (m === 'manual') {
+                btnManual.style.background = 'white';
+                btnManual.style.color = 'var(--brand)';
+                btnManual.style.boxShadow = 'var(--shadow-sm)';
+                btnAI.style.background = 'transparent';
+                btnAI.style.color = 'var(--text-muted)';
+                btnAI.style.boxShadow = 'none';
+                document.getElementById('aiBlock').style.display = 'none';
+            } else {
+                btnAI.style.background = 'white';
+                btnAI.style.color = 'var(--brand)';
+                btnAI.style.boxShadow = 'var(--shadow-sm)';
+                btnManual.style.background = 'transparent';
+                btnManual.style.color = 'var(--text-muted)';
+                btnManual.style.boxShadow = 'none';
+                document.getElementById('aiBlock').style.display = 'block';
+            }
         }
 
         function updateDist() {
@@ -456,15 +459,15 @@
             const m3 = parseInt(document.getElementById('m3').value);
             const m5 = parseInt(document.getElementById('m5').value);
             const m10 = parseInt(document.getElementById('m10').value);
-            
+
             document.getElementById('v1').textContent = m1;
             document.getElementById('v3').textContent = m3;
             document.getElementById('v5').textContent = m5;
             document.getElementById('v10').textContent = m10;
-            
-            const total = (m1*1) + (m3*3) + (m5*5) + (m10*10);
+
+            const total = (m1 * 1) + (m3 * 3) + (m5 * 5) + (m10 * 10);
             document.getElementById('vTotal').textContent = `${total} / 100`;
-            document.getElementById('vTotal').style.color = total > 100 ? '#e74c3c' : 'var(--gold)';
+            document.getElementById('vTotal').style.color = total > 100 ? '#f43f5e' : 'var(--brand)';
             document.getElementById('btnGen').disabled = total === 0 || total > 100;
         }
 
@@ -473,7 +476,7 @@
             const m3 = parseInt(document.getElementById('m3').value);
             const m5 = parseInt(document.getElementById('m5').value);
             const m10 = parseInt(document.getElementById('m10').value);
-            const totalMarks = (m1*1) + (m3*3) + (m5*5) + (m10*10);
+            const totalMarks = (m1 * 1) + (m3 * 3) + (m5 * 5) + (m10 * 10);
             const duration = parseInt(document.getElementById('sDuration').value);
             const title = document.getElementById('sTitle').value || 'New Examination Paper';
             const subjectId = parseInt(document.getElementById('sSub').value);
@@ -513,10 +516,10 @@
             document.getElementById('result').style.display = 'block';
             document.getElementById('rTitle').textContent = p.title;
             document.getElementById('rSub').textContent = document.getElementById('sSub').options[document.getElementById('sSub').selectedIndex].text.toUpperCase();
-            
+
             document.getElementById('qList').innerHTML = p.questions.map((q, i) => `
                 <div class="q-preview-item">
-                    <div class="q-preview-num">${String(i+1).padStart(2, '0')}</div>
+                    <div class="q-preview-num">${String(i + 1).padStart(2, '0')}</div>
                     <div class="q-preview-text">
                         ${q.text}
                         <span class="rq-badge b-${q.blooms_level}">${q.blooms_level}</span>
@@ -524,7 +527,7 @@
                     <div class="q-preview-marks">${q.marks} PTS</div>
                 </div>
             `).join('');
-            
+
             window.scrollTo({ top: document.getElementById('result').offsetTop - 40, behavior: 'smooth' });
         }
 

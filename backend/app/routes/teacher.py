@@ -3,13 +3,13 @@ from flask import Blueprint, request, jsonify
 from app.extensions import db
 from app.models.question import Question
 from app.models.subject import Subject
-from app.authorization import require_role, require_permission, get_current_user
+from app.authorization import require_permission, require_role, require_any_role, get_current_user
 from app.services.audit_service import log_action
 
 teacher_bp = Blueprint('teacher', __name__)
 
 @teacher_bp.route('/subjects', methods=['GET'])
-@require_role('teacher')
+@require_any_role('teacher', 'admin')
 @require_permission('subjects.read')
 def get_teacher_subjects():
     """Get subjects assigned to the current teacher."""
@@ -42,7 +42,15 @@ def get_teacher_questions():
     offset = request.args.get('offset', type=int, default=0)
 
     query = Question.query
-    if not user.has_role('admin'):
+    
+    # Filter by subject if provided
+    subject_id = request.args.get('subject_id', type=int)
+    if subject_id:
+        # Security: Verify teacher has access to this subject
+        if not user.has_role('admin') and subject_id not in subject_ids:
+            return jsonify({'success': False, 'message': 'Forbidden access to this subject'}), 403
+        query = query.filter_by(subject_id=subject_id)
+    elif not user.has_role('admin'):
         query = query.filter(Question.subject_id.in_(subject_ids))
         
     if difficulty:
@@ -241,7 +249,7 @@ def get_my_requests():
 
 
 @teacher_bp.route('/profile', methods=['GET'])
-@require_role('teacher')
+@require_any_role('teacher', 'admin')
 def get_profile():
     """Get extended profile for the current teacher."""
     from app.models.paper import Paper

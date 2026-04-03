@@ -118,7 +118,7 @@ def require_role(role_name: str):
     """
     Decorator factory — grants access when the user holds *role_name*.
 
-    Use for coarse-grained admin gates.  Prefer ``require_permission`` for
+    Use for coarse-grained admin gates. Prefer ``require_permission`` for
     fine-grained resource-level control.
 
     Responds with:
@@ -149,6 +149,40 @@ def require_role(role_name: str):
                 return jsonify({
                     'error': 'Forbidden',
                     'required_role': role_name,
+                }), 403
+
+            return fn(*args, **kwargs)
+        return wrapper
+    return decorator
+
+
+def require_any_role(*role_names: str):
+    """
+    Decorator factory — grants access when the user holds any one of the listed roles.
+
+    Useful for endpoints accessible to both admins and teachers (e.g. shared profile).
+
+    Responds with:
+    - 401  if the JWT is missing / invalid, or the account is inactive
+    - 403  if the user holds none of the listed roles
+    """
+    def decorator(fn):
+        @wraps(fn)
+        def wrapper(*args, **kwargs):
+            verify_jwt_in_request()
+            user = _load_current_user()
+
+            inactive = _check_active(user)
+            if inactive:
+                return inactive
+
+            if not any(user.has_role(role) for role in role_names):
+                from app.services.audit_service import log_action
+                log_action('auth.permission_denied', status='failure',
+                           details={'required_any_of_roles': list(role_names)})
+                return jsonify({
+                    'error': 'Forbidden',
+                    'required_any_of_roles': list(role_names),
                 }), 403
 
             return fn(*args, **kwargs)

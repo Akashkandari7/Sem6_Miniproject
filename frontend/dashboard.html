@@ -8,467 +8,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap"
         rel="stylesheet">
-    <style>
-        *,
-        *::before,
-        *::after {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --black: #050505;
-            --deep: #0a0a0a;
-            --surface: #0f0f0f;
-            --card: rgba(25, 25, 25, 0.6);
-            --border: rgba(255, 255, 255, 0.08);
-            --gold: #c9a84c;
-            --gold-light: #e2c07a;
-            --violet: #8e44ad;
-            --white: #f5f0e8;
-            --muted: #5a5a5a;
-            --text: #a8a39a;
-            --bloom-remember: #c9a84c;
-            --bloom-understand: #8e44ad;
-            --bloom-apply: #2980b9;
-            --bloom-analyze: #27ae60;
-            --bloom-evaluate: #e67e22;
-            --bloom-create: #c0392b;
-            --sw: 240px;
-        }
-
-        html,
-        body {
-            background: var(--black);
-            color: var(--white);
-            font-family: 'DM Sans', sans-serif;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* Ambient background glow */
-        .ambient-bg {
-            position: fixed;
-            inset: 0;
-            z-index: -1;
-            overflow: hidden;
-            pointer-events: none;
-        }
-
-        .glow-1 {
-            position: absolute;
-            width: 800px;
-            height: 800px;
-            background: radial-gradient(circle, rgba(201, 168, 76, 0.05) 0%, transparent 70%);
-            top: -200px;
-            right: -200px;
-        }
-
-        .glow-2 {
-            position: absolute;
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(142, 68, 173, 0.06) 0%, transparent 70%);
-            bottom: -200px;
-            left: -100px;
-        }
-
-        .layout {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /* ── SIDEBAR ── */
-        .sidebar {
-            width: var(--sw);
-            background: rgba(10, 10, 10, 0.8);
-            backdrop-filter: blur(20px);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            position: fixed;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            z-index: 50;
-            padding: 40px 24px;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 60px;
-        }
-
-        .logo-mark {
-            width: 32px;
-            height: 32px;
-            border: 1px solid var(--gold);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Playfair Display', serif;
-            color: var(--gold);
-            position: relative;
-        }
-
-        .logo-mark::after {
-            content: '';
-            position: absolute;
-            inset: 3px;
-            background: rgba(201, 168, 76, 0.1);
-        }
-
-        .nav-section {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.6em;
-            letter-spacing: 3px;
-            color: var(--muted);
-            text-transform: uppercase;
-            margin: 24px 0 12px;
-        }
-
-        .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 12px 14px;
-            color: var(--text);
-            text-decoration: none;
-            font-size: 0.85em;
-            transition: all 0.3s;
-            margin-bottom: 4px;
-            position: relative;
-        }
-
-        .nav-item:hover,
-        .nav-item.active {
-            color: var(--gold);
-            background: rgba(201, 168, 76, 0.04);
-        }
-
-        .nav-item.active::before {
-            content: '';
-            position: absolute;
-            left: -24px;
-            top: 10%;
-            bottom: 10%;
-            width: 3px;
-            background: var(--gold);
-        }
-
-        .sidebar-footer {
-            margin-top: auto;
-            padding-top: 24px;
-            border-top: 1px solid var(--border);
-        }
-
-        .user-pill {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 8px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .user-pill:hover {
-            background: rgba(255, 255, 255, 0.03);
-        }
-
-        .avatar {
-            width: 36px;
-            height: 36px;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Playfair Display', serif;
-            font-weight: 700;
-            color: var(--gold);
-        }
-
-        /* ── MAIN ── */
-        .main {
-            margin-left: var(--sw);
-            flex: 1;
-            padding: 60px 80px;
-        }
-
-        header {
-            margin-bottom: 60px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-        }
-
-        .greeting h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 3.5em;
-            font-weight: 900;
-            line-height: 1;
-            margin-bottom: 8px;
-            letter-spacing: -2px;
-        }
-
-        .greeting h1 em {
-            font-style: italic;
-            color: var(--gold);
-        }
-
-        .greeting p {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.8em;
-            color: var(--muted);
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-
-        /* ── STATS CARDS ── */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 24px;
-            margin-bottom: 60px;
-        }
-
-        .stat-card {
-            background: var(--card);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--border);
-            padding: 40px;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.5s cubic-bezier(0.2, 1, 0.3, 1);
-        }
-
-        .stat-card:hover {
-            transform: translateY(-8px);
-            border-color: var(--gold);
-            background: rgba(40, 40, 40, 0.6);
-        }
-
-        .stat-card::after {
-            content: '';
-            position: absolute;
-            width: 150px;
-            height: 150px;
-            background: radial-gradient(circle, rgba(201, 168, 76, 0.1) 0%, transparent 70%);
-            top: -75px;
-            right: -75px;
-        }
-
-        .stat-val {
-            font-family: 'Playfair Display', serif;
-            font-size: 4em;
-            font-weight: 900;
-            color: var(--white);
-            line-height: 1;
-            letter-spacing: -3px;
-            margin-bottom: 8px;
-        }
-
-        .stat-lbl {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.7em;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            color: var(--muted);
-        }
-
-        .stat-trend {
-            font-size: 0.7em;
-            color: var(--gold);
-            margin-top: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        /* ── SECTIONS ── */
-        .content-grid {
-            display: grid;
-            grid-template-columns: 1.6fr 1fr;
-            gap: 40px;
-        }
-
-        .panel {
-            background: var(--card);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--border);
-        }
-
-        .panel-head {
-            padding: 24px 32px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .panel-title {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.7em;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            color: var(--text);
-        }
-
-        .btn-action {
-            background: transparent;
-            border: 1px solid var(--gold);
-            color: var(--gold);
-            padding: 8px 16px;
-            font-family: 'DM Mono', monospace;
-            font-size: 0.65em;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-decoration: none;
-        }
-
-        .btn-action:hover {
-            background: rgba(201, 168, 76, 0.1);
-        }
-
-        #paperListContainer {
-            min-height: 300px;
-        }
-
-        .paper-item {
-            display: flex;
-            align-items: center;
-            gap: 24px;
-            padding: 24px 32px;
-            border-bottom: 1px solid var(--border);
-            transition: background 0.3s;
-            cursor: pointer;
-        }
-
-        .paper-item:hover {
-            background: rgba(255, 255, 255, 0.02);
-        }
-
-        .paper-num {
-            font-family: 'Playfair Display', serif;
-            font-style: italic;
-            font-size: 1.5em;
-            color: rgba(201, 168, 76, 0.3);
-            width: 32px;
-        }
-
-        .paper-content {
-            flex: 1;
-        }
-
-        .paper-title {
-            font-weight: 600;
-            font-size: 0.95em;
-            margin-bottom: 4px;
-        }
-
-        .paper-meta {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.7em;
-            color: var(--muted);
-            letter-spacing: 1px;
-        }
-
-        .paper-status {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.6em;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            padding: 4px 10px;
-            border: 1px solid var(--gold-dim);
-            color: var(--gold);
-        }
-
-        /* ── BLOOM CHART ── */
-        .bloom-chart {
-            padding: 32px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .bloom-row {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .bloom-label {
-            width: 80px;
-            font-size: 0.75em;
-            color: var(--text);
-            text-transform: capitalize;
-        }
-
-        .bloom-bar-wrap {
-            flex: 1;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.03);
-            position: relative;
-        }
-
-        .bloom-bar-fill {
-            position: absolute;
-            height: 100%;
-            left: 0;
-            top: 0;
-            transition: width 1.5s cubic-bezier(0.2, 1, 0.3, 1);
-        }
-
-        .bloom-val {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.65em;
-            color: var(--muted);
-            width: 24px;
-            text-align: right;
-        }
-
-        /* Global Search box in Dashboard */
-        .search-container {
-            display: flex;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            padding: 10px 16px;
-            gap: 12px;
-            align-items: center;
-            width: 100%;
-            max-width: 400px;
-            transition: border-color 0.3s;
-        }
-
-        .search-container:focus-within {
-            border-color: var(--gold);
-        }
-
-        .search-container input {
-            background: transparent;
-            border: none;
-            color: var(--white);
-            font-size: 0.85em;
-            outline: none;
-            flex: 1;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .stat-card { animation: fadeIn 0.8s cubic-bezier(0.2, 1, 0.3, 1) both; }
-        .stat-card:nth-child(2) { animation-delay: 0.1s; }
-        .stat-card:nth-child(3) { animation-delay: 0.2s; }
-        .panel { animation: fadeIn 0.8s 0.3s cubic-bezier(0.2, 1, 0.3, 1) both; }
-
-    </style>
+    <link href="style.css" rel="stylesheet">
 </head>
 
 <body>
@@ -479,77 +19,90 @@
 
     <div class="layout">
         <aside class="sidebar">
-            <div class="logo">
-                <div class="logo-mark">Q</div>
-                <div class="logo-text">QPGen</div>
-            </div>
+            <a href="dashboard.html" class="logo">
+                <div class="logo-mark">QP</div>
+                <span class="logo-text">QPGen</span>
+            </a>
 
             <div class="nav-section">Workspace</div>
-            <a href="dashboard.html" class="nav-item active">Dashboard</a>
-            <a href="questions.html" class="nav-item">Question Bank</a>
-            <a href="generate.html" class="nav-item">Generate Paper</a>
+            <a href="dashboard.html" class="nav-item active">
+                <span class="nav-icon">▤</span> Dashboard
+            </a>
+            <a href="questions.html" class="nav-item">
+                <span class="nav-icon">⚄</span> Question Bank
+            </a>
+            <a href="generate.html" class="nav-item">
+                <span class="nav-icon">✦</span> Generate Paper
+            </a>
 
             <div class="nav-section">Management</div>
-            <a href="profile.html" class="nav-item">Account Profile</a>
-            
+            <a href="profile.html" class="nav-item">
+                <span class="nav-icon">👤</span> Account Profile
+            </a>
+
             <div id="adminArea" style="display: none;">
                 <div class="nav-section">University Admin</div>
-                <a href="admin/teachers.html" class="nav-item">Manage Faculty</a>
-                <a href="admin/requests.html" class="nav-item">Access Requests</a>
+                <a href="admin/teachers.html" class="nav-item">
+                    <span class="nav-icon">⌘</span> Manage Faculty
+                </a>
+                <a href="admin/requests.html" class="nav-item">
+                    <span class="nav-icon">✉</span> Access Requests
+                </a>
             </div>
 
             <div class="sidebar-footer">
                 <div class="user-pill" onclick="location.href='profile.html'">
-                    <div class="avatar" id="av">U</div>
+                    <div class="avatar" id="av">P</div>
                     <div class="user-meta">
                         <div class="user-name" id="uName">Professor</div>
-                        <div class="user-email" style="font-size: 0.6em; color: var(--muted); letter-spacing: 0.5px;" id="uEmail">prof@univ.edu</div>
+                        <div class="user-email" id="uEmail">prof@univ.edu</div>
                     </div>
                 </div>
-                <div style="margin-top: 16px; display: flex; gap: 8px;">
-                    <a href="#" class="btn-action" style="flex: 1; text-align: center;" onclick="logout()">Logout</a>
-                </div>
+                <button class="btn btn-danger" style="width: 100%; margin-top: 16px; font-size: 0.7em;" onclick="logout()">Secure Logout</button>
             </div>
         </aside>
 
         <main class="main">
-            <header>
-                <div class="greeting">
-                    <p id="dt">Establishing link...</p>
-                    <h1 id="greet">Welcome back,<br><em>Professor.</em></h1>
-                </div>
-                <div class="search-container">
-                    <span style="color: var(--gold); font-size: 0.8em;">⌕</span>
-                    <input type="text" id="pSearch" placeholder="Search archives..." oninput="filterPapers()">
+            <header class="page-header animate-fade">
+                <p id="dt">Establishing link...</p>
+                <h1 id="greet">Welcome back,<br><em>Professor.</em></h1>
+                
+                <div class="form-group" style="margin-top: 32px; max-width: 400px;">
+                    <div style="position: relative;">
+                        <input type="text" id="pSearch" placeholder="Search archives..." oninput="filterPapers()">
+                        <span style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--brand); font-size: 0.8em;">⌕</span>
+                    </div>
                 </div>
             </header>
 
-            <div class="stats-grid">
-                <div class="stat-card">
+            <div class="stats-grid animate-fade" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 60px;">
+                <div class="card stat-card">
                     <div class="stat-val" id="sP">0</div>
                     <div class="stat-lbl">Papers Crafted</div>
-                    <div class="stat-trend">◆ Unified System Access</div>
+                    <div class="stat-trend" style="font-size: 0.7em; color: var(--brand); margin-top: 16px;">✦ Institutional Repository</div>
                 </div>
-                <div class="stat-card">
+                <div class="card stat-card">
                     <div class="stat-val" id="sQ">0</div>
                     <div class="stat-lbl">Library Items</div>
-                    <div class="stat-trend">◇ Bloom Distributed</div>
+                    <div class="stat-trend" style="font-size: 0.7em; color: var(--blue); margin-top: 16px;">✧ Bloom Distributed</div>
                 </div>
-                <div class="stat-card">
+                <div class="card stat-card">
                     <div class="stat-val" id="sS">0</div>
                     <div class="stat-lbl">Active Curricula</div>
-                    <div class="stat-trend">◈ Security Verified</div>
+                    <div class="stat-trend" style="font-size: 0.7em; color: var(--brand); margin-top: 16px;">⌘ Verified Access</div>
                 </div>
             </div>
 
-            <div class="content-grid">
+            <div class="content-grid animate-fade" style="display: grid; grid-template-columns: 1.6fr 1fr; gap: 40px;">
                 <div class="panel">
                     <div class="panel-head">
                         <span class="panel-title">Recent Archival Entries</span>
-                        <a href="generate.html" class="btn-action">+ New Synthesis</a>
+                        <a href="generate.html" class="btn btn-primary" style="padding: 8px 16px; font-size: 0.6em;">+ New Synthesis</a>
                     </div>
                     <div id="paperListContainer">
-                        <div style="padding: 40px; text-align: center; color: var(--muted); font-size: 0.8em; letter-spacing: 1px;">Establishing neural link to archives...</div>
+                        <div style="padding: 80px; text-align: center; color: var(--text-muted); font-family: 'DM Mono', monospace; font-size: 0.8em; letter-spacing: 1px;">
+                            Consulting historical records...
+                        </div>
                     </div>
                 </div>
 
@@ -570,7 +123,7 @@
         const token = localStorage.getItem('token');
         if (!token) window.location.href = 'index.html';
         const user = JSON.parse(localStorage.getItem('user') || '{}');
-        
+
         const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
         let allPapers = [];
 
@@ -578,7 +131,7 @@
         document.getElementById('uName').textContent = user.username || 'Professor';
         document.getElementById('uEmail').textContent = user.email || '';
         document.getElementById('av').textContent = (user.username || 'P')[0].toUpperCase();
-        
+
         if (user.roles && user.roles.includes('admin')) {
             document.getElementById('adminArea').style.display = 'block';
         }
@@ -598,7 +151,7 @@
                     fetch(`${API}/subjects/`, { headers }),
                     fetch(`${API}/papers/`, { headers })
                 ]);
-                
+
                 const qD = await qR.json();
                 const sD = await sR.json();
                 const pD = await pR.json();
@@ -611,15 +164,15 @@
                 renderPapers(allPapers);
 
                 // Bloom Chart logic
-                const bloomColors = { 
-                    remember: 'var(--bloom-remember)', 
-                    understand: 'var(--bloom-understand)', 
-                    apply: 'var(--bloom-apply)', 
-                    analyze: 'var(--bloom-analyze)', 
-                    evaluate: 'var(--bloom-evaluate)', 
-                    create: 'var(--bloom-create)' 
+                const bloomColors = {
+                    remember: 'var(--bloom-remember)',
+                    understand: 'var(--bloom-understand)',
+                    apply: 'var(--bloom-apply)',
+                    analyze: 'var(--bloom-analyze)',
+                    evaluate: 'var(--bloom-evaluate)',
+                    create: 'var(--bloom-create)'
                 };
-                
+
                 const counts = { remember: 0, understand: 0, apply: 0, analyze: 0, evaluate: 0, create: 0 };
                 (qD.questions || []).forEach(q => { if (counts[q.blooms_level] !== undefined) counts[q.blooms_level]++; });
                 const max = Math.max(...Object.values(counts), 1);
@@ -664,15 +217,15 @@
 
         function filterPapers() {
             const q = document.getElementById('pSearch').value.toLowerCase();
-            const filtered = allPapers.filter(p => 
-                p.title.toLowerCase().includes(q) || 
+            const filtered = allPapers.filter(p =>
+                p.title.toLowerCase().includes(q) ||
                 (p.subject_name && p.subject_name.toLowerCase().includes(q))
             );
             renderPapers(filtered);
         }
 
         function logout() { localStorage.clear(); window.location.href = 'index.html'; }
-        
+
         load();
     </script>
 </body>

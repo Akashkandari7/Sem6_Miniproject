@@ -115,6 +115,59 @@ def create_paper():
     }), 201
 
 
+@papers_bp.route('/manual-generate', methods=['POST'])
+@require_permission('papers.create')
+def manual_generate_paper():
+    """
+    Create a paper from a manual selection of question IDs.
+    """
+    data = request.get_json()
+    user = get_current_user()
+
+    required = ['title', 'subject_id', 'question_ids', 'duration_minutes', 'total_marks']
+    if not all(k in data for k in required):
+        return jsonify({'error': 'Missing required fields'}), 400
+
+    # 1. Validation
+    if not db.session.get(Subject, data['subject_id']):
+        return jsonify({'error': 'Subject not found'}), 404
+
+    if not user.has_role('admin'):
+        subject_ids = [s.id for s in user.subjects]
+        if data['subject_id'] not in subject_ids:
+            return jsonify({'error': 'Forbidden', 'message': 'You are not assigned to this subject'}), 403
+
+    questions = Question.query.filter(Question.id.in_(data['question_ids'])).all()
+    if len(questions) != len(data['question_ids']):
+        return jsonify({'error': 'One or more questions not found'}), 404
+
+    # 2. Create Paper
+    paper = Paper(
+        title=data['title'],
+        total_marks=data['total_marks'],
+        duration_minutes=data['duration_minutes'],
+        config={'manual_mode': True},
+        subject_id=data['subject_id'],
+        created_by=user.id,
+    )
+
+    db.session.add(paper)
+    db.session.flush()
+
+    for q in questions:
+        paper.questions.append(q)
+        q.times_used = (q.times_used or 0) + 1
+
+    db.session.commit()
+    log_action('paper.create_manual', resource_type='paper', resource_id=paper.id,
+               details={'subject_id': data['subject_id'], 'q_count': len(questions)})
+
+    return jsonify({
+        'message': 'Paper created successfully',
+        'paper': paper.to_dict()
+    }), 201
+
+
 @papers_bp.route('/<int:paper_id>', methods=['DELETE'])
 @require_permission('papers.delete')
 def delete_paper(paper_id):

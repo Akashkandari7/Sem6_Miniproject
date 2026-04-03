@@ -8,154 +8,41 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap"
         rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
     <style>
-        *,
-        *::before,
-        *::after {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --black: #050505;
-            --deep: #0a0a0a;
-            --surface: #0f0f0f;
-            --card: rgba(25, 25, 25, 0.6);
-            --border: rgba(255, 255, 255, 0.08);
-            --gold: #c9a84c;
-            --gold-light: #e2c07a;
-            --violet: #8e44ad;
-            --white: #f5f0e8;
-            --muted: #5a5a5a;
-            --text: #a8a39a;
-            --sw: 240px;
-        }
-
-        html,
-        body {
-            background: var(--black);
-            color: var(--white);
-            font-family: 'DM Sans', sans-serif;
-            min-height: 100vh;
-        }
-
-        .ambient-bg {
-            position: fixed;
-            inset: 0;
-            z-index: -1;
-            pointer-events: none;
-        }
-
-        .glow {
-            position: absolute;
-            width: 800px;
-            height: 800px;
-            background: radial-gradient(circle, rgba(201, 168, 76, 0.04) 0%, transparent 70%);
-            bottom: -200px;
-            left: -200px;
-        }
-
-        .layout {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /* ── SIDEBAR ── */
-        .sidebar {
-            width: var(--sw);
-            background: rgba(10, 10, 10, 0.8);
-            backdrop-filter: blur(20px);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            position: fixed;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            z-index: 50;
-            padding: 40px 24px;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 60px;
-        }
-
-        .logo-mark {
-            width: 32px;
-            height: 32px;
-            border: 1px solid var(--gold);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Playfair Display', serif;
-            color: var(--gold);
-        }
-
-        .logo-text {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.75em;
-            letter-spacing: 3px;
-            color: var(--muted);
-            text-transform: uppercase;
-        }
-
-        .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 12px 14px;
-            color: var(--text);
-            text-decoration: none;
-            font-size: 0.85em;
-            transition: all 0.3s;
-            margin-bottom: 4px;
-        }
-
-        .nav-item:hover, .nav-item.active {
-            color: var(--gold);
-            background: rgba(201, 168, 76, 0.04);
-        }
-
-        /* ── MAIN ── */
-        .main {
-            margin-left: var(--sw);
-            flex: 1;
-            padding: 80px;
-        }
-
         .profile-hdr {
             display: flex;
             align-items: flex-end;
-            gap: 40px;
+            gap: 48px;
             margin-bottom: 80px;
-            padding-bottom: 40px;
+            padding-bottom: 48px;
             border-bottom: 1px solid var(--border);
         }
 
         .avatar-lg {
-            width: 140px;
-            height: 140px;
-            background: var(--surface);
-            border: 1px solid var(--gold);
+            width: 160px;
+            height: 160px;
+            background: var(--brand-dim);
+            border: 2px solid var(--brand);
             display: flex;
             align-items: center;
             justify-content: center;
             font-family: 'Playfair Display', serif;
-            font-size: 4em;
+            font-size: 5em;
             font-weight: 700;
-            color: var(--gold);
+            color: var(--brand);
             position: relative;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
         }
 
         .avatar-lg::after {
             content: '';
             position: absolute;
-            inset: 6px;
-            border: 1px solid rgba(201, 168, 76, 0.2);
+            inset: 8px;
+            border: 1px solid var(--brand-light);
+            border-radius: inherit;
+            opacity: 0.3;
         }
 
         .profile-info h1 {
@@ -164,68 +51,77 @@
             font-weight: 900;
             letter-spacing: -2px;
             line-height: 1;
+            color: var(--text-primary);
         }
 
         .profile-info p {
             font-family: 'DM Mono', monospace;
-            font-size: 0.8em;
+            font-size: 0.85em;
             letter-spacing: 2px;
             text-transform: uppercase;
-            color: var(--muted);
-            margin-top: 12px;
+            color: var(--text-muted);
+            margin-top: 16px;
+            font-weight: 600;
         }
 
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 24px;
-            margin-bottom: 60px;
+            gap: 32px;
+            margin-bottom: 80px;
         }
 
         .stat-card {
-            background: var(--card);
-            backdrop-filter: blur(10px);
+            background: var(--surface);
             border: 1px solid var(--border);
-            padding: 32px;
+            padding: 40px;
             text-align: center;
-            transition: all 0.3s;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
         }
 
-        .stat-card:hover { border-color: var(--gold); transform: translateY(-5px); }
+        .stat-card:hover {
+            border-color: var(--brand);
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
 
         .stat-val {
             font-family: 'Playfair Display', serif;
-            font-size: 3em;
+            font-size: 3.5em;
             font-weight: 900;
-            color: var(--gold);
+            color: var(--brand);
             line-height: 1;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
         }
 
         .stat-lbl {
             font-family: 'DM Mono', monospace;
-            font-size: 0.6em;
+            font-size: 0.7em;
             letter-spacing: 2px;
             text-transform: uppercase;
-            color: var(--muted);
+            color: var(--text-muted);
+            font-weight: 600;
         }
 
         .two-panel {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 40px;
+            gap: 48px;
         }
 
         .sect-title {
             font-family: 'DM Mono', monospace;
-            font-size: 0.7em;
+            font-size: 0.8em;
             letter-spacing: 3px;
             text-transform: uppercase;
-            color: var(--gold);
-            margin-bottom: 32px;
+            color: var(--brand);
+            margin-bottom: 40px;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 16px;
+            font-weight: 700;
         }
 
         .sect-title::after {
@@ -237,52 +133,38 @@
 
         .subj-chip {
             display: inline-block;
-            padding: 10px 20px;
+            padding: 12px 24px;
             background: var(--surface);
             border: 1px solid var(--border);
-            font-size: 0.85em;
-            margin: 0 10px 10px 0;
-            color: var(--text);
-            transition: all 0.3s;
+            border-radius: var(--radius-sm);
+            font-size: 0.9em;
+            margin: 0 12px 12px 0;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            font-weight: 500;
+            box-shadow: var(--shadow-sm);
         }
 
-        .subj-chip:hover { border-color: var(--gold); color: var(--gold); }
+        .subj-chip:hover {
+            border-color: var(--brand);
+            color: var(--brand);
+            background: var(--brand-dim);
+            transform: translateY(-2px);
+        }
 
         .form-card {
             background: var(--surface);
             border: 1px solid var(--border);
-            padding: 40px;
+            padding: 48px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
         }
-
-        .form-group { margin-bottom: 24px; }
-        .form-group label {
-            display: block;
-            font-family: 'DM Mono', monospace;
-            font-size: 0.65em;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: var(--muted);
-            margin-bottom: 10px;
-        }
-
-        .form-group input, .form-group textarea {
-            width: 100%;
-            background: var(--deep);
-            border: 1px solid var(--border);
-            color: var(--white);
-            padding: 16px;
-            font-family: inherit;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-
-        .form-group input:focus, .form-group textarea:focus { border-color: var(--gold); }
 
         .btn-submit {
             width: 100%;
-            padding: 16px;
-            background: var(--gold);
-            color: var(--black);
+            padding: 18px;
+            background: var(--brand);
+            color: white;
             font-weight: 700;
             border: none;
             cursor: pointer;
@@ -290,52 +172,103 @@
             letter-spacing: 2px;
             text-transform: uppercase;
             transition: all 0.3s;
+            border-radius: var(--radius-sm);
+            font-size: 0.85em;
         }
 
-        .btn-submit:hover { background: var(--gold-light); transform: translateY(-2px); }
+        .btn-submit:hover {
+            background: var(--brand-light);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
 
+        /* Full page loader */
         #loading {
             position: fixed;
-            inset:0;
-            background: var(--black);
-            z-index: 1000;
+            inset: 0;
+            background: var(--bg);
+            z-index: 10000;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             font-family: 'DM Mono', monospace;
-            color: var(--gold);
+            color: var(--brand);
             letter-spacing: 4px;
-            font-size: 0.8em;
+            font-size: 0.85em;
+            font-weight: 700;
         }
-
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--brand-dim);
+            border-top-color: var(--brand);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 24px;
+        }
     </style>
 </head>
 
 <body>
-    <div class="ambient-bg"><div class="glow"></div></div>
-    <div id="loading">SYNCHRONIZING PROFILE...</div>
+    <div id="loading">
+        <div class="loading-spinner"></div>
+        SYNCHRONIZING PROFILE...
+    </div>
+
+    <div class="ambient-bg">
+        <div class="glow-1"></div>
+        <div class="glow-2"></div>
+    </div>
 
     <div class="layout">
         <aside class="sidebar">
-            <div class="logo">
-                <div class="logo-mark">Q</div>
-                <div class="logo-text">QPGen</div>
-            </div>
-            <div class="nav-section" style="font-family:'DM Mono'; font-size:0.6em; text-transform:uppercase; color:var(--muted); margin-bottom:12px;">Workspace</div>
-            <a href="dashboard.html" class="nav-item">Dashboard</a>
-            <a href="questions.html" class="nav-item">Question Bank</a>
-            <a href="generate.html" class="nav-item">Generate Paper</a>
+            <a href="dashboard.html" class="logo">
+                <div class="logo-mark">QP</div>
+                <span class="logo-text">QPGen</span>
+            </a>
+
+            <div class="nav-section">Workspace</div>
+            <a href="dashboard.html" class="nav-item">
+                <span class="nav-icon">▤</span> Dashboard
+            </a>
+            <a href="questions.html" class="nav-item">
+                <span class="nav-icon">⚄</span> Question Bank
+            </a>
+            <a href="generate.html" class="nav-item">
+                <span class="nav-icon">✦</span> Generate Paper
+            </a>
+
+            <div class="nav-section">Management</div>
+            <a href="profile.html" class="nav-item active">
+                <span class="nav-icon">👤</span> Account Profile
+            </a>
+
             <div id="adminLink" style="display:none;">
-                <div class="nav-section" style="font-family:'DM Mono'; font-size:0.6em; text-transform:uppercase; color:var(--muted); margin-bottom:12px;">University Admin</div>
-                <a href="admin/teachers.html" class="nav-item">Manage Faculty</a>
+                <div class="nav-section">University Admin</div>
+                <a href="admin/teachers.html" class="nav-item">
+                    <span class="nav-icon">⌘</span> Manage Faculty
+                </a>
+                <a href="admin/requests.html" class="nav-item">
+                    <span class="nav-icon">✉</span> Access Requests
+                </a>
             </div>
-            <div style="margin-top:auto;">
-                <a href="#" class="nav-item" onclick="logout()">Sign Out</a>
+
+            <div class="sidebar-footer">
+                <div class="user-pill" onclick="location.href='profile.html'">
+                    <div class="avatar" id="av">P</div>
+                    <div class="user-meta">
+                        <div class="user-name" id="uName">Professor</div>
+                        <div class="user-email" id="uEmail">prof@univ.edu</div>
+                    </div>
+                </div>
+                <button class="btn btn-danger" style="width: 100%; margin-top: 16px; font-size: 0.7em;" onclick="logout()">Secure Logout</button>
             </div>
         </aside>
 
         <main class="main" id="profileWrap" style="display:none;">
-            <header class="profile-hdr">
+            <header class="profile-hdr animate-fade">
                 <div class="avatar-lg" id="avL">U</div>
                 <div class="profile-info">
                     <h1 id="usrName">Faculty Name</h1>
@@ -343,7 +276,7 @@
                 </div>
             </header>
 
-            <div class="stats-grid">
+            <div class="stats-grid animate-fade">
                 <div class="stat-card">
                     <div class="stat-val" id="sP">0</div>
                     <div class="stat-lbl">Papers Authenticated</div>
@@ -358,7 +291,7 @@
                 </div>
             </div>
 
-            <div class="two-panel">
+            <div class="two-panel animate-fade">
                 <div>
                     <h2 class="sect-title">Domain Expertise</h2>
                     <div id="subjList"></div>
@@ -367,14 +300,15 @@
                 <div>
                     <h2 class="sect-title">Secure Support Ticket</h2>
                     <div class="form-card">
-                        <div id="sucMsg" style="display:none; color:var(--gold); font-size:0.85em; margin-bottom:20px; font-family:'DM Mono';">TICKET TRANSMITTED SUCCESSFULLY</div>
+                        <div id="sucMsg" style="display:none;" class="msg-bar success">TICKET TRANSMITTED SUCCESSFULLY</div>
+                        
                         <div class="form-group">
                             <label>Subject of Inquiry</label>
                             <input type="text" id="hSub" placeholder="System access, Generation glitch...">
                         </div>
                         <div class="form-group">
                             <label>Detailed Description</label>
-                            <textarea id="hMsg" rows="4" placeholder="Briefly explain your requirement..."></textarea>
+                            <textarea id="hMsg" rows="5" placeholder="Briefly explain your requirement..."></textarea>
                         </div>
                         <button class="btn-submit" onclick="sendSupport()">Transmit to Admin →</button>
                     </div>
@@ -401,6 +335,9 @@
 
                 document.getElementById('usrName').textContent = u.username;
                 document.getElementById('usrEmail').textContent = u.email;
+                document.getElementById('uName').textContent = u.username;
+                document.getElementById('uEmail').textContent = u.email;
+                document.getElementById('av').textContent = u.username[0].toUpperCase();
                 document.getElementById('avL').textContent = u.username[0].toUpperCase();
 
                 document.getElementById('sP').textContent = s.papers;
@@ -408,16 +345,20 @@
                 document.getElementById('sS').textContent = s.subjects;
 
                 document.getElementById('subjList').innerHTML = d.data.subjects.map(subj => `
-                    <div class="subj-chip">${subj.name} <em style="color:var(--muted); font-size:0.8em; margin-left:8px;">${subj.code}</em></div>
+                    <div class="subj-chip">${subj.name} <em style="color:var(--text-muted); font-size:0.8em; margin-left:8px; font-style: normal;">${subj.code}</em></div>
                 `).join('');
 
                 if (u.roles && u.roles.includes('admin')) {
                     document.getElementById('adminLink').style.display = 'block';
                 }
 
+            } catch (e) { 
+                console.error(e);
+                alert('Archival Link Failure: ' + e.message); 
+            } finally {
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('profileWrap').style.display = 'block';
-            } catch (e) { alert('Archival Link Failure: ' + e.message); }
+            }
         }
 
         async function sendSupport() {
@@ -428,7 +369,7 @@
             try {
                 const res = await fetch(`${API}/teacher/support`, {
                     method: 'POST',
-                    headers: { 
+                    headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
                     },
@@ -436,10 +377,11 @@
                 });
 
                 if (res.ok) {
-                    document.getElementById('sucMsg').style.display = 'block';
+                    const msg = document.getElementById('sucMsg');
+                    msg.style.display = 'block';
                     document.getElementById('hSub').value = '';
                     document.getElementById('hMsg').value = '';
-                    setTimeout(() => document.getElementById('sucMsg').style.display = 'none', 4000);
+                    setTimeout(() => msg.style.display = 'none', 4000);
                 }
             } catch (e) { alert('Transmission failed.'); }
         }

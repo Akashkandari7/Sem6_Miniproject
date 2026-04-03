@@ -8,190 +8,12 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap"
         rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
     <style>
-        *,
-        *::before,
-        *::after {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --black: #050505;
-            --deep: #0a0a0a;
-            --surface: #0f0f0f;
-            --card: rgba(25, 25, 25, 0.6);
-            --border: rgba(255, 255, 255, 0.08);
-            --gold: #c9a84c;
-            --gold-light: #e2c07a;
-            --violet: #8e44ad;
-            --white: #f5f0e8;
-            --muted: #5a5a5a;
-            --text: #a8a39a;
-            --sw: 240px;
-        }
-
-        html,
-        body {
-            background: var(--black);
-            color: var(--white);
-            font-family: 'DM Sans', sans-serif;
-            min-height: 100vh;
-        }
-
-        .ambient-bg {
-            position: fixed;
-            inset: 0;
-            z-index: -1;
-            pointer-events: none;
-        }
-
-        .glow {
-            position: absolute;
-            width: 800px;
-            height: 800px;
-            background: radial-gradient(circle, rgba(201, 168, 76, 0.04) 0%, transparent 70%);
-            top: -200px;
-            right: -200px;
-        }
-
-        .layout {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /* ── SIDEBAR ── */
-        .sidebar {
-            width: var(--sw);
-            background: rgba(10, 10, 10, 0.8);
-            backdrop-filter: blur(20px);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            position: fixed;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            z-index: 50;
-            padding: 40px 24px;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 60px;
-        }
-
-        .logo-mark {
-            width: 32px;
-            height: 32px;
-            border: 1px solid var(--gold);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Playfair Display', serif;
-            color: var(--gold);
-        }
-
-        .logo-text {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.75em;
-            letter-spacing: 3px;
-            color: var(--muted);
-            text-transform: uppercase;
-        }
-
-        .nav-section {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.6em;
-            letter-spacing: 2px;
-            color: var(--muted);
-            text-transform: uppercase;
-            margin: 24px 0 12px;
-        }
-
-        .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 12px 14px;
-            color: var(--text);
-            text-decoration: none;
-            font-size: 0.85em;
-            transition: all 0.3s;
-            margin-bottom: 4px;
-        }
-
-        .nav-item:hover,
-        .nav-item.active {
-            color: var(--gold);
-            background: rgba(201, 168, 76, 0.04);
-        }
-
-        .nav-item.active::before {
-            content: '';
-            position: absolute;
-            left: -24px;
-            top: 10%;
-            bottom: 10%;
-            width: 3px;
-            background: var(--gold);
-        }
-
-        /* ── MAIN ── */
-        .main {
-            margin-left: var(--sw);
-            flex: 1;
-            padding: 0;
-        }
-
-        .page-header {
-            padding: 80px 80px 40px;
-            background: linear-gradient(to bottom, var(--deep), transparent);
-            position: relative;
-        }
-
-        .page-header h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 4em;
-            font-weight: 900;
-            letter-spacing: -2px;
-            line-height: 1;
-        }
-
-        .page-header h1 em {
-            font-style: italic;
-            color: var(--gold);
-        }
-
-        .page-header p {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.8em;
-            color: var(--muted);
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            margin-top: 12px;
-        }
-
-        /* ── TOOLBAR ── */
-        .toolbar {
-            padding: 0 80px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .filters {
-            display: flex;
-            gap: 12px;
-        }
-
         .select-win {
             background: var(--surface);
             border: 1px solid var(--border);
-            color: var(--text);
+            color: var(--text-secondary);
             padding: 10px 16px;
             font-family: 'DM Mono', monospace;
             font-size: 0.7em;
@@ -200,10 +22,12 @@
             outline: none;
             cursor: pointer;
             transition: all 0.3s;
+            border-radius: var(--radius-sm);
         }
 
         .select-win:focus {
-            border-color: var(--gold);
+            border-color: var(--brand);
+            box-shadow: 0 0 0 3px var(--brand-dim);
         }
 
         .actions {
@@ -211,49 +35,29 @@
             gap: 12px;
         }
 
-        .btn {
-            padding: 12px 24px;
-            font-family: 'DM Mono', monospace;
-            font-size: 0.7em;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: none;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .btn-primary { background: var(--gold); color: var(--black); }
-        .btn-primary:hover { background: var(--gold-light); transform: translateY(-2px); }
-
-        .btn-secondary { background: var(--surface); color: var(--gold); border: 1px solid var(--border); }
-        .btn-secondary:hover { border-color: var(--gold); transform: translateY(-2px); }
-
         /* ── QUESTION LIST ── */
         .q-list {
-            padding: 0 80px 80px;
             display: grid;
             grid-template-columns: 1fr;
-            gap: 0;
-            background: var(--border);
-            border: 1px solid var(--border);
+            gap: 20px;
+            padding: 40px 0;
         }
 
         .q-card {
             background: var(--surface);
-            padding: 32px 40px;
-            border-bottom: 1px solid var(--border);
+            padding: 32px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
             display: flex;
             flex-direction: column;
             gap: 16px;
-            transition: background 0.3s;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
         }
 
         .q-card:hover {
-            background: rgba(255, 255, 255, 0.02);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
         }
 
         .q-head {
@@ -264,246 +68,308 @@
 
         .q-meta {
             display: flex;
-            gap: 16px;
+            gap: 12px;
             align-items: center;
         }
 
         .badge {
             font-family: 'DM Mono', monospace;
-            font-size: 0.6em;
-            letter-spacing: 2px;
+            font-size: 0.65em;
+            letter-spacing: 1px;
             text-transform: uppercase;
             padding: 4px 10px;
-            border: 1px solid;
+            border-radius: 4px;
+            font-weight: 600;
         }
 
-        .b-bloom { border-color: var(--violet); color: var(--violet); }
-        .b-diff { border-color: var(--gold-dim); color: var(--gold); }
-        .b-marks { border-color: var(--border); color: var(--muted); }
+        .b-bloom {
+            background: var(--brand-dim);
+            color: var(--brand);
+        }
+
+        .b-diff {
+            background: var(--surface-alt);
+            color: var(--text-secondary);
+        }
+
+        .b-marks {
+            background: var(--bg);
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+        }
 
         .q-body {
-            font-size: 1.1em;
-            color: var(--white);
+            font-size: 1.05em;
+            color: var(--text-primary);
             line-height: 1.6;
-            font-weight: 400;
         }
 
         .q-topic {
             font-family: 'DM Mono', monospace;
             font-size: 0.7em;
-            color: var(--gold);
+            color: var(--brand);
             text-transform: uppercase;
             letter-spacing: 2px;
+            font-weight: 600;
         }
 
         .q-actions {
             display: flex;
             gap: 20px;
             margin-top: 10px;
+            border-top: 1px solid var(--border);
+            padding-top: 16px;
         }
 
         .q-btn {
             font-family: 'DM Mono', monospace;
-            font-size: 0.65em;
-            color: var(--muted);
+            font-size: 0.7em;
+            color: var(--text-muted);
             text-decoration: none;
             text-transform: uppercase;
             letter-spacing: 1px;
             cursor: pointer;
             transition: color 0.3s;
+            font-weight: 500;
         }
 
-        .q-btn:hover { color: var(--gold); }
-        .q-btn.del:hover { color: #e74c3c; }
+        .q-btn:hover {
+            color: var(--brand);
+        }
+
+        .q-btn.del:hover {
+            color: #f43f5e;
+        }
 
         /* ── MODALS ── */
         .overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.9);
-            backdrop-filter: blur(20px);
-            z-index: 1000;
+            background: rgba(15, 23, 36, 0.4);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
             display: none;
             align-items: center;
             justify-content: center;
-            animation: fadeIn 0.4s ease;
+            padding: 20px;
         }
 
         .modal {
             width: 100%;
-            max-width: 650px;
+            max-width: 600px;
             background: var(--surface);
             border: 1px solid var(--border);
-            padding: 60px;
+            border-radius: var(--radius-lg);
+            padding: 48px;
             position: relative;
+            box-shadow: var(--shadow-lg);
         }
 
         .close-btn {
             position: absolute;
-            top: 30px;
-            right: 30px;
-            font-size: 1.5em;
-            color: var(--muted);
+            top: 24px;
+            right: 24px;
+            font-size: 1.2em;
+            color: var(--text-muted);
             cursor: pointer;
+            transition: color 0.2s;
         }
-
-        .form-group { margin-bottom: 24px; }
-        .form-group label {
-            display: block;
-            font-family: 'DM Mono', monospace;
-            font-size: 0.65em;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: var(--muted);
-            margin-bottom: 10px;
-        }
-
-        .form-group input, .form-group textarea, .form-group select {
-            width: 100%;
-            background: var(--deep);
-            border: 1px solid var(--border);
-            color: var(--white);
-            padding: 16px;
-            font-family: inherit;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-
-        .form-group input:focus, .form-group textarea:focus {
-            border-color: var(--gold);
-        }
+        .close-btn:hover { color: var(--text-primary); }
 
         /* ── AI SIDEBAR ── */
         .ai-sidebar {
             position: fixed;
-            right: -450px;
+            right: -480px;
             top: 0;
             bottom: 0;
-            width: 450px;
-            background: rgba(10, 10, 10, 0.95);
-            backdrop-filter: blur(30px);
+            width: 480px;
+            background: var(--surface);
             border-left: 1px solid var(--border);
-            z-index: 2000;
-            transition: right 0.6s cubic-bezier(0.19, 1, 0.22, 1);
-            padding: 60px;
+            z-index: 3000;
+            transition: right 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+            padding: 48px;
             display: flex;
             flex-direction: column;
-            gap: 40px;
+            gap: 32px;
+            box-shadow: var(--shadow-lg);
         }
 
-        .ai-sidebar.open { right: 0; }
+        .ai-sidebar.open {
+            right: 0;
+        }
 
         .ai-title {
             font-family: 'Playfair Display', serif;
-            font-size: 2.5em;
+            font-size: 2.2em;
             font-style: italic;
-            color: var(--gold);
+            color: var(--brand);
         }
 
         #aiLoading {
             font-family: 'DM Mono', monospace;
             font-size: 0.8em;
-            color: var(--gold);
+            color: var(--brand);
             display: none;
         }
-
-        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
-
     </style>
 </head>
 
 <body>
     <div class="ambient-bg">
-        <div class="glow"></div>
+        <div class="glow-1"></div>
+        <div class="glow-2"></div>
     </div>
 
     <div class="layout">
         <aside class="sidebar">
-            <div class="logo">
-                <div class="logo-mark">Q</div>
-                <div class="logo-text">QPGen</div>
-            </div>
+            <a href="dashboard.html" class="logo">
+                <div class="logo-mark">QP</div>
+                <span class="logo-text">QPGen</span>
+            </a>
 
             <div class="nav-section">Workspace</div>
-            <a href="dashboard.html" class="nav-item">Dashboard</a>
-            <a href="questions.html" class="nav-item active">Question Bank</a>
-            <a href="generate.html" class="nav-item">Generate Paper</a>
+            <a href="dashboard.html" class="nav-item">
+                <span class="nav-icon">▤</span> Dashboard
+            </a>
+            <a href="questions.html" class="nav-item active">
+                <span class="nav-icon">⚄</span> Question Bank
+            </a>
+            <a href="generate.html" class="nav-item">
+                <span class="nav-icon">✦</span> Generate Paper
+            </a>
 
             <div class="nav-section">Management</div>
-            <a href="profile.html" class="nav-item">Account Profile</a>
-            
+            <a href="profile.html" class="nav-item">
+                <span class="nav-icon">👤</span> Account Profile
+            </a>
+
             <div id="adminArea" style="display: none;">
                 <div class="nav-section">University Admin</div>
-                <a href="admin/teachers.html" class="nav-item">Manage Faculty</a>
-                <a href="admin/requests.html" class="nav-item">Access Requests</a>
+                <a href="admin/teachers.html" class="nav-item">
+                    <span class="nav-icon">⌘</span> Manage Faculty
+                </a>
+                <a href="admin/requests.html" class="nav-item">
+                    <span class="nav-icon">✉</span> Access Requests
+                </a>
             </div>
 
-            <div style="margin-top: auto; padding-top: 24px; border-top: 1px solid var(--border);">
-                <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
+            <div class="sidebar-footer">
+                <div class="user-pill" onclick="location.href='profile.html'">
                     <div class="avatar" id="av">P</div>
-                    <div style="font-size:0.8em; color:var(--text);" id="uName">Professor</div>
+                    <div class="user-meta">
+                        <div class="user-name" id="uName">Professor</div>
+                        <div class="user-email" id="uEmail">prof@univ.edu</div>
+                    </div>
                 </div>
-                <a href="#" class="btn btn-secondary" style="width:100%; justify-content:center;" onclick="logout()">Sign Out</a>
+                <button class="btn btn-danger" style="width: 100%; margin-top: 16px; font-size: 0.7em;" onclick="logout()">Secure Logout</button>
             </div>
         </aside>
 
         <main class="main">
-            <header class="page-header">
+            <header class="page-header animate-fade">
                 <p>Repository 001</p>
-                <h1>Knowledge<br><em>Archives.</em></h1>
-                <p id="subCount">0 Questions indexed in current strata</p>
+                <h1 id="archivesTitle">Knowledge<br><em>Archives.</em></h1>
+                <div id="subCount" style="font-family: 'DM Mono', monospace; font-size: 0.75em; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 12px;">0 Questions indexed in current strata</div>
             </header>
 
-            <div class="toolbar">
-                <div class="filters">
-                    <select class="select-win" id="fSub" onchange="loadQ()">
-                        <option value="">All Subjects</option>
-                    </select>
-                    <select class="select-win" id="fBloom" onchange="loadQ()">
-                        <option value="">Complexity</option>
-                        <option value="remember">Remembering</option>
-                        <option value="understand">Understanding</option>
-                        <option value="apply">Applying</option>
-                        <option value="analyze">Analyzing</option>
-                        <option value="evaluate">Evaluating</option>
-                        <option value="create">Creating</option>
-                    </select>
-                    <input type="text" id="qSearch" placeholder="Filter strings..." 
-                        style="background:var(--surface); border:1px solid var(--border); padding:8px 16px; color:var(--text); font-family:'DM Mono'; font-size:0.7em; outline:none; width:180px;"
-                        oninput="loadQ()">
-                </div>
-
-                <div class="actions">
-                    <button class="btn btn-secondary" onclick="toggleAI()">🪄 AI Assistant</button>
-                    <button class="btn btn-secondary" onclick="document.getElementById('bulkFile').click()">↑ Bulk Upload</button>
-                    <input type="file" id="bulkFile" accept=".csv, .xlsx, .xls" style="display:none" onchange="handleBulkUpload(this)">
-                    <button class="btn btn-primary" onclick="openModal()">+ Add New</button>
+            <div class="toolbar animate-fade" style="display: flex; flex-direction: column; gap: 24px; background: white; padding: 32px; border-radius: 16px; border: 1px solid var(--border); box-shadow: var(--shadow-md); margin-bottom: 48px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 40px;">
+                    <div style="flex: 1; display: grid; grid-template-columns: 1fr 1fr 1.5fr; gap: 16px;">
+                        <select class="select-win" id="fSub" onchange="loadQ()" style="width: 100%;">
+                            <option value="">All Subject Strata</option>
+                        </select>
+                        <select class="select-win" id="fBloom" onchange="loadQ()" style="width: 100%;">
+                            <option value="">Cognitive Level</option>
+                            <option value="remember">Remembering</option>
+                            <option value="understand">Understanding</option>
+                            <option value="apply">Applying</option>
+                            <option value="analyze">Analyzing</option>
+                            <option value="evaluate">Evaluating</option>
+                            <option value="create">Creating</option>
+                        </select>
+                        <div style="position: relative;">
+                            <input type="text" id="qSearch" placeholder="Search keywords..." oninput="loadQ()"
+                                style="padding-left: 44px; width: 100%; height: 42px; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px;">
+                            <span style="position: absolute; left: 16px; top: 12px; color: var(--brand); opacity: 0.6;">⌕</span>
+                        </div>
+                    </div>
+                    
+                    <div class="actions" style="display: flex; gap: 12px;">
+                        <button class="btn btn-outline" onclick="toggleAI()" style="padding: 10px 20px;">
+                            <span style="font-size: 1.2em; margin-right: 8px;">🪄</span> AI Portal
+                        </button>
+                        <button class="btn btn-outline" onclick="document.getElementById('bulkFile').click()" style="padding: 10px 20px;">
+                            <span style="opacity: 0.6; margin-right: 8px;">↑</span> Bulk
+                        </button>
+                        <input type="file" id="bulkFile" accept=".csv, .xlsx, .xls" style="display:none" onchange="handleBulkUpload(this)">
+                        <button class="btn btn-primary" onclick="openModal()" style="padding: 10px 32px; background: var(--grad-blue); box-shadow: 0 4px 12px rgba(37,99,235,0.2);">
+                            + Add Item
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <div class="q-list" id="qContainer">
-                <div style="padding: 100px; text-align: center; color: var(--muted); font-size: 0.9em; font-family: 'DM Mono';">Establishing link to archives...</div>
+            <div class="q-list animate-fade" id="qContainer">
+                <div style="padding: 100px; text-align: center; color: var(--text-muted); font-family: 'DM Mono';">Establishing link to archives...</div>
+            </div>
+
+            <!-- Draft Cart UI -->
+            <div id="draftCart" class="draft-cart">
+                <div style="flex: 1;">
+                    <div id="cartCount" style="font-size: 1.1em; font-weight: 700;">0 Questions Selected</div>
+                    <div style="font-size: 0.75em; opacity: 0.8; font-family: 'DM Mono'; margin-top: 4px;">MANUAL COMPOSITION TARGET ACTIVE</div>
+                </div>
+                <button class="btn-draft" onclick="openDraftModal()">Create Manual Paper →</button>
             </div>
         </main>
     </div>
 
-    <!-- Modals -->
+    <!-- Manual Paper Modal -->
+    <div class="overlay" id="draftOverlay">
+        <div class="modal">
+            <div class="close-btn" onclick="closeDraftModal()">✕</div>
+            <h2 style="font-family:'Playfair Display'; font-size:2.2em; margin-bottom:32px; font-weight: 700;">Manual <em>Composition</em></h2>
+            
+            <div class="form-group">
+                <label>Examination Title</label>
+                <input type="text" id="dTitle" placeholder="e.g. Computer Science - Semester I">
+            </div>
+            
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+                <div class="form-group">
+                    <label>Duration (Minutes)</label>
+                    <input type="number" id="dDuration" value="180">
+                </div>
+                <div class="form-group">
+                    <label>Total Score</label>
+                    <input type="number" id="dMarks" readonly style="background:var(--surface-alt); cursor:not-allowed;">
+                </div>
+            </div>
+
+            <p style="font-size:0.75em; color:var(--text-muted); line-height:1.5; margin: 20px 0;">You have selected <strong id="dCount" style="color:var(--brand)">0</strong> questions for this paper across <strong id="dSubCount" style="color:var(--brand)">1</strong> subject(s). Ensure all items align with your departmental criteria.</p>
+
+            <button class="btn btn-primary" style="width:100%;" onclick="generateManual()" id="dBtn">Finalize & Export Paper →</button>
+        </div>
+    </div>
+
+    <!-- Add Question Modal -->
     <div class="overlay" id="qOverlay">
         <div class="modal">
             <div class="close-btn" onclick="closeModal()">✕</div>
-            <h2 style="font-family:'Playfair Display'; font-size:2em; margin-bottom:32px;">Add <em>Question</em></h2>
+            <h2 style="font-family:'Playfair Display'; font-size:2.2em; margin-bottom:32px; font-weight: 700;">Add <em>Question</em></h2>
+            
             <div id="mErr" class="msg-bar error"></div>
             <div id="mSuc" class="msg-bar success"></div>
-            
+
             <div class="form-group">
                 <label>Subject Allocation</label>
                 <select id="mSub"></select>
             </div>
             <div class="form-group">
                 <label>Question Proposition</label>
-                <textarea id="mText" rows="3" placeholder="Compose the examination item..."></textarea>
+                <textarea id="mText" rows="4" placeholder="Compose the examination item..."></textarea>
             </div>
-            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px;">
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px;">
                 <div class="form-group">
                     <label>Bloom Tier</label>
                     <select id="mBloom">
@@ -528,17 +394,17 @@
                     <input type="number" id="mMarks" value="2">
                 </div>
             </div>
-            <button class="btn btn-primary" style="width:100%; justify-content:center; padding:16px;" onclick="saveQ()" id="mBtn">Commit to Archives →</button>
+            <button class="btn btn-primary" style="width:100%; margin-top: 12px;" onclick="saveQ()" id="mBtn">Commit to Archives →</button>
         </div>
     </div>
 
     <aside class="ai-sidebar" id="aiSidebar">
-        <div class="ai-head">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
             <div class="ai-title">AI Assistant</div>
-            <div class="ai-close" onclick="toggleAI()">✕</div>
+            <div class="close-btn" onclick="toggleAI()" style="position: static;">✕</div>
         </div>
-        <p style="font-size:0.85em; color:var(--text); line-height:1.6;">AI understands the pedagogical requirements of your strata and synthesizes items accordingly.</p>
-        
+        <p style="font-size:0.9em; color:var(--text-secondary); line-height:1.6;">AI understands the pedagogical requirements of your strata and synthesizes items accordingly.</p>
+
         <div class="form-group">
             <label>Subject Domain</label>
             <select id="aiSub"></select>
@@ -547,7 +413,7 @@
             <label>Topic Constraint</label>
             <input type="text" id="aiTopic" placeholder="Quantum Mechanics, Photosynthesis...">
         </div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
             <div class="form-group">
                 <label>Question Type</label>
                 <select id="aiType">
@@ -561,13 +427,13 @@
                 <input type="number" id="aiMarks" value="5">
             </div>
         </div>
-        
-        <button class="btn btn-primary" style="width:100%; justify-content:center; padding:16px;" onclick="generateAI()" id="aiBtn">Synthesize Item ✨</button>
-        <div id="aiLoading" class="loading-dots">Engaging Neural Network</div>
 
-        <div id="aiPreview" style="display:none; background:var(--deep); padding:24px; border:1px solid var(--gold-dim);">
-            <div style="font-size:0.75em; color:var(--gold); margin-bottom:12px; font-family:'DM Mono';">SYNTHESIS SUCCESSFUL</div>
-            <div id="aiPrevText" style="font-size:0.9em; line-height:1.6;"></div>
+        <button class="btn btn-primary" style="width:100%;" onclick="generateAI()" id="aiBtn">Synthesize Item ✨</button>
+        <div id="aiLoading" class="loading-dots">Engaging Neural Network...</div>
+
+        <div id="aiPreview" style="display:none; background:var(--brand-dim); padding:24px; border-radius: var(--radius); border: 1px solid var(--brand-light);">
+            <div style="font-size:0.7em; color:var(--brand); margin-bottom:12px; font-family:'DM Mono'; font-weight: 700; letter-spacing: 1px;">SYNTHESIS SUCCESSFUL</div>
+            <div id="aiPrevText" style="font-size:0.95em; line-height:1.6; color: var(--text-primary);"></div>
         </div>
     </aside>
 
@@ -578,8 +444,9 @@
         const user = JSON.parse(localStorage.getItem('user') || '{}');
         const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
 
-        // Preserved Global UI Logic
+        // UI Initialization
         document.getElementById('uName').textContent = user.username || 'Professor';
+        document.getElementById('uEmail').textContent = user.email || '';
         document.getElementById('av').textContent = (user.username || 'P')[0].toUpperCase();
         if (user.roles && user.roles.includes('admin')) document.getElementById('adminArea').style.display = 'block';
 
@@ -595,6 +462,31 @@
             } catch (e) { console.error('Subject link failed:', e); }
         }
 
+        let questions = [], selectedQuestions = [];
+        
+        function toggleSelect(qid) {
+            const index = selectedQuestions.findIndex(q => q.id === qid);
+            if (index > -1) {
+                selectedQuestions.splice(index, 1);
+            } else {
+                const q = questions.find(q => q.id === qid);
+                selectedQuestions.push(q);
+            }
+            updateCart();
+            renderQ();
+        }
+
+        function updateCart() {
+            const cart = document.getElementById('draftCart');
+            const count = document.getElementById('cartCount');
+            if (selectedQuestions.length > 0) {
+                cart.style.display = 'flex';
+                count.textContent = `${selectedQuestions.length} Item${selectedQuestions.length > 1 ? 's' : ''} Selected`;
+            } else {
+                cart.style.display = 'none';
+            }
+        }
+
         async function loadQ() {
             const sid = document.getElementById('fSub').value;
             const bloom = document.getElementById('fBloom').value;
@@ -602,24 +494,39 @@
             const container = document.getElementById('qContainer');
 
             try {
-                const res = await fetch(`${API}/teacher/questions${sid ? '?subject_id='+sid : ''}`, { headers });
+                const res = await fetch(`${API}/teacher/questions${sid ? '?subject_id=' + sid : ''}`, { headers });
                 const data = await res.json();
-                let questions = data.data || [];
-                
-                if (bloom) questions = questions.filter(q => q.blooms_level === bloom);
-                if (search) questions = questions.filter(q => q.text.toLowerCase().includes(search) || q.topic.toLowerCase().includes(search));
+                questions = data.data || [];
 
-                document.getElementById('subCount').textContent = `${questions.length} items archived in current strata`;
-                
-                if (questions.length === 0) {
-                    container.innerHTML = `<div style="padding:100px; text-align:center; color:var(--muted); font-size:0.9em; font-family:'DM Mono';">ARCHIVE EMPTY</div>`;
-                    return;
-                }
+                renderQ();
+            } catch (e) { container.innerHTML = `<div style="padding:100px; text-align:center; color:#f43f5e;">CONNECTION ERROR</div>`; }
+        }
 
-                container.innerHTML = questions.map(q => `
-                    <div class="q-card">
+        function renderQ() {
+            const bloom = document.getElementById('fBloom').value;
+            const search = document.getElementById('qSearch').value.toLowerCase();
+            const container = document.getElementById('qContainer');
+
+            let filtered = questions;
+            if (bloom) filtered = filtered.filter(q => q.blooms_level === bloom);
+            if (search) filtered = filtered.filter(q => q.text.toLowerCase().includes(search));
+
+            document.getElementById('subCount').textContent = `${filtered.length} items archived in current strata`;
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div style="padding:100px; text-align:center; color:var(--text-muted); font-size:0.9em; font-family:'DM Mono';">ARCHIVE EMPTY</div>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map(q => {
+                const isSelected = selectedQuestions.some(sq => sq.id === q.id);
+                return `
+                    <div class="q-card ${isSelected ? 'selected' : ''}">
                         <div class="q-head">
-                            <div class="q-topic">${q.topic || 'General Archive'}</div>
+                            <div class="q-topic">
+                                <span class="q-badge-sub" style="margin-right:8px;">${q.subject_name}</span>
+                                ${q.topic || 'General Archive'}
+                            </div>
                             <div class="q-meta">
                                 <span class="badge b-bloom">${q.blooms_level}</span>
                                 <span class="badge b-diff">${q.difficulty}</span>
@@ -628,12 +535,15 @@
                         </div>
                         <div class="q-body">${q.text}</div>
                         <div class="q-actions">
+                            <button class="q-btn" style="background: ${isSelected ? 'var(--brand)' : 'transparent'}; color: ${isSelected ? 'white' : 'var(--brand)'}" onclick="toggleSelect(${q.id})">
+                                ${isSelected ? '✓ Selected' : '+ Add to Paper'}
+                            </button>
                             <a class="q-btn" onclick="copyQ(${q.id})">Duplicate</a>
                             <a class="q-btn del" onclick="deleteQ(${q.id})">Delete Item</a>
                         </div>
                     </div>
-                `).join('');
-            } catch (e) { container.innerHTML = `<div style="padding:100px; text-align:center; color:#e74c3c;">CONNECTION ERROR</div>`; }
+                `;
+            }).join('');
         }
 
         async function saveQ() {
@@ -652,8 +562,8 @@
             btn.disabled = true;
 
             try {
-                const res = await fetch(`${API}/teacher/questions`, { 
-                    method: 'POST', headers, body: JSON.stringify(payload) 
+                const res = await fetch(`${API}/teacher/questions`, {
+                    method: 'POST', headers, body: JSON.stringify(payload)
                 });
                 if (res.ok) {
                     suc.textContent = 'Archived successfully.'; suc.style.display = 'block';
@@ -671,6 +581,44 @@
                 await fetch(`${API}/questions/${id}`, { method: 'DELETE', headers });
                 loadQ();
             } catch (e) { alert('Delete failed.'); }
+        }
+
+        function openDraftModal() {
+            const marks = selectedQuestions.reduce((sum, q) => sum + (q.marks || 0), 0);
+            const subjects = [...new Set(selectedQuestions.map(q => q.subject_id))];
+            
+            document.getElementById('dMarks').value = marks;
+            document.getElementById('dCount').textContent = selectedQuestions.length;
+            document.getElementById('dSubCount').textContent = subjects.length;
+            document.getElementById('draftOverlay').style.display = 'flex';
+        }
+
+        function closeDraftModal() { document.getElementById('draftOverlay').style.display = 'none'; }
+
+        async function generateManual() {
+            const btn = document.getElementById('dBtn');
+            const payload = {
+                title: document.getElementById('dTitle').value,
+                duration_minutes: parseInt(document.getElementById('dDuration').value),
+                subject_id: selectedQuestions[0].subject_id, // Primary subject
+                question_ids: selectedQuestions.map(q => q.id),
+                total_marks: parseInt(document.getElementById('dMarks').value)
+            };
+
+            if (!payload.title) return alert('Examination title required.');
+            btn.disabled = true; btn.textContent = 'Securing Draft...';
+
+            try {
+                const res = await fetch(`${API}/papers/manual-generate`, {
+                    method: 'POST', headers, body: JSON.stringify(payload)
+                });
+                const d = await res.json();
+                if (res.ok) {
+                    localStorage.setItem('lastGenerated', d.paper.id);
+                    window.location.href = 'edit-paper.html';
+                } else alert(d.error);
+            } catch { alert('Transmission failed.'); }
+            finally { btn.disabled = false; btn.textContent = 'Finalize & Export Paper →'; }
         }
 
         function toggleAI() { document.getElementById('aiSidebar').classList.toggle('open'); }
@@ -692,8 +640,8 @@
             btn.disabled = true; loader.style.display = 'block'; preview.style.display = 'none';
 
             try {
-                const res = await fetch(`${API}/teacher/questions/generate`, { 
-                    method: 'POST', headers, body: JSON.stringify(payload) 
+                const res = await fetch(`${API}/teacher/questions/generate`, {
+                    method: 'POST', headers, body: JSON.stringify(payload)
                 });
                 const d = await res.json();
                 if (res.ok) {
@@ -709,8 +657,8 @@
             const file = input.files[0]; if (!file) return;
             const formData = new FormData(); formData.append('file', file);
             try {
-                const res = await fetch(`${API}/questions/bulk`, { 
-                    method: 'POST', headers: { 'Authorization': `Bearer ${token}` }, body: formData 
+                const res = await fetch(`${API}/questions/bulk`, {
+                    method: 'POST', headers: { 'Authorization': `Bearer ${token}` }, body: formData
                 });
                 const data = await res.json();
                 if (res.ok) { alert(`Archived: ${data.message}`); loadQ(); } else alert(`Fail: ${data.error}`);
@@ -719,7 +667,7 @@
         }
 
         function openModal() { document.getElementById('qOverlay').style.display = 'flex'; }
-        function closeModal() { 
+        function closeModal() {
             document.getElementById('qOverlay').style.display = 'none';
             document.getElementById('mErr').style.display = 'none';
             document.getElementById('mSuc').style.display = 'none';

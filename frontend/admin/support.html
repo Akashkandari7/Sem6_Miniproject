@@ -8,83 +8,188 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap"
         rel="stylesheet">
+    <link href="../style.css" rel="stylesheet">
     <style>
-        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --black: #050505; --deep: #0a0a0a; --surface: #0f0f0f;
-            --card: rgba(25, 25, 25, 0.6); --border: rgba(255, 255, 255, 0.08);
-            --gold: #c9a84c; --gold-light: #e2c07a; --violet: #8e44ad;
-            --white: #f5f0e8; --muted: #5a5a5a; --text: #a8a39a; --sw: 240px;
+        .ticket-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
-        html, body { background: var(--black); color: var(--white); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
-        .ambient-bg { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
-        .glow { position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, rgba(201, 168, 76, 0.05) 0%, transparent 70%); bottom: -100px; right: -100px; }
+        .ticket {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 32px;
+            display: flex;
+            gap: 32px;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+        }
 
-        .layout { display: flex; min-height: 100vh; }
+        .ticket:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
 
-        /* ── SIDEBAR ── */
-        .sidebar { width: var(--sw); background: rgba(10,10,10,0.8); backdrop-filter: blur(20px); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 50; padding: 40px 24px; }
-        .logo { display: flex; align-items: center; gap: 12px; margin-bottom: 60px; }
-        .logo-mark { width: 32px; height: 32px; border: 1px solid var(--gold); display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; color: var(--gold); }
-        .logo-text { font-family: 'DM Mono', monospace; font-size: 0.75em; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; }
-        
-        .nav-section { font-family: 'DM Mono', monospace; font-size: 0.6em; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; margin: 24px 0 12px; }
-        .nav-item { display: flex; align-items: center; gap: 14px; padding: 12px 14px; color: var(--text); text-decoration: none; font-size: 0.85em; transition: all 0.3s; margin-bottom: 4px; }
-        .nav-item:hover, .nav-item.active { color: var(--gold); background: rgba(201, 168, 76, 0.04); }
+        .t-user {
+            width: 220px;
+            flex-shrink: 0;
+            border-right: 1px solid var(--border);
+            padding-right: 32px;
+        }
 
-        /* ── MAIN ── */
-        .main { margin-left: var(--sw); flex: 1; padding: 80px; }
-        .page-hdr { margin-bottom: 60px; }
-        .page-hdr h1 { font-family: 'Playfair Display', serif; font-size: 3.5em; font-weight: 900; letter-spacing: -2px; line-height: 1; }
-        .page-hdr h1 em { font-style: italic; color: var(--gold); }
+        .t-user-av {
+            width: 48px;
+            height: 48px;
+            background: var(--brand-dim);
+            color: var(--brand);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
 
-        /* ── HELPDESK TERMINAL ── */
-        .terminal { display: flex; flex-direction: column; gap: 20px; }
-        .ticket { background: var(--surface); border: 1px solid var(--border); padding: 40px; }
-        .ticket-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
-        .ticket-meta { display: flex; flex-direction: column; gap: 4px; }
-        .prof-name { font-family: 'DM Mono'; font-size: 0.8em; color: var(--gold); text-transform: uppercase; letter-spacing: 2px; }
-        .prof-email { font-size: 0.8em; color: var(--muted); }
-        .ticket-date { font-family: 'DM Mono'; font-size: 0.65em; color: var(--muted); }
+        .t-user-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.9em;
+        }
 
-        .ticket-sub { font-family: 'Playfair Display'; font-size: 1.5em; font-weight: 700; color: var(--white); margin-bottom: 16px; }
-        .ticket-msg { font-size: 1em; line-height: 1.7; color: var(--text); background: rgba(255,255,255,0.02); padding: 24px; border-left: 1px solid var(--gold); }
+        .t-user-email {
+            font-family: 'DM Mono';
+            font-size: 0.65em;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
 
-        .ticket-foot { margin-top: 30px; display: flex; justify-content: flex-end; gap: 16px; }
-        .btn { padding: 12px 24px; font-family: 'DM Mono'; font-size: 0.65em; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; transition: 0.3s; background: transparent; border: 1px solid var(--border); color: var(--white); }
-        .btn-resolve { border-color: var(--gold); color: var(--gold); }
-        .btn-resolve:hover { background: rgba(201,168,76,0.1); }
+        .t-content {
+            flex: 1;
+        }
 
-        .status-pill { font-family: 'DM Mono'; font-size: 0.55em; padding: 4px 10px; background: var(--gold-dim); color: var(--gold); text-transform: uppercase; letter-spacing: 1px; }
+        .t-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
 
+        .t-subject {
+            font-family: 'DM Sans';
+            font-weight: 700;
+            color: var(--text-primary);
+            font-size: 1.1em;
+        }
+
+        .t-date {
+            font-family: 'DM Mono';
+            font-size: 0.7em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .t-msg {
+            color: var(--text-secondary);
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        .t-status {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .st-badge {
+            font-family: 'DM Mono';
+            font-size: 0.6em;
+            padding: 4px 10px;
+            border-radius: 4px;
+            background: var(--brand-dim);
+            color: var(--brand);
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 
 <body>
-    <div class="ambient-bg"><div class="glow"></div></div>
+    <div class="ambient-bg">
+        <div class="glow-1"></div>
+        <div class="glow-2"></div>
+    </div>
 
     <div class="layout">
         <aside class="sidebar">
-            <div class="logo"><div class="logo-mark">Q</div><div class="logo-text">QPGen</div></div>
+            <a href="../dashboard.html" class="logo">
+                <div class="logo-mark">QP</div>
+                <span class="logo-text">QPGen</span>
+            </a>
+
             <div class="nav-section">Workspace</div>
-            <a href="../dashboard.html" class="nav-item">Dashboard</a>
-            <a href="../questions.html" class="nav-item">Question Bank</a>
-            <div class="nav-section">Administration</div>
-            <a href="teachers.html" class="nav-item">Faculty Archives</a>
-            <a href="requests.html" class="nav-item">Access Requests</a>
-            <a href="support.html" class="nav-item active">Support Desk</a>
-            <div style="margin-top: auto;"><a href="#" class="nav-item" onclick="logout()">Sign Out</a></div>
+            <a href="../dashboard.html" class="nav-item">
+                <span class="nav-icon">▤</span> Dashboard
+            </a>
+            <a href="../questions.html" class="nav-item">
+                <span class="nav-icon">⚄</span> Question Bank
+            </a>
+            <a href="../generate.html" class="nav-item">
+                <span class="nav-icon">✦</span> Generate Paper
+            </a>
+
+            <div class="nav-section">Management</div>
+            <a href="../profile.html" class="nav-item">
+                <span class="nav-icon">👤</span> Account Profile
+            </a>
+
+            <div class="nav-section">University Admin</div>
+            <a href="teachers.html" class="nav-item">
+                <span class="nav-icon">⌘</span> Manage Faculty
+            </a>
+            <a href="requests.html" class="nav-item">
+                <span class="nav-icon">✉</span> Access Requests
+            </a>
+            <a href="support.html" class="nav-item active">
+                <span class="nav-icon">☏</span> Support Desk
+            </a>
+
+            <div class="sidebar-footer">
+                <div class="user-pill" onclick="location.href='../profile.html'">
+                    <div class="avatar" id="av">P</div>
+                    <div class="user-meta">
+                        <div class="user-name" id="uName">Professor</div>
+                        <div class="user-email" id="uEmail">prof@univ.edu</div>
+                    </div>
+                </div>
+                <button class="btn btn-danger" style="width: 100%; margin-top: 16px; font-size: 0.7em;" onclick="logout()">Secure Logout</button>
+            </div>
         </aside>
 
         <main class="main">
-            <header class="page-hdr">
-                <p style="font-family:'DM Mono'; font-size:0.7em; color:var(--gold); letter-spacing:3px; text-transform:uppercase;">Institutional Care</p>
-                <h1>Faculty<br><em>Support Desk.</em></h1>
+            <header class="page-header animate-fade">
+                <p>Support Terminal</p>
+                <h1>Inquiry<br><em>Archives.</em></h1>
             </header>
 
-            <div class="terminal" id="ticketList">
-                <div style="padding:100px; text-align:center; font-family:'DM Mono'; color:var(--muted); font-size:0.8em; letter-spacing:2px;">SCANNING FOR PENDING TICKETS...</div>
+            <div id="tList" class="ticket-list animate-fade">
+                <div
+                    style="padding:100px; text-align:center; font-family:'DM Mono'; color:var(--text-muted); font-size:0.8em; letter-spacing:2px;">
+                    SCANNING FREQUENCIES...</div>
             </div>
         </main>
     </div>
@@ -93,44 +198,45 @@
         const API = 'http://127.0.0.1:5000/api';
         const token = localStorage.getItem('token');
         const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        document.getElementById('uName').textContent = user.username;
+        document.getElementById('uEmail').textContent = user.email;
+        document.getElementById('av').textContent = (user.username || 'P')[0].toUpperCase();
 
         async function loadTickets() {
             try {
-                const res = await fetch(`${API}/admin/support?status=pending`, { headers });
+                const res = await fetch(`${API}/admin/tickets`, { headers });
                 const d = await res.json();
                 const tickets = d.data || [];
-                const el = document.getElementById('ticketList');
+                const el = document.getElementById('tList');
 
                 if (tickets.length === 0) {
-                    el.innerHTML = '<div style="padding:100px; text-align:center; font-family:\'DM Mono\'; color:var(--muted); font-size:0.8em;">ALL PROTOCOLS STABLE — NO PENDING TICKETS</div>';
+                    el.innerHTML = '<div style="padding:100px; text-align:center; font-family:\'DM Mono\'; color:var(--text-muted); font-size:0.8em;">ALL SYSTEMS NOMINAL — NO OPEN TICKETS</div>';
                     return;
                 }
 
                 el.innerHTML = tickets.map(t => `
                     <div class="ticket">
-                        <div class="ticket-head">
-                            <div class="ticket-meta">
-                                <div class="prof-name">${t.username}</div>
-                                <div class="prof-email">ARCHIVE ID: T-${t.user_id}</div>
-                            </div>
-                            <div class="ticket-date">${new Date(t.created_at).toLocaleString().toUpperCase()}</div>
+                        <div class="t-user">
+                            <div class="t-user-av">${t.username[0].toUpperCase()}</div>
+                            <div class="t-user-name">${t.username}</div>
+                            <div class="t-user-email">${t.email}</div>
                         </div>
-                        <div class="ticket-sub">${t.subject}</div>
-                        <div class="ticket-msg">"${t.message}"</div>
-                        <div class="ticket-foot">
-                            <button class="btn btn-resolve" onclick="resolveTicket(${t.id})">Mark as Resolved</button>
+                        <div class="t-content">
+                            <div class="t-meta">
+                                <div class="t-subject">${t.subject}</div>
+                                <div class="t-date">${new Date(t.created_at).toLocaleDateString()} — ${new Date(t.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                            </div>
+                            <div class="t-msg">${t.message}</div>
+                            <div class="t-status">
+                                <span class="st-badge">Level I Inquiry</span>
+                                <span style="font-family:'DM Mono'; font-size:0.6em; color:var(--text-muted); font-weight:700;">SECURE CHANNEL ACTIVE</span>
+                            </div>
                         </div>
                     </div>
                 `).join('');
             } catch (e) { console.error(e); }
-        }
-
-        async function resolveTicket(id) {
-            if (!confirm(`Mark ticket protocol ${id} as resolved?`)) return;
-            try {
-                const res = await fetch(`${API}/admin/support/${id}/resolve`, { method: 'POST', headers });
-                if (res.ok) loadTickets(); else alert('Resolution Protocol Failed');
-            } catch (e) { alert('System Link Failure'); }
         }
 
         function logout() { localStorage.clear(); window.location.href = '../index.html'; }

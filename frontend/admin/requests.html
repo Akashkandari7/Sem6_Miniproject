@@ -8,86 +8,173 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap"
         rel="stylesheet">
+    <link href="../style.css" rel="stylesheet">
     <style>
-        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --black: #050505; --deep: #0a0a0a; --surface: #0f0f0f;
-            --card: rgba(25, 25, 25, 0.6); --border: rgba(255, 255, 255, 0.08);
-            --gold: #c9a84c; --gold-light: #e2c07a; --violet: #8e44ad;
-            --white: #f5f0e8; --muted: #5a5a5a; --text: #a8a39a; --sw: 240px;
+        .terminal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            animation: fadeIn 0.8s ease;
         }
 
-        html, body { background: var(--black); color: var(--white); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
-        .ambient-bg { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
-        .glow { position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, rgba(201, 168, 76, 0.05) 0%, transparent 70%); bottom: -100px; right: -100px; }
+        .term-item {
+            display: grid;
+            grid-template-columns: 1.5fr 1.5fr 1fr 1fr;
+            padding: 24px 32px;
+            border-bottom: 1px solid var(--border);
+            align-items: center;
+            transition: background 0.3s;
+        }
 
-        .layout { display: flex; min-height: 100vh; }
+        .term-item:hover {
+            background: var(--surface-alt);
+        }
 
-        /* ── SIDEBAR ── */
-        .sidebar { width: var(--sw); background: rgba(10,10,10,0.8); backdrop-filter: blur(20px); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 50; padding: 40px 24px; }
-        .logo { display: flex; align-items: center; gap: 12px; margin-bottom: 60px; }
-        .logo-mark { width: 32px; height: 32px; border: 1px solid var(--gold); display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; color: var(--gold); }
-        .logo-text { font-family: 'DM Mono', monospace; font-size: 0.75em; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; }
-        
-        .nav-section { font-family: 'DM Mono', monospace; font-size: 0.6em; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; margin: 24px 0 12px; }
-        .nav-item { display: flex; align-items: center; gap: 14px; padding: 12px 14px; color: var(--text); text-decoration: none; font-size: 0.85em; transition: all 0.3s; margin-bottom: 4px; }
-        .nav-item:hover, .nav-item.active { color: var(--gold); background: rgba(201, 168, 76, 0.04); }
-        .nav-item.active::before { content: ''; position: absolute; left: -24px; top: 10%; bottom: 10%; width: 3px; background: var(--gold); }
+        .term-head {
+            background: var(--surface-alt);
+            border-bottom: 1px solid var(--border);
+        }
 
-        /* ── MAIN ── */
-        .main { margin-left: var(--sw); flex: 1; padding: 80px; }
-        .page-hdr { margin-bottom: 60px; }
-        .page-hdr p { font-family: 'DM Mono', monospace; font-size: 0.7em; color: var(--gold); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 12px; }
-        .page-hdr h1 { font-family: 'Playfair Display', serif; font-size: 3.5em; font-weight: 900; letter-spacing: -2px; line-height: 1; }
-        .page-hdr h1 em { font-style: italic; color: var(--gold); }
+        .term-head div {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.6em;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--text-muted);
+            font-weight: 700;
+        }
 
-        /* ── REQUEST TERMINAL ── */
-        .terminal { background: var(--surface); border: 1px solid var(--border); overflow: hidden; animation: fadeIn 0.8s ease; }
-        .term-item { display: grid; grid-template-columns: 1.5fr 1.5fr 1fr 1fr; padding: 24px 32px; border-bottom: 1px solid var(--border); align-items: center; transition: background 0.3s; }
-        .term-item:hover { background: rgba(255, 255, 255, 0.02); }
-        .term-head { background: var(--deep); border-bottom: 1px solid var(--border); }
-        .term-head div { font-family: 'DM Mono', monospace; font-size: 0.6em; text-transform: uppercase; letter-spacing: 3px; color: var(--muted); }
+        .teacher-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.9em;
+        }
 
-        .teacher-name { font-weight: 600; color: var(--white); font-size: 0.9em; }
-        .subj-name { font-family: 'DM Mono'; font-size: 0.75em; color: var(--gold); }
-        .req-date { font-family: 'DM Mono'; font-size: 0.7em; color: var(--muted); }
+        .subj-name {
+            font-family: 'DM Mono';
+            font-size: 0.75em;
+            color: var(--brand);
+            font-weight: 600;
+        }
 
-        .btn-group { display: flex; gap: 12px; justify-content: flex-end; }
-        .btn { padding: 10px 18px; font-family: 'DM Mono'; font-size: 0.62em; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: 0.3s; background: transparent; border: 1px solid; }
-        .btn-approve { border-color: var(--gold); color: var(--gold); }
-        .btn-approve:hover { background: rgba(201,168,76,0.1); }
-        .btn-reject { border-color: #e74c3c; color: #e74c3c; }
-        .btn-reject:hover { background: rgba(231,76,60,0.1); }
+        .req-date {
+            font-family: 'DM Mono';
+            font-size: 0.7em;
+            color: var(--text-muted);
+        }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
 
+        .btn-action {
+            padding: 8px 16px;
+            font-family: 'DM Mono';
+            font-size: 0.65em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: 0.3s;
+            background: transparent;
+            border: 1px solid;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .btn-approve {
+            border-color: #10b981;
+            color: #10b981;
+        }
+
+        .btn-approve:hover {
+            background: #ecfdf5;
+        }
+
+        .btn-reject {
+            border-color: #f43f5e;
+            color: #f43f5e;
+        }
+
+        .btn-reject:hover {
+            background: #fff1f2;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 
 <body>
-    <div class="ambient-bg"><div class="glow"></div></div>
+    <div class="ambient-bg">
+        <div class="glow-1"></div>
+        <div class="glow-2"></div>
+    </div>
 
     <div class="layout">
         <aside class="sidebar">
-            <div class="logo"><div class="logo-mark">Q</div><div class="logo-text">QPGen</div></div>
+            <a href="../dashboard.html" class="logo">
+                <div class="logo-mark">QP</div>
+                <span class="logo-text">QPGen</span>
+            </a>
+
             <div class="nav-section">Workspace</div>
-            <a href="../dashboard.html" class="nav-item">Dashboard</a>
-            <a href="../questions.html" class="nav-item">Question Bank</a>
-            <a href="../generate.html" class="nav-item">Generate Paper</a>
-            <div class="nav-section">Administration</div>
-            <a href="teachers.html" class="nav-item">Faculty Archives</a>
-            <a href="requests.html" class="nav-item active">Access Requests</a>
-            <a href="support.html" class="nav-item">Support Desk</a>
-            <div style="margin-top: auto;"><a href="#" class="nav-item" onclick="logout()">Sign Out</a></div>
+            <a href="../dashboard.html" class="nav-item">
+                <span class="nav-icon">▤</span> Dashboard
+            </a>
+            <a href="../questions.html" class="nav-item">
+                <span class="nav-icon">⚄</span> Question Bank
+            </a>
+            <a href="../generate.html" class="nav-item">
+                <span class="nav-icon">✦</span> Generate Paper
+            </a>
+
+            <div class="nav-section">Management</div>
+            <a href="../profile.html" class="nav-item">
+                <span class="nav-icon">👤</span> Account Profile
+            </a>
+
+            <div class="nav-section">University Admin</div>
+            <a href="teachers.html" class="nav-item">
+                <span class="nav-icon">⌘</span> Manage Faculty
+            </a>
+            <a href="requests.html" class="nav-item active">
+                <span class="nav-icon">✉</span> Access Requests
+            </a>
+            <a href="support.html" class="nav-item">
+                <span class="nav-icon">☏</span> Support Desk
+            </a>
+
+            <div class="sidebar-footer">
+                <div class="user-pill" onclick="location.href='../profile.html'">
+                    <div class="avatar" id="av">P</div>
+                    <div class="user-meta">
+                        <div class="user-name" id="uName">Professor</div>
+                        <div class="user-email" id="uEmail">prof@univ.edu</div>
+                    </div>
+                </div>
+                <button class="btn btn-danger" style="width: 100%; margin-top: 16px; font-size: 0.7em;" onclick="logout()">Secure Logout</button>
+            </div>
         </aside>
 
         <main class="main">
-            <header class="page-hdr">
+            <header class="page-header animate-fade">
                 <p>Security Clearance</p>
                 <h1>Subject<br><em>Access Requests.</em></h1>
             </header>
 
-            <div class="terminal">
+            <div class="terminal animate-fade">
                 <div class="term-item term-head">
                     <div>Requester</div>
                     <div>Target Domain</div>
@@ -95,7 +182,9 @@
                     <div style="text-align:right">Action</div>
                 </div>
                 <div id="reqList">
-                    <div style="padding:100px; text-align:center; font-family:'DM Mono'; color:var(--muted); font-size:0.8em; letter-spacing:2px;">SCANNING FOR PENDING REQUESTS...</div>
+                    <div
+                        style="padding:100px; text-align:center; font-family:'DM Mono'; color:var(--text-muted); font-size:0.8em; letter-spacing:2px;">
+                        SCANNING FOR PENDING REQUESTS...</div>
                 </div>
             </div>
         </main>
@@ -105,6 +194,11 @@
         const API = 'http://127.0.0.1:5000/api';
         const token = localStorage.getItem('token');
         const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        document.getElementById('uName').textContent = user.username;
+        document.getElementById('uEmail').textContent = user.email;
+        document.getElementById('av').textContent = (user.username || 'P')[0].toUpperCase();
 
         async function loadRequests() {
             try {
@@ -114,18 +208,18 @@
                 const el = document.getElementById('reqList');
 
                 if (reqs.length === 0) {
-                    el.innerHTML = '<div style="padding:100px; text-align:center; font-family:\'DM Mono\'; color:var(--muted); font-size:0.8em;">NO PENDING PROTOCOLS FOUND</div>';
+                    el.innerHTML = '<div style="padding:100px; text-align:center; font-family:\'DM Mono\'; color:var(--text-muted); font-size:0.8em;">NO PENDING PROTOCOLS FOUND</div>';
                     return;
                 }
 
                 el.innerHTML = reqs.map(r => `
                     <div class="term-item">
                         <div class="teacher-name">${r.username}</div>
-                        <div class="subj-name">${r.subject_name} <em style="color:var(--muted); font-style:normal;">(${r.subject_code})</em></div>
+                        <div class="subj-name">${r.subject_name} <em style="color:var(--text-muted); font-style:normal;">(${r.subject_code})</em></div>
                         <div class="req-date">${new Date(r.created_at).toLocaleDateString().toUpperCase()}</div>
                         <div class="btn-group">
-                            <button class="btn btn-approve" onclick="handleReq(${r.id}, 'approve')">Authorize</button>
-                            <button class="btn btn-reject" onclick="handleReq(${r.id}, 'reject')">Deny</button>
+                            <button class="btn-action btn-approve" onclick="handleReq(${r.id}, 'approve')">Authorize</button>
+                            <button class="btn-action btn-reject" onclick="handleReq(${r.id}, 'reject')">Deny</button>
                         </div>
                     </div>
                 `).join('');

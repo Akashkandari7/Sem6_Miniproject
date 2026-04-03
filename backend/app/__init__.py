@@ -69,6 +69,13 @@ def create_app(config_name='default'):
             return jsonify({'error': 'Unauthorized', 'message': 'Invalid key. Pass ?key=<your_secret_key>'}), 401
             
         try:
+            # If reset=true, drop all tables and recreate
+            if request.args.get('reset') == 'true':
+                db.drop_all()
+                db.create_all()
+                _seed_initial_data(db)
+                return jsonify({'status': 'ok', 'message': 'Database reset, tables created and seeded successfully.'})
+            
             db.create_all()
             if Subject.query.first() is None:
                 _seed_initial_data(db)
@@ -167,9 +174,20 @@ def _seed_initial_data(db):
 
     db.session.add_all([admin_role, teacher_role, viewer_role])
 
-    # ── Default subject ────────────────────────────────────────────
-    cs = Subject(name='Computer Science', code='CS101', description='Core CS subject')
-    db.session.add(cs)
+    # ── Default subjects ───────────────────────────────────────────
+    subjects_data = [
+        ('Computer Science', 'CS101', 'Core CS subject'),
+        ('Theory of Computation', 'TOC201', 'Formal languages, automata theory, and computability'),
+        ('DBMS', 'DBMS301', 'Database Management Systems'),
+        ('Software Engineering', 'SE401', 'Software development processes and methodologies'),
+        ('Computer Networks', 'CN501', 'Network protocols, architecture, and communication'),
+        ('Operating System', 'OS601', 'OS concepts, process management, and memory management'),
+        ('Cyber Security', 'CYS701', 'Information security, cryptography, and network security'),
+        ('COA', 'COA801', 'Computer Organization and Architecture'),
+        ('OOPs', 'OOP901', 'Object-Oriented Programming concepts'),
+    ]
+    for name, code, desc in subjects_data:
+        db.session.add(Subject(name=name, code=code, description=desc))
 
     # ── Default admin user ─────────────────────────────────────────
     admin_user = User(username='admin', email='admin@qpgen.com')

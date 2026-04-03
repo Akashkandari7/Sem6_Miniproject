@@ -5,7 +5,9 @@ Flask-RESTful==0.3.10
 # Database
 Flask-SQLAlchemy==3.1.1
 Flask-Migrate==4.0.5
-SQLAlchemy==2.0.23
+SQLAlchemy==2.0.30
+psycopg2-binary==2.9.9
+gunicorn==21.2.0
 
 # Authentication
 Flask-JWT-Extended==4.6.0
@@ -21,10 +23,6 @@ python-dotenv==1.0.0
 
 # CORS
 Flask-CORS==4.0.0
-
-# Production Server & Database
-psycopg2-binary==2.9.9
-gunicorn==21.2.0
 
 # Dev Tools
 pytest==7.4.3

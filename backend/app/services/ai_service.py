@@ -18,7 +18,16 @@ class AIService:
             raise ValueError("Gemini API Key is not configured.")
 
         prompt = f"""
-        Generate a professional academic question for the subject '{subject_name}' on the topic '{topic}'.
+        You are an expert university professor creating exam questions for '{subject_name}' on the topic '{topic}'.
+        
+        CRITICAL RULES FOR QUESTION QUALITY:
+        - DO NOT generate simple "Define X" or "What is Y" type questions. These are too basic.
+        - Questions MUST require critical thinking, logical reasoning, or real-world application.
+        - For MCQs: Use tricky distractors that test deep understanding, not just memorization. Include scenario-based or code-based questions where relevant.
+        - For Short answers: Ask students to compare, contrast, justify, or explain WHY — not just WHAT.
+        - For Long answers: Include case studies, real-world scenarios, design problems, or multi-step analysis.
+        - Match the Bloom's taxonomy level to the difficulty: easy=understand/apply, medium=apply/analyze, hard=evaluate/create.
+        - Make questions that a student who only memorized textbook definitions would FAIL, but a student who truly understands concepts would PASS.
         
         Constraints:
         - Question Type: {question_type} (options: mcq, short, long)
@@ -82,13 +91,21 @@ class AIService:
         req_summary = ", ".join([f"{count} questions of {marks} marks" for marks, count in distribution.items() if count > 0])
         
         prompt = f"""
-        Generate a batch of professional academic questions for the subject '{subject_name}' based on the topic/syllabus:
+        You are an expert university professor designing a challenging exam for '{subject_name}' based on the topic/syllabus:
         '{topic}'
 
         Requested Distribution:
         {req_summary}
 
-        For each question, randomize the Bloom's Taxonomy level (remember, understand, apply, analyze, evaluate, create) and difficulty (easy, medium, hard) appropriately for the mark value.
+        CRITICAL RULES FOR QUESTION QUALITY:
+        1. NEVER generate simple recall questions like "Define X", "What is Y", or "List the types of Z". These are lazy and too easy.
+        2. Every question MUST test conceptual understanding, logical reasoning, or practical application.
+        3. For 1-mark MCQs: Create scenario-based or tricky conceptual questions with plausible distractors. Example: Instead of "What is normalization?", ask "A table has partial dependency on a composite key. Which normal form is violated?".
+        4. For 3-mark short questions: Ask students to compare, contrast, justify, trace algorithms, or explain cause-effect relationships. Example: Instead of "Define deadlock", ask "Why can't the Banker's algorithm prevent starvation? Justify.".
+        5. For 5-mark long questions: Include real-world scenarios, algorithm traces with given data, design problems, or case studies. Example: "Given the following page reference string, calculate page faults for FIFO, LRU, and Optimal. Which performs best and why?".
+        6. For 10-mark questions: Require comprehensive analysis, multi-part design problems, or critical evaluation with pros/cons. Example: "Design a normalized database schema for a hospital management system. Show the ER diagram, convert to 3NF, and justify your design decisions.".
+        7. Vary Bloom's levels — prefer apply/analyze/evaluate over remember/understand. At least 60% of questions should be at apply level or above.
+        8. Questions should feel like real university exam questions, not textbook review questions.
 
         Format the output as a JSON ARRAY of objects. Each object must have this structure:
         {{

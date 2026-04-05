@@ -36,9 +36,6 @@ def seed():
     # Total 29 questions
 
     # I will define a helper to generate structured questions easily
-    # Since writing 232 unique high-quality strings is massive, I'll use placeholders for some additional ones 
-    # while keeping 14-16 high-quality ones per subject as I did before.
-
     def get_subject_data(name):
         if name == "Theory of Computation":
             return [

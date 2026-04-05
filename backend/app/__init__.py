@@ -58,38 +58,29 @@ def create_app(config_name='default'):
                 _seed_initial_data(db)
 
     # Secure setup endpoint for initializing persistent production databases (Postgres, etc)
-    @app.route('/api/setup', methods=['GET', 'POST'])
+    @app.route('/api/setup', methods=['POST'])
     def setup_db():
         from flask import request, jsonify
         from app.models.subject import Subject
         
-        # Require SECRET_KEY as a security measure
-        secret = request.args.get('key')
-        if not secret or secret != app.config.get('SECRET_KEY'):
-            return jsonify({'error': 'Unauthorized', 'message': 'Invalid key. Pass ?key=<your_secret_key>'}), 401
+        # Use a dedicated SETUP_TOKEN, never the SECRET_KEY used for JWT signing
+        setup_token = os.getenv('SETUP_TOKEN')
+        if not setup_token:
+            return jsonify({'error': 'Setup endpoint disabled', 'message': 'SETUP_TOKEN not configured'}), 403
+        
+        provided_token = request.headers.get('X-Setup-Token') or request.args.get('key')
+        if not provided_token or provided_token != setup_token:
+            return jsonify({'error': 'Unauthorized'}), 401
             
         try:
-            # If reset=true, drop all tables and recreate
-            if request.args.get('reset') == 'true':
-                db.drop_all()
-                db.create_all()
-                _seed_initial_data(db)
-                return jsonify({'status': 'ok', 'message': 'Database reset, tables created and seeded successfully.'})
-            
             db.create_all()
             if Subject.query.first() is None:
                 _seed_initial_data(db)
                 return jsonify({'status': 'ok', 'message': 'Database tables created and seeded successfully.'})
             return jsonify({'status': 'ok', 'message': 'Database tables created. Existing data found.'})
         except Exception as e:
-            import traceback
-            error_details = traceback.format_exc()
-            print(f"Setup Error: {error_details}")
-            return jsonify({
-                'error': 'Setup failed', 
-                'details': str(e),
-                'traceback': error_details
-            }), 500
+            print(f"Setup Error: {e}")
+            return jsonify({'error': 'Setup failed', 'message': 'Internal error — check server logs'}), 500
     
     # Health check route
     @app.route('/api/health')
@@ -198,7 +189,8 @@ def _seed_initial_data(db):
 
     # ── Default admin user ─────────────────────────────────────────
     admin_user = User(username='admin', email='admin@qpgen.com')
-    admin_user.set_password('admin123')
+    admin_password = os.getenv('ADMIN_DEFAULT_PASSWORD', 'admin123')
+    admin_user.set_password(admin_password)
     admin_user.roles = [admin_role]
     db.session.add(admin_user)
 

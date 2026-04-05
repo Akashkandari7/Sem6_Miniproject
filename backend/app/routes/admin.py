@@ -8,8 +8,8 @@ from app.services.audit_service import log_action
 admin_bp = Blueprint('admin', __name__)
 
 @admin_bp.route('/teachers', methods=['GET'])
-@require_role('admin')
 @require_permission('users.list')
+@require_role('admin')
 def get_teachers():
     """List all users with the 'teacher' role."""
     # Find the teacher role
@@ -33,8 +33,8 @@ def get_teachers():
     }), 200
 
 @admin_bp.route('/assign-subjects', methods=['POST'])
-@require_role('admin')
 @require_permission('users.assign_subjects')
+@require_role('admin')
 def assign_subjects():
     """
     Assign subjects to a teacher. 
@@ -140,8 +140,8 @@ def get_subject_requests():
     }), 200
 
 @admin_bp.route('/subject-requests/<int:request_id>/action', methods=['POST'])
-@require_role('admin')
 @require_permission('users.assign_subjects')
+@require_role('admin')
 def handle_subject_request(request_id):
     """Approve or reject a subject request (access or new_subject)."""
     from app.models.subject_request import SubjectRequest

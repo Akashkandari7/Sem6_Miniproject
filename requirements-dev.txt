@@ -1,0 +1,2 @@
+# Dev-only dependencies — not installed on production
+pytest==7.4.3

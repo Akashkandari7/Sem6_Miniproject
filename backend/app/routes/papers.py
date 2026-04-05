@@ -61,7 +61,7 @@ def create_paper():
     """
     data = request.get_json()
 
-    required = ['title', 'subject_id', 'duration_minutes', 'config']
+    required = ['title', 'subject_id', 'total_marks', 'duration_minutes', 'config']
     if not all(k in data for k in required):
         missing = [k for k in required if k not in data]
         return jsonify({'error': f'Required fields: {missing}'}), 400
@@ -109,10 +109,17 @@ def create_paper():
     paper_data = paper.to_dict()
     paper_data['questions'] = [q.to_dict() for q in paper.questions]
 
-    return jsonify({
+    response = {
         'message': 'Paper generated successfully',
         'paper': paper_data,
-    }), 201
+    }
+
+    # Warn if allocated marks differ from requested
+    requested_marks = data['total_marks']
+    if paper.total_marks != requested_marks:
+        response['warning'] = f'Requested {requested_marks} marks but {paper.total_marks} were allocated based on available questions.'
+
+    return jsonify(response), 201
 
 
 @papers_bp.route('/manual-generate', methods=['POST'])

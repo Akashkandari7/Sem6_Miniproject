@@ -24,6 +24,9 @@ class Question(db.Model):
     option_d = db.Column(db.String(255), nullable=True)
     correct_answer = db.Column(db.String(255), nullable=True)
     
+    # Topic for categorization
+    topic = db.Column(db.String(200), nullable=True)
+    
     # Metadata
     subject_id = db.Column(db.Integer, db.ForeignKey('subjects.id'), nullable=False)
     created_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
@@ -52,6 +55,7 @@ class Question(db.Model):
             'correct_answer': self.correct_answer,
             'subject_id': self.subject_id,
             'subject_name': self.subject.name if self.subject else 'Uncategorized',
+            'topic': self.topic,
             'times_used': self.times_used,
             'created_at': self.created_at.isoformat()
         }

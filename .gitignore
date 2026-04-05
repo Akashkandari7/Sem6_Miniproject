@@ -9,3 +9,4 @@ venv/
 CLAUDE.md
 .vercel
 .env*.local
+server.log

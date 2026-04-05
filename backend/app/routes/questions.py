@@ -327,6 +327,7 @@ def bulk_upload_questions():
         user = get_current_user()
         user_id = user.id
         count = 0
+        skipped_rows = []
         
         # Determine allowed subjects for security check
         if not user.has_role('admin'):
@@ -334,11 +335,12 @@ def bulk_upload_questions():
         else:
             assigned_sids = None # Admin can do anything
 
-        for _, row in df.iterrows():
+        for row_idx, row in df.iterrows():
             sid = int(row['subject_id'])
             
             # Security: check if teacher is assigned to this subject
             if assigned_sids is not None and sid not in assigned_sids:
+                skipped_rows.append({'row': int(row_idx) + 2, 'subject_id': sid, 'reason': 'Not assigned to this subject'})
                 continue 
 
             q = Question(
@@ -360,13 +362,18 @@ def bulk_upload_questions():
             count += 1
 
         db.session.commit()
-        log_action('questions.bulk_upload', details={'count': count})
+        log_action('questions.bulk_upload', details={'count': count, 'skipped': len(skipped_rows)})
         
-        return jsonify({
+        response = {
             'success': True,
             'message': f'Successfully uploaded {count} questions',
             'count': count
-        }), 201
+        }
+        if skipped_rows:
+            response['warning'] = f'{len(skipped_rows)} row(s) skipped due to unauthorized subject access'
+            response['skipped_rows'] = skipped_rows
+        
+        return jsonify(response), 201
 
     except Exception as e:
         db.session.rollback()

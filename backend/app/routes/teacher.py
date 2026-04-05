@@ -73,7 +73,7 @@ def get_teacher_questions():
     }), 200
 
 @teacher_bp.route('/questions', methods=['POST'])
-@require_role('teacher')
+@require_any_role('teacher', 'admin')
 @require_permission('questions.create')
 def add_question():
     """Manual addition of a question for an assigned subject."""
@@ -122,7 +122,7 @@ def add_question():
     }), 201
 
 @teacher_bp.route('/questions/generate', methods=['POST'])
-@require_role('teacher')
+@require_any_role('teacher', 'admin')
 @require_permission('questions.generate_ai')
 def generate_and_save_question():
     """Generate a question via AI and automatically save it to the DB."""

@@ -188,8 +188,8 @@ def handle_subject_request(request_id):
                     ai_service = AIService(api_key=api_key)
                     topics = req.topics or req.subject_name
 
-                    # Use batch generation: 10 x 1-mark, 5 x 3-mark, 3 x 5-mark, 2 x 10-mark = 20 questions
-                    distribution = {"1": 10, "3": 5, "5": 3, "10": 2}
+                    # Use smaller batch generation (5 questions) to avoid Vercel 10s timeout
+                    distribution = {"1": 3, "3": 1, "5": 1}
                     generated = ai_service.generate_questions_batch(
                         subject_name=req.subject_name,
                         topic=topics,

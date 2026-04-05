@@ -177,50 +177,11 @@ def handle_subject_request(request_id):
             if new_subject not in req.user.subjects:
                 req.user.subjects.append(new_subject)
 
-            # ── AI-generate 20 starter questions from the topics ──
-            try:
-                import os
-                from app.services.ai_service import AIService
-                from app.models.question import Question
-
-                api_key = os.getenv('GOOGLE_API_KEY')
-                if api_key:
-                    ai_service = AIService(api_key=api_key)
-                    topics = req.topics or req.subject_name
-
-                    # Use smaller batch generation (5 questions) to avoid Vercel 10s timeout
-                    distribution = {"1": 3, "3": 1, "5": 1}
-                    generated = ai_service.generate_questions_batch(
-                        subject_name=req.subject_name,
-                        topic=topics,
-                        distribution=distribution
-                    )
-
-                    saved_count = 0
-                    for g in generated:
-                        q = Question(
-                            text=g.get('text', ''),
-                            question_type=g.get('question_type', 'short'),
-                            blooms_level=g.get('blooms_level', 'understand'),
-                            difficulty=g.get('difficulty', 'medium'),
-                            marks=int(g.get('marks', 1)),
-                            option_a=g.get('option_a'),
-                            option_b=g.get('option_b'),
-                            option_c=g.get('option_c'),
-                            option_d=g.get('option_d'),
-                            correct_answer=g.get('correct_answer'),
-                            subject_id=new_subject.id,
-                            created_by=req.user_id,
-                        )
-                        db.session.add(q)
-                        saved_count += 1
-
-                    ai_note = f' | AI generated {saved_count} starter questions.'
-                else:
-                    ai_note = ' | AI skipped: No GOOGLE_API_KEY configured.'
-            except Exception as e:
-                ai_note = f' | AI generation failed: {str(e)}'
-                print(f"AI seeding error for request {request_id}: {e}")
+            # ── AI-generate starter questions (DISABLED for Vercel) ──
+            # Generating questions synchronously via Gemini takes >10s which hits Vercel's
+            # serverless timeout ceiling and fails the "Authorize" API call. 
+            # Teachers can generate questions manually via the Dashboard instead.
+            ai_note = ' | AI skipped to prevent Vercel 10s timeout. Generate manually.'
 
         else:
             # Existing flow: grant access to an existing subject

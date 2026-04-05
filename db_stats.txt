@@ -1,0 +1,10 @@
+Total Questions: 404
+Subject Computer Science (id 1) has 60 questions
+Subject Theory of Computation (id 2) has 43 questions
+Subject DBMS (id 3) has 43 questions
+Subject Software Engineering (id 4) has 43 questions
+Subject Computer Networks (id 5) has 43 questions
+Subject Operating System (id 6) has 43 questions
+Subject Cyber Security (id 7) has 43 questions
+Subject COA (id 8) has 43 questions
+Subject OOPs (id 9) has 43 questions

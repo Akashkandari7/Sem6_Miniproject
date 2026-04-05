@@ -82,7 +82,14 @@ def create_app(config_name='default'):
                 return jsonify({'status': 'ok', 'message': 'Database tables created and seeded successfully.'})
             return jsonify({'status': 'ok', 'message': 'Database tables created. Existing data found.'})
         except Exception as e:
-            return jsonify({'error': 'Setup failed', 'details': str(e)}), 500
+            import traceback
+            error_details = traceback.format_exc()
+            print(f"Setup Error: {error_details}")
+            return jsonify({
+                'error': 'Setup failed', 
+                'details': str(e),
+                'traceback': error_details
+            }), 500
     
     # Health check route
     @app.route('/api/health')

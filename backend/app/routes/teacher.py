@@ -14,14 +14,19 @@ teacher_bp = Blueprint('teacher', __name__)
 def get_teacher_subjects():
     """Get subjects assigned to the current teacher."""
     user = get_current_user()
+    if user.has_role('admin'):
+        subjects = Subject.query.all()
+    else:
+        subjects = user.subjects
+        
     return jsonify({
         'success': True,
-        'data': [s.to_dict() for s in user.subjects],
-        'count': len(user.subjects)
+        'data': [s.to_dict() for s in subjects],
+        'count': len(subjects)
     }), 200
 
 @teacher_bp.route('/questions', methods=['GET'])
-@require_role('teacher')
+@require_any_role('teacher', 'admin')
 @require_permission('questions.read')
 def get_teacher_questions():
     """Get questions for the current teacher's assigned subjects."""
@@ -250,12 +255,46 @@ def request_new_subject():
     if not subject_name or not subject_code or not topics:
         return jsonify({'success': False, 'message': 'subject_name, subject_code, and topics are required'}), 400
 
-    # Check if subject code already exists
-    existing_subject = Subject.query.filter_by(code=subject_code).first()
-    if existing_subject:
-        return jsonify({'success': False, 'message': f'A subject with code "{subject_code}" already exists. Request access instead.'}), 400
+    # Check if subject code or name already exists
+    existing_subject = Subject.query.filter(
+        db.or_(
+            Subject.code == subject_code,
+            Subject.name.ilike(subject_name)
+        )
+    ).first()
 
-    # Check for duplicate pending request with same code
+    if existing_subject:
+        # Convert to an access request for the existing subject
+        # Check if they already have access
+        if existing_subject in user.subjects:
+            return jsonify({'success': False, 'message': 'You already have access to this subject'}), 400
+            
+        # Check if pending request exists
+        existing_req = SubjectRequest.query.filter_by(
+            user_id=user.id, subject_id=existing_subject.id, status='pending'
+        ).first()
+        
+        if existing_req:
+            return jsonify({'success': False, 'message': 'You already have a pending request for this subject'}), 400
+
+        req = SubjectRequest(
+            user_id=user.id,
+            request_type='access',
+            subject_name=existing_subject.name,
+            subject_code=existing_subject.code,
+            subject_id=existing_subject.id,
+        )
+        db.session.add(req)
+        db.session.commit()
+        log_action('teacher.subject_request', resource_type='subject_request', resource_id=req.id,
+                   details={'subject_id': existing_subject.id})
+        return jsonify({
+            'success': True,
+            'message': f'Subject "{existing_subject.name}" already exists. Access request sent to Admin.',
+            'data': req.to_dict()
+        }), 201
+
+    # Otherwise, it's a completely new subject request
     existing_req = SubjectRequest.query.filter_by(
         user_id=user.id, subject_code=subject_code, request_type='new_subject', status='pending'
     ).first()

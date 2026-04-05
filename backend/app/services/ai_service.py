@@ -8,7 +8,14 @@ class AIService:
         self.api_key = api_key or os.getenv("GOOGLE_API_KEY")
         if self.api_key:
             genai.configure(api_key=self.api_key)
-        self.model = genai.GenerativeModel('gemini-1.5-flash')
+        
+        # Prefer gemini-1.5-flash for speed and cost, fallback to gemini-pro
+        try:
+            self.model = genai.GenerativeModel('gemini-1.5-flash')
+            # Test model availability with a dummy call if needed, but for now we'll just set it
+        except Exception as e:
+            print(f"Warning: gemini-1.5-flash initialization failed, falling back to gemini-pro: {e}")
+            self.model = genai.GenerativeModel('gemini-pro')
 
     def generate_question(self, subject_name, topic, question_type, difficulty, marks):
         """

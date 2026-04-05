@@ -291,10 +291,37 @@
                 </div>
             </div>
 
-            <div class="two-panel animate-fade">
+            <div class="animate-fade" style="margin-bottom: 80px;">
+                <h2 class="sect-title">Domain Expertise</h2>
+                <div id="subjList"></div>
+            </div>
+
+            <!-- REQUEST NEW SUBJECT -->
+            <div class="two-panel animate-fade" style="margin-bottom: 80px;">
                 <div>
-                    <h2 class="sect-title">Domain Expertise</h2>
-                    <div id="subjList"></div>
+                    <h2 class="sect-title">Request New Subject</h2>
+                    <div class="form-card">
+                        <div id="reqSubMsg" style="display:none;" class="msg-bar success">REQUEST SUBMITTED — AWAITING ADMIN APPROVAL</div>
+                        <div id="reqSubErr" style="display:none;" class="msg-bar error"></div>
+
+                        <div class="form-group">
+                            <label>Subject Name</label>
+                            <input type="text" id="nsName" placeholder="e.g. Data Structures & Algorithms">
+                        </div>
+                        <div class="form-group">
+                            <label>Subject Code</label>
+                            <input type="text" id="nsCode" placeholder="e.g. CS201" style="text-transform: uppercase;">
+                        </div>
+                        <div class="form-group">
+                            <label>Description (Optional)</label>
+                            <input type="text" id="nsDesc" placeholder="Brief overview of the subject">
+                        </div>
+                        <div class="form-group">
+                            <label>Topics (comma-separated) <span style="color:var(--brand); font-weight:400;">*Required — AI will use these to generate 20 starter questions</span></label>
+                            <textarea id="nsTopics" rows="4" placeholder="e.g. Arrays, Linked Lists, Trees, Graphs, Sorting Algorithms, Hashing, Dynamic Programming"></textarea>
+                        </div>
+                        <button class="btn-submit" onclick="requestNewSubject()" id="nsBtn">Submit Subject Request →</button>
+                    </div>
                 </div>
 
                 <div>
@@ -311,6 +338,16 @@
                             <textarea id="hMsg" rows="5" placeholder="Briefly explain your requirement..."></textarea>
                         </div>
                         <button class="btn-submit" onclick="sendSupport()">Transmit to Admin →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MY REQUESTS -->
+            <div class="animate-fade">
+                <h2 class="sect-title">My Subject Requests</h2>
+                <div class="panel" id="myReqPanel">
+                    <div style="padding: 60px; text-align:center; color:var(--text-muted); font-family:'DM Mono', monospace; font-size:0.8em; letter-spacing:1px;">
+                        Loading requests...
                     </div>
                 </div>
             </div>
@@ -344,9 +381,11 @@
                 document.getElementById('sQ').textContent = s.questions;
                 document.getElementById('sS').textContent = s.subjects;
 
-                document.getElementById('subjList').innerHTML = d.data.subjects.map(subj => `
-                    <div class="subj-chip">${subj.name} <em style="color:var(--text-muted); font-size:0.8em; margin-left:8px; font-style: normal;">${subj.code}</em></div>
-                `).join('');
+                document.getElementById('subjList').innerHTML = d.data.subjects.length > 0
+                    ? d.data.subjects.map(subj => `
+                        <div class="subj-chip">${subj.name} <em style="color:var(--text-muted); font-size:0.8em; margin-left:8px; font-style: normal;">${subj.code}</em></div>
+                    `).join('')
+                    : '<div style="color:var(--text-muted); font-family:DM Mono, monospace; font-size:0.8em; letter-spacing:1px;">No subjects assigned yet. Request one below!</div>';
 
                 if (u.roles && u.roles.includes('admin')) {
                     document.getElementById('adminLink').style.display = 'block';
@@ -359,6 +398,106 @@
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('profileWrap').style.display = 'block';
             }
+        }
+
+        async function requestNewSubject() {
+            const name = document.getElementById('nsName').value.trim();
+            const code = document.getElementById('nsCode').value.trim().toUpperCase();
+            const desc = document.getElementById('nsDesc').value.trim();
+            const topics = document.getElementById('nsTopics').value.trim();
+            const errEl = document.getElementById('reqSubErr');
+            const sucEl = document.getElementById('reqSubMsg');
+            const btn = document.getElementById('nsBtn');
+
+            errEl.style.display = 'none';
+            sucEl.style.display = 'none';
+
+            if (!name || !code || !topics) {
+                errEl.textContent = 'SUBJECT NAME, CODE, AND TOPICS ARE REQUIRED';
+                errEl.style.display = 'block';
+                return;
+            }
+
+            btn.textContent = 'SUBMITTING...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${API}/teacher/requests/new-subject`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        subject_name: name,
+                        subject_code: code,
+                        description: desc,
+                        topics: topics
+                    })
+                });
+
+                const d = await res.json();
+                if (res.ok) {
+                    sucEl.style.display = 'block';
+                    document.getElementById('nsName').value = '';
+                    document.getElementById('nsCode').value = '';
+                    document.getElementById('nsDesc').value = '';
+                    document.getElementById('nsTopics').value = '';
+                    loadMyRequests();
+                    setTimeout(() => sucEl.style.display = 'none', 5000);
+                } else {
+                    errEl.textContent = (d.message || 'Submission failed').toUpperCase();
+                    errEl.style.display = 'block';
+                }
+            } catch (e) {
+                errEl.textContent = 'CONNECTION FAILURE — TRY AGAIN';
+                errEl.style.display = 'block';
+            } finally {
+                btn.textContent = 'Submit Subject Request →';
+                btn.disabled = false;
+            }
+        }
+
+        async function loadMyRequests() {
+            try {
+                const res = await fetch(`${API}/teacher/requests`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const d = await res.json();
+                const reqs = d.data || [];
+                const panel = document.getElementById('myReqPanel');
+
+                if (reqs.length === 0) {
+                    panel.innerHTML = '<div style="padding: 60px; text-align:center; color:var(--text-muted); font-family:DM Mono, monospace; font-size:0.8em; letter-spacing:1px;">NO REQUESTS MADE YET</div>';
+                    return;
+                }
+
+                const statusColors = {
+                    'pending': 'color:#f59e0b; border-color:#f59e0b; background:#fffbeb;',
+                    'approved': 'color:#10b981; border-color:#10b981; background:#ecfdf5;',
+                    'rejected': 'color:#f43f5e; border-color:#f43f5e; background:#fff1f2;'
+                };
+
+                panel.innerHTML = reqs.map(r => {
+                    const isNew = r.request_type === 'new_subject';
+                    const label = isNew ? 'New Subject' : 'Access Request';
+                    const name = r.subject_name || 'Unknown';
+                    const code = r.subject_code || '';
+                    const topics = r.topics ? r.topics.substring(0, 80) + (r.topics.length > 80 ? '…' : '') : '';
+                    const style = statusColors[r.status] || '';
+
+                    return `
+                        <div style="display:flex; align-items:center; gap:20px; padding:20px 32px; border-bottom:1px solid var(--border);">
+                            <div style="flex:1; min-width:0;">
+                                <div style="font-weight:600; font-size:0.95em; color:var(--text-primary); margin-bottom:4px;">${name} <span style="color:var(--text-muted); font-size:0.8em;">(${code})</span></div>
+                                <div style="font-family:'DM Mono',monospace; font-size:0.65em; color:var(--text-muted); letter-spacing:1px;">${label.toUpperCase()}${topics ? ' • ' + topics : ''}</div>
+                            </div>
+                            <div style="font-family:'DM Mono',monospace; font-size:0.6em; letter-spacing:1px; color:var(--text-muted);">${new Date(r.created_at).toLocaleDateString()}</div>
+                            <div class="badge" style="${style} font-size:0.6em; padding:4px 10px;">${r.status.toUpperCase()}</div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (e) { console.error('Failed to load requests:', e); }
         }
 
         async function sendSupport() {
@@ -388,6 +527,7 @@
 
         function logout() { localStorage.clear(); window.location.href = 'index.html'; }
         loadProfile();
+        loadMyRequests();
     </script>
 </body>
 

@@ -11,7 +11,13 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
         rel="stylesheet">
     <style>
-        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         :root {
             --bg: #f8f9fc;
@@ -32,15 +38,16 @@
             --purple-dim: #f5f3ff;
             --amber: #d97706;
             --amber-dim: #fffbeb;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-            --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
-            --shadow-lg: 0 12px 40px rgba(0,0,0,0.1), 0 4px 12px rgba(0,0,0,0.06);
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
+            --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.1), 0 4px 12px rgba(0, 0, 0, 0.06);
             --radius: 14px;
             --radius-sm: 8px;
             --radius-lg: 20px;
         }
 
-        html, body {
+        html,
+        body {
             background: var(--bg);
             color: var(--text-primary);
             font-family: 'Inter', sans-serif;
@@ -77,19 +84,49 @@
             animation: float 20s infinite alternate cubic-bezier(0.45, 0, 0.55, 1);
         }
 
-        .f1 { width: 400px; height: 400px; background: #dbeafe; top: -100px; right: -100px; animation-delay: 0s; }
-        .f2 { width: 300px; height: 300px; background: #e0f2fe; bottom: 10%; left: -50px; animation-delay: -5s; }
-        .f3 { width: 500px; height: 500px; background: #f0f7ff; top: 40%; right: 20%; animation-delay: -10s; }
+        .f1 {
+            width: 400px;
+            height: 400px;
+            background: #dbeafe;
+            top: -100px;
+            right: -100px;
+            animation-delay: 0s;
+        }
+
+        .f2 {
+            width: 300px;
+            height: 300px;
+            background: #e0f2fe;
+            bottom: 10%;
+            left: -50px;
+            animation-delay: -5s;
+        }
+
+        .f3 {
+            width: 500px;
+            height: 500px;
+            background: #f0f7ff;
+            top: 40%;
+            right: 20%;
+            animation-delay: -10s;
+        }
 
         @keyframes float {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(40px, 60px) scale(1.1); }
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            100% {
+                transform: translate(40px, 60px) scale(1.1);
+            }
         }
 
         /* ── HEADER ── */
         header {
             position: fixed;
-            top: 0; left: 0; right: 0;
+            top: 0;
+            left: 0;
+            right: 0;
             padding: 0 60px;
             height: 68px;
             display: flex;
@@ -108,17 +145,22 @@
             text-decoration: none;
             color: inherit;
         }
+
         .logo-icon {
-            width: 36px; height: 36px;
+            width: 36px;
+            height: 36px;
             background: linear-gradient(135deg, var(--blue) 0%, #1d4ed8 100%);
             border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: white;
             font-size: 0.85em;
             font-weight: 800;
             font-family: 'Plus Jakarta Sans', sans-serif;
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
         }
+
         .logo-name {
             font-family: 'Plus Jakarta Sans', sans-serif;
             font-size: 1.1em;
@@ -126,9 +168,17 @@
             color: var(--text-primary);
             letter-spacing: -0.3px;
         }
-        .logo-name span { color: var(--blue); }
 
-        nav { display: flex; align-items: center; gap: 8px; }
+        .logo-name span {
+            color: var(--blue);
+        }
+
+        nav {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
         .nav-link {
             padding: 8px 16px;
             color: var(--text-secondary);
@@ -138,7 +188,11 @@
             border-radius: var(--radius-sm);
             transition: all 0.2s;
         }
-        .nav-link:hover { background: var(--surface-alt); color: var(--text-primary); }
+
+        .nav-link:hover {
+            background: var(--surface-alt);
+            color: var(--text-primary);
+        }
 
         .btn-nav {
             padding: 9px 20px;
@@ -153,21 +207,25 @@
             gap: 6px;
             border: none;
         }
+
         .btn-nav-outline {
             background: transparent;
             border: 1.5px solid var(--border-strong);
             color: var(--text-secondary);
         }
+
         .btn-nav-outline:hover {
             border-color: var(--blue);
             color: var(--blue);
             background: var(--blue-dim);
         }
+
         .btn-nav-primary {
             background: var(--blue);
             color: white;
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
         }
+
         .btn-nav-primary:hover {
             background: var(--blue-light);
             transform: translateY(-1px);
@@ -184,8 +242,18 @@
             z-index: 1;
             gap: 60px;
         }
-        .hero-left { flex: 1; max-width: 560px; }
-        .hero-right { flex: 1; display: flex; justify-content: center; align-items: center; }
+
+        .hero-left {
+            flex: 1;
+            max-width: 560px;
+        }
+
+        .hero-right {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
         .badge {
             display: inline-flex;
@@ -200,15 +268,27 @@
             color: var(--blue);
             margin-bottom: 28px;
         }
+
         .badge-dot {
-            width: 6px; height: 6px;
+            width: 6px;
+            height: 6px;
             background: var(--blue);
             border-radius: 50%;
             animation: pulse 2s infinite;
         }
+
         @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(0.8); }
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(0.8);
+            }
         }
 
         .hero-title {
@@ -220,14 +300,18 @@
             color: var(--text-primary);
             margin-bottom: 20px;
         }
+
         .hero-title .highlight {
             color: var(--blue);
             position: relative;
         }
+
         .hero-title .highlight::after {
             content: '';
             position: absolute;
-            bottom: 2px; left: 0; right: 0;
+            bottom: 2px;
+            left: 0;
+            right: 0;
             height: 3px;
             background: linear-gradient(90deg, var(--blue), var(--blue-light));
             border-radius: 2px;
@@ -242,7 +326,13 @@
             font-weight: 400;
         }
 
-        .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+        .hero-actions {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
         .btn-hero-primary {
             padding: 13px 28px;
             background: var(--blue);
@@ -259,11 +349,13 @@
             gap: 8px;
             box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
         }
+
         .btn-hero-primary:hover {
             background: #1d4ed8;
             transform: translateY(-2px);
             box-shadow: 0 10px 28px rgba(37, 99, 235, 0.4);
         }
+
         .btn-hero-secondary {
             padding: 13px 24px;
             background: var(--surface);
@@ -279,6 +371,7 @@
             align-items: center;
             gap: 8px;
         }
+
         .btn-hero-secondary:hover {
             border-color: var(--blue);
             color: var(--blue);
@@ -291,6 +384,7 @@
             align-items: center;
             gap: 20px;
         }
+
         .trust-item {
             display: flex;
             align-items: center;
@@ -299,17 +393,26 @@
             color: var(--text-muted);
             font-weight: 500;
         }
+
         .trust-check {
-            width: 16px; height: 16px;
+            width: 16px;
+            height: 16px;
             background: var(--green-dim);
             border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: var(--green);
             font-size: 0.6em;
             font-weight: 800;
             flex-shrink: 0;
         }
-        .trust-sep { width: 1px; height: 16px; background: var(--border); }
+
+        .trust-sep {
+            width: 1px;
+            height: 16px;
+            background: var(--border);
+        }
 
         /* ── HERO CARD (Right side visual) ── */
         .hero-card {
@@ -321,6 +424,7 @@
             max-width: 440px;
             overflow: hidden;
         }
+
         .hc-header {
             padding: 18px 20px;
             border-bottom: 1px solid var(--border);
@@ -328,17 +432,31 @@
             align-items: center;
             gap: 10px;
         }
+
         .hc-avatar {
-            width: 32px; height: 32px;
+            width: 32px;
+            height: 32px;
             background: linear-gradient(135deg, #818cf8, #6366f1);
             border-radius: 8px;
-            display: flex; align-items: center; justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: white;
             font-size: 0.7em;
             font-weight: 700;
         }
-        .hc-title { font-size: 0.85em; font-weight: 600; color: var(--text-primary); }
-        .hc-sub { font-size: 0.72em; color: var(--text-muted); }
+
+        .hc-title {
+            font-size: 0.85em;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .hc-sub {
+            font-size: 0.72em;
+            color: var(--text-muted);
+        }
+
         .hc-status {
             margin-left: auto;
             padding: 4px 10px;
@@ -348,7 +466,13 @@
             background: var(--green-dim);
             color: var(--green);
         }
-        .hc-body { padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+
+        .hc-body {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
 
         .hc-section-label {
             font-size: 0.65em;
@@ -358,30 +482,63 @@
             color: var(--text-muted);
             margin-bottom: 4px;
         }
+
         .hc-info-row {
             background: var(--surface-alt);
             border-radius: var(--radius-sm);
             padding: 10px 14px;
         }
-        .hc-info-row .label { font-size: 0.7em; color: var(--text-muted); font-weight: 500; }
-        .hc-info-row .value { font-size: 0.88em; font-weight: 600; color: var(--text-primary); margin-top: 2px; }
+
+        .hc-info-row .label {
+            font-size: 0.7em;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .hc-info-row .value {
+            font-size: 0.88em;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-top: 2px;
+        }
 
         .hc-bloom-grid {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
             gap: 8px;
         }
+
         .hc-bloom-item {
             border-radius: var(--radius-sm);
             padding: 10px;
             text-align: center;
         }
-        .hc-bloom-item .bl-label { font-size: 0.65em; font-weight: 600; margin-bottom: 4px; }
-        .hc-bloom-item .bl-val { font-size: 0.85em; font-weight: 800; }
 
-        .bl-remember { background: var(--amber-dim); color: var(--amber); }
-        .bl-understand { background: var(--blue-dim); color: var(--blue); }
-        .bl-analyze { background: var(--purple-dim); color: var(--purple); }
+        .hc-bloom-item .bl-label {
+            font-size: 0.65em;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .hc-bloom-item .bl-val {
+            font-size: 0.85em;
+            font-weight: 800;
+        }
+
+        .bl-remember {
+            background: var(--amber-dim);
+            color: var(--amber);
+        }
+
+        .bl-understand {
+            background: var(--blue-dim);
+            color: var(--blue);
+        }
+
+        .bl-analyze {
+            background: var(--purple-dim);
+            color: var(--purple);
+        }
 
         .hc-prog-bar {
             height: 6px;
@@ -390,15 +547,30 @@
             overflow: hidden;
             margin-top: 4px;
         }
+
         .hc-prog-fill {
             height: 100%;
             background: linear-gradient(90deg, var(--blue) 0%, var(--blue-light) 100%);
             border-radius: 3px;
             animation: fillBar 2s ease-out forwards;
         }
-        @keyframes fillBar { from { width: 0; } to { width: var(--w); } }
 
-        .hc-q-list { display: flex; flex-direction: column; gap: 8px; }
+        @keyframes fillBar {
+            from {
+                width: 0;
+            }
+
+            to {
+                width: var(--w);
+            }
+        }
+
+        .hc-q-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
         .hc-q-item {
             display: flex;
             align-items: flex-start;
@@ -411,9 +583,19 @@
             color: var(--text-secondary);
             line-height: 1.4;
         }
-        .hc-q-item.q-mem { border-left-color: var(--amber); }
-        .hc-q-item.q-und { border-left-color: var(--blue); }
-        .hc-q-item.q-app { border-left-color: var(--green); }
+
+        .hc-q-item.q-mem {
+            border-left-color: var(--amber);
+        }
+
+        .hc-q-item.q-und {
+            border-left-color: var(--blue);
+        }
+
+        .hc-q-item.q-app {
+            border-left-color: var(--green);
+        }
+
         .hc-q-num {
             font-weight: 700;
             font-size: 0.9em;
@@ -428,6 +610,7 @@
             border-top: 1px solid var(--border);
             background: var(--surface-alt);
         }
+
         .hc-btn {
             flex: 1;
             padding: 10px;
@@ -442,14 +625,26 @@
             justify-content: center;
             gap: 5px;
         }
-        .hc-btn-primary { background: var(--blue); color: white; }
-        .hc-btn-primary:hover { background: #1d4ed8; }
+
+        .hc-btn-primary {
+            background: var(--blue);
+            color: white;
+        }
+
+        .hc-btn-primary:hover {
+            background: #1d4ed8;
+        }
+
         .hc-btn-outline {
             background: var(--surface);
             color: var(--text-secondary);
             border: 1.5px solid var(--border);
         }
-        .hc-btn-outline:hover { border-color: var(--blue); color: var(--blue); }
+
+        .hc-btn-outline:hover {
+            border-color: var(--blue);
+            color: var(--blue);
+        }
 
         /* ── STATS BAR ── */
         .stats-bar {
@@ -463,12 +658,17 @@
             grid-template-columns: repeat(4, 1fr);
             gap: 0;
         }
+
         .stat-item {
             text-align: center;
             padding: 0 32px;
             border-right: 1px solid var(--border);
         }
-        .stat-item:last-child { border-right: none; }
+
+        .stat-item:last-child {
+            border-right: none;
+        }
+
         .stat-number {
             font-family: 'Plus Jakarta Sans', sans-serif;
             font-size: 2.2em;
@@ -477,6 +677,7 @@
             letter-spacing: -1px;
             display: block;
         }
+
         .stat-label {
             font-size: 0.82em;
             color: var(--text-muted);
@@ -485,8 +686,17 @@
         }
 
         /* ── HOW IT WORKS ── */
-        .section { padding: 90px 60px; position: relative; z-index: 1; }
-        .section-alt { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+        .section {
+            padding: 90px 60px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-alt {
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
 
         .section-tag {
             display: inline-flex;
@@ -499,7 +709,14 @@
             color: var(--blue);
             margin-bottom: 16px;
         }
-        .section-tag::before { content: ''; width: 16px; height: 2px; background: var(--blue); border-radius: 1px; }
+
+        .section-tag::before {
+            content: '';
+            width: 16px;
+            height: 2px;
+            background: var(--blue);
+            border-radius: 1px;
+        }
 
         .section-title {
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -510,6 +727,7 @@
             margin-bottom: 14px;
             line-height: 1.2;
         }
+
         .section-sub {
             font-size: 1em;
             color: var(--text-secondary);
@@ -523,6 +741,7 @@
             gap: 24px;
             margin-top: 56px;
         }
+
         .step-card {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -531,22 +750,39 @@
             transition: all 0.3s;
             position: relative;
         }
+
         .step-card:hover {
             border-color: var(--blue);
             box-shadow: var(--shadow-md);
             transform: translateY(-4px);
         }
+
         .step-num {
-            width: 40px; height: 40px;
+            width: 40px;
+            height: 40px;
             border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-weight: 800;
             font-size: 0.95em;
             margin-bottom: 20px;
         }
-        .step-n1 { background: var(--blue-dim); color: var(--blue); }
-        .step-n2 { background: var(--purple-dim); color: var(--purple); }
-        .step-n3 { background: var(--green-dim); color: var(--green); }
+
+        .step-n1 {
+            background: var(--blue-dim);
+            color: var(--blue);
+        }
+
+        .step-n2 {
+            background: var(--purple-dim);
+            color: var(--purple);
+        }
+
+        .step-n3 {
+            background: var(--green-dim);
+            color: var(--green);
+        }
 
         .step-card h3 {
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -555,7 +791,12 @@
             margin-bottom: 10px;
             color: var(--text-primary);
         }
-        .step-card p { font-size: 0.88em; color: var(--text-secondary); line-height: 1.7; }
+
+        .step-card p {
+            font-size: 0.88em;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
 
         /* ── FEATURES ── */
         .feat-grid {
@@ -564,6 +805,7 @@
             gap: 20px;
             margin-top: 56px;
         }
+
         .feat-card {
             background: var(--bg);
             border: 1px solid var(--border);
@@ -571,25 +813,48 @@
             padding: 28px;
             transition: all 0.3s;
         }
+
         .feat-card:hover {
             background: var(--surface);
             border-color: var(--border-strong);
             box-shadow: var(--shadow-sm);
             transform: translateY(-2px);
         }
+
         .feat-icon {
-            width: 44px; height: 44px;
+            width: 44px;
+            height: 44px;
             border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 1.3em;
             margin-bottom: 16px;
         }
-        .fi-blue { background: var(--blue-dim); }
-        .fi-green { background: var(--green-dim); }
-        .fi-purple { background: var(--purple-dim); }
-        .fi-amber { background: var(--amber-dim); }
-        .fi-blue2 { background: #e0f2fe; }
-        .fi-red { background: #fef2f2; }
+
+        .fi-blue {
+            background: var(--blue-dim);
+        }
+
+        .fi-green {
+            background: var(--green-dim);
+        }
+
+        .fi-purple {
+            background: var(--purple-dim);
+        }
+
+        .fi-amber {
+            background: var(--amber-dim);
+        }
+
+        .fi-blue2 {
+            background: #e0f2fe;
+        }
+
+        .fi-red {
+            background: #fef2f2;
+        }
 
         .feat-card h3 {
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -598,7 +863,12 @@
             margin-bottom: 8px;
             color: var(--text-primary);
         }
-        .feat-card p { font-size: 0.83em; color: var(--text-secondary); line-height: 1.65; }
+
+        .feat-card p {
+            font-size: 0.83em;
+            color: var(--text-secondary);
+            line-height: 1.65;
+        }
 
         /* ── CTA SECTION ── */
         .cta-section {
@@ -609,9 +879,22 @@
             background: linear-gradient(135deg, #f0f7ff 0%, #f8f9fc 50%, #f0fdf4 100%);
             border-top: 1px solid var(--border);
         }
-        .cta-section .section-title { max-width: 560px; margin: 0 auto 16px; }
-        .cta-section .section-sub { margin: 0 auto 36px; text-align: center; }
-        .cta-actions { display: flex; justify-content: center; gap: 14px; }
+
+        .cta-section .section-title {
+            max-width: 560px;
+            margin: 0 auto 16px;
+        }
+
+        .cta-section .section-sub {
+            margin: 0 auto 36px;
+            text-align: center;
+        }
+
+        .cta-actions {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+        }
 
         /* ── AUTH MODAL ── */
         .overlay {
@@ -625,6 +908,7 @@
             justify-content: center;
             padding: 20px;
         }
+
         .auth-card {
             width: 100%;
             max-width: 460px;
@@ -635,29 +919,39 @@
             overflow: hidden;
             position: relative;
         }
+
         .auth-header {
             padding: 28px 32px 0;
             display: flex;
             align-items: flex-start;
             justify-content: space-between;
         }
+
         .auth-logo {
             display: flex;
             align-items: center;
             gap: 10px;
         }
+
         .auth-close {
-            width: 32px; height: 32px;
+            width: 32px;
+            height: 32px;
             border-radius: var(--radius-sm);
             border: 1.5px solid var(--border);
             background: transparent;
             cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: var(--text-muted);
             font-size: 1.1em;
             transition: all 0.2s;
         }
-        .auth-close:hover { background: var(--surface-alt); color: var(--text-primary); }
+
+        .auth-close:hover {
+            background: var(--surface-alt);
+            color: var(--text-primary);
+        }
 
         .auth-tabs {
             display: flex;
@@ -666,6 +960,7 @@
             gap: 0;
             margin-top: 20px;
         }
+
         .tab {
             flex: 1;
             padding: 10px 6px;
@@ -678,12 +973,24 @@
             border-bottom: 2px solid transparent;
             margin-bottom: -1px;
         }
-        .tab.active { color: var(--blue); border-bottom-color: var(--blue); }
-        .tab:hover:not(.active) { color: var(--text-secondary); }
 
-        .auth-body { padding: 24px 32px 32px; }
+        .tab.active {
+            color: var(--blue);
+            border-bottom-color: var(--blue);
+        }
 
-        .field { margin-bottom: 18px; }
+        .tab:hover:not(.active) {
+            color: var(--text-secondary);
+        }
+
+        .auth-body {
+            padding: 24px 32px 32px;
+        }
+
+        .field {
+            margin-bottom: 18px;
+        }
+
         .field label {
             display: block;
             font-size: 0.8em;
@@ -691,6 +998,7 @@
             color: var(--text-secondary);
             margin-bottom: 7px;
         }
+
         .field input {
             width: 100%;
             background: var(--surface-alt);
@@ -703,12 +1011,16 @@
             font-size: 0.92em;
             transition: all 0.2s;
         }
+
         .field input:focus {
             border-color: var(--blue);
             background: var(--surface);
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
         }
-        .field input::placeholder { color: var(--text-muted); }
+
+        .field input::placeholder {
+            color: var(--text-muted);
+        }
 
         .btn-auth {
             width: 100%;
@@ -724,6 +1036,7 @@
             letter-spacing: 0.3px;
             margin-top: 4px;
         }
+
         .btn-auth:hover {
             background: #1d4ed8;
             transform: translateY(-1px);
@@ -748,20 +1061,62 @@
             position: relative;
             z-index: 1;
         }
-        .footer-brand { display: flex; align-items: center; gap: 10px; }
-        .footer-copy { font-size: 0.8em; color: var(--text-muted); }
+
+        .footer-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .footer-copy {
+            font-size: 0.8em;
+            color: var(--text-muted);
+        }
 
         /* ── RESPONSIVE ── */
         @media (max-width: 900px) {
-            header { padding: 0 24px; }
-            .hero { flex-direction: column; padding: 100px 24px 48px; gap: 40px; }
-            .hero-left { max-width: 100%; }
-            .hero-right { width: 100%; }
-            .hero-title { font-size: 2.4em; }
-            .stats-bar { grid-template-columns: repeat(2, 1fr); padding: 32px 24px; }
-            .steps-grid, .feat-grid { grid-template-columns: 1fr; }
-            .section { padding: 60px 24px; }
-            footer { padding: 24px; flex-direction: column; gap: 12px; text-align: center; }
+            header {
+                padding: 0 24px;
+            }
+
+            .hero {
+                flex-direction: column;
+                padding: 100px 24px 48px;
+                gap: 40px;
+            }
+
+            .hero-left {
+                max-width: 100%;
+            }
+
+            .hero-right {
+                width: 100%;
+            }
+
+            .hero-title {
+                font-size: 2.4em;
+            }
+
+            .stats-bar {
+                grid-template-columns: repeat(2, 1fr);
+                padding: 32px 24px;
+            }
+
+            .steps-grid,
+            .feat-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section {
+                padding: 60px 24px;
+            }
+
+            footer {
+                padding: 24px;
+                flex-direction: column;
+                gap: 12px;
+                text-align: center;
+            }
         }
     </style>
 </head>
@@ -774,10 +1129,14 @@
         <div class="floater f3"></div>
         <div class="bg-lines">
             <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-                <path d="M0,200 C200,150 400,250 600,200 S1000,150 1440,200" stroke="#2563eb" stroke-width="0.8" fill="none" opacity="0.3"/>
-                <path d="M0,350 C300,300 500,400 800,350 S1200,300 1440,350" stroke="#2563eb" stroke-width="0.6" fill="none" opacity="0.2"/>
-                <path d="M0,500 C250,450 550,550 850,500 S1300,450 1440,500" stroke="#2563eb" stroke-width="0.5" fill="none" opacity="0.15"/>
-                <path d="M0,650 C400,600 700,700 1000,650 S1350,600 1440,650" stroke="#2563eb" stroke-width="0.4" fill="none" opacity="0.1"/>
+                <path d="M0,200 C200,150 400,250 600,200 S1000,150 1440,200" stroke="#2563eb" stroke-width="0.8"
+                    fill="none" opacity="0.3" />
+                <path d="M0,350 C300,300 500,400 800,350 S1200,300 1440,350" stroke="#2563eb" stroke-width="0.6"
+                    fill="none" opacity="0.2" />
+                <path d="M0,500 C250,450 550,550 850,500 S1300,450 1440,500" stroke="#2563eb" stroke-width="0.5"
+                    fill="none" opacity="0.15" />
+                <path d="M0,650 C400,600 700,700 1000,650 S1350,600 1440,650" stroke="#2563eb" stroke-width="0.4"
+                    fill="none" opacity="0.1" />
             </svg>
         </div>
     </div>
@@ -804,7 +1163,8 @@
                 For Educators &amp; Faculty
             </div>
             <h1 class="hero-title">Generate <span class="highlight">Question Papers</span> the Smart Way</h1>
-            <p class="hero-sub">QPGen uses AI to create balanced, Bloom's Taxonomy-aligned question papers in minutes. Designed for professors and teachers — no tech expertise needed.</p>
+            <p class="hero-sub">QPGen uses AI to create balanced, Bloom's Taxonomy-aligned question papers in minutes.
+                Designed for professors and teachers — no tech expertise needed.</p>
             <div class="hero-actions">
                 <a href="#" class="btn-hero-primary" onclick="openAuth('register')">
                     <span>Start Generating Free</span>
@@ -861,16 +1221,23 @@
                     </div>
                     <div>
                         <div class="hc-section-label">Generation Progress</div>
-                        <div style="font-size:0.75em; color: var(--text-muted); margin-bottom:6px;">Synthesizing questions...</div>
-                        <div class="hc-prog-bar"><div class="hc-prog-fill" style="--w:78%"></div></div>
-                        <div style="font-size:0.7em; color:var(--blue); margin-top:5px; font-weight:600;">78% complete</div>
+                        <div style="font-size:0.75em; color: var(--text-muted); margin-bottom:6px;">Synthesizing
+                            questions...</div>
+                        <div class="hc-prog-bar">
+                            <div class="hc-prog-fill" style="--w:78%"></div>
+                        </div>
+                        <div style="font-size:0.7em; color:var(--blue); margin-top:5px; font-weight:600;">78% complete
+                        </div>
                     </div>
                     <div>
                         <div class="hc-section-label">Generated Questions</div>
                         <div class="hc-q-list">
-                            <div class="hc-q-item q-mem"><span class="hc-q-num">Q1.</span> Define time complexity of Merge Sort and state its best-case performance.</div>
-                            <div class="hc-q-item q-und"><span class="hc-q-num">Q2.</span> Explain the difference between a stack and a queue with real-world examples.</div>
-                            <div class="hc-q-item q-app"><span class="hc-q-num">Q3.</span> Apply Dijkstra's algorithm to find the shortest path in the given graph.</div>
+                            <div class="hc-q-item q-mem"><span class="hc-q-num">Q1.</span> Define time complexity of
+                                Merge Sort and state its best-case performance.</div>
+                            <div class="hc-q-item q-und"><span class="hc-q-num">Q2.</span> Explain the difference
+                                between a stack and a queue with real-world examples.</div>
+                            <div class="hc-q-item q-app"><span class="hc-q-num">Q3.</span> Apply Dijkstra's algorithm to
+                                find the shortest path in the given graph.</div>
                         </div>
                     </div>
                 </div>
@@ -906,22 +1273,26 @@
     <section class="section" id="how-it-works">
         <div class="section-tag">How it Works</div>
         <h2 class="section-title">From syllabus to paper<br>in three simple steps</h2>
-        <p class="section-sub">No complicated setup. QPGen guides you through a structured workflow that ensures every paper is complete and balanced.</p>
+        <p class="section-sub">No complicated setup. QPGen guides you through a structured workflow that ensures every
+            paper is complete and balanced.</p>
         <div class="steps-grid">
             <div class="step-card">
                 <div class="step-num step-n1">01</div>
                 <h3>Set Up Your Course</h3>
-                <p>Enter your subject, unit topics, total marks, and exam type. QPGen understands your curriculum structure automatically.</p>
+                <p>Enter your subject, unit topics, total marks, and exam type. QPGen understands your curriculum
+                    structure automatically.</p>
             </div>
             <div class="step-card">
                 <div class="step-num step-n2">02</div>
                 <h3>Configure the Balance</h3>
-                <p>Select the Bloom's Taxonomy distribution — how many questions should test memory, understanding, application, or analysis.</p>
+                <p>Select the Bloom's Taxonomy distribution — how many questions should test memory, understanding,
+                    application, or analysis.</p>
             </div>
             <div class="step-card">
                 <div class="step-num step-n3">03</div>
                 <h3>Generate &amp; Export</h3>
-                <p>Receive a fully formatted question paper in seconds. Review, make edits if needed, then download as a professional PDF.</p>
+                <p>Receive a fully formatted question paper in seconds. Review, make edits if needed, then download as a
+                    professional PDF.</p>
             </div>
         </div>
     </section>
@@ -930,37 +1301,44 @@
     <section class="section section-alt" id="features">
         <div class="section-tag">Features</div>
         <h2 class="section-title">Everything a faculty member needs</h2>
-        <p class="section-sub">Built with the real needs of professors and teachers in mind — practical, reliable, and easy to use.</p>
+        <p class="section-sub">Built with the real needs of professors and teachers in mind — practical, reliable, and
+            easy to use.</p>
         <div class="feat-grid">
             <div class="feat-card">
                 <div class="feat-icon fi-blue">🧠</div>
                 <h3>AI Question Generation</h3>
-                <p>Automatically generate relevant, subject-specific questions from your syllabus topics using advanced AI models.</p>
+                <p>Automatically generate relevant, subject-specific questions from your syllabus topics using advanced
+                    AI models.</p>
             </div>
             <div class="feat-card">
                 <div class="feat-icon fi-green">⚖️</div>
                 <h3>Bloom's Taxonomy Alignment</h3>
-                <p>Ensure cognitive balance across all six levels — remember, understand, apply, analyze, evaluate, and create.</p>
+                <p>Ensure cognitive balance across all six levels — remember, understand, apply, analyze, evaluate, and
+                    create.</p>
             </div>
             <div class="feat-card">
                 <div class="feat-icon fi-purple">📄</div>
                 <h3>Formatted PDF Export</h3>
-                <p>Download papers with proper university-style formatting including headers, marks distribution, and organized sections.</p>
+                <p>Download papers with proper university-style formatting including headers, marks distribution, and
+                    organized sections.</p>
             </div>
             <div class="feat-card">
                 <div class="feat-icon fi-amber">📚</div>
                 <h3>Paper Archive</h3>
-                <p>All generated papers are saved to your account. Access, reuse, or modify previous papers for different semesters.</p>
+                <p>All generated papers are saved to your account. Access, reuse, or modify previous papers for
+                    different semesters.</p>
             </div>
             <div class="feat-card">
                 <div class="feat-icon fi-blue2">🔒</div>
                 <h3>Faculty-only Access</h3>
-                <p>Institution-level access control ensures only verified faculty members can log in and generate papers.</p>
+                <p>Institution-level access control ensures only verified faculty members can log in and generate
+                    papers.</p>
             </div>
             <div class="feat-card">
                 <div class="feat-icon fi-red">🎯</div>
                 <h3>Mark-wise Distribution</h3>
-                <p>Set 2-mark, 5-mark, and 10-mark sections. QPGen automatically distributes questions to match your schema.</p>
+                <p>Set 2-mark, 5-mark, and 10-mark sections. QPGen automatically distributes questions to match your
+                    schema.</p>
             </div>
         </div>
     </section>
@@ -1011,7 +1389,8 @@
                         <input type="password" id="lp" placeholder="Enter your password">
                     </div>
                     <button class="btn-auth" onclick="login()">Sign In to Dashboard →</button>
-                    <div class="auth-footer-note">Don't have an account? <a href="#" onclick="setTab('register')" style="color:var(--blue); font-weight:600;">Create one →</a></div>
+                    <div class="auth-footer-note">Don't have an account? <a href="#" onclick="setTab('register')"
+                            style="color:var(--blue); font-weight:600;">Create one →</a></div>
                 </div>
                 <div id="pReg" style="display:none;">
                     <div class="field">
@@ -1027,7 +1406,8 @@
                         <input type="password" id="rp" placeholder="Create a strong password">
                     </div>
                     <button class="btn-auth" onclick="register()">Create Account →</button>
-                    <div class="auth-footer-note">Already registered? <a href="#" onclick="setTab('login')" style="color:var(--blue); font-weight:600;">Sign in →</a></div>
+                    <div class="auth-footer-note">Already registered? <a href="#" onclick="setTab('login')"
+                            style="color:var(--blue); font-weight:600;">Sign in →</a></div>
                 </div>
             </div>
         </div>
@@ -1098,4 +1478,5 @@
         if (localStorage.getItem('token')) window.location.href = 'dashboard.html';
     </script>
 </body>
+
 </html>

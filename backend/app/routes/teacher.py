@@ -234,6 +234,55 @@ def request_subject_access():
         'data': req.to_dict()
     }), 201
 
+@teacher_bp.route('/requests/new-subject', methods=['POST'])
+@require_role('teacher')
+def request_new_subject():
+    """Teacher proposes a brand-new subject with topics for AI seeding."""
+    from app.models.subject_request import SubjectRequest
+    data = request.get_json()
+    user = get_current_user()
+
+    subject_name = (data.get('subject_name') or '').strip()
+    subject_code = (data.get('subject_code') or '').strip()
+    topics = (data.get('topics') or '').strip()
+    description = (data.get('description') or '').strip()
+
+    if not subject_name or not subject_code or not topics:
+        return jsonify({'success': False, 'message': 'subject_name, subject_code, and topics are required'}), 400
+
+    # Check if subject code already exists
+    existing_subject = Subject.query.filter_by(code=subject_code).first()
+    if existing_subject:
+        return jsonify({'success': False, 'message': f'A subject with code "{subject_code}" already exists. Request access instead.'}), 400
+
+    # Check for duplicate pending request with same code
+    existing_req = SubjectRequest.query.filter_by(
+        user_id=user.id, subject_code=subject_code, request_type='new_subject', status='pending'
+    ).first()
+    if existing_req:
+        return jsonify({'success': False, 'message': 'You already have a pending request for this subject code'}), 400
+
+    req = SubjectRequest(
+        user_id=user.id,
+        request_type='new_subject',
+        subject_name=subject_name,
+        subject_code=subject_code,
+        subject_description=description,
+        topics=topics,
+        subject_id=None,
+    )
+    db.session.add(req)
+    db.session.commit()
+
+    log_action('teacher.new_subject_request', resource_type='subject_request', resource_id=req.id,
+               details={'subject_name': subject_name, 'subject_code': subject_code, 'topics': topics})
+
+    return jsonify({
+        'success': True,
+        'message': 'New subject request submitted successfully. Admin will review it.',
+        'data': req.to_dict()
+    }), 201
+
 @teacher_bp.route('/requests', methods=['GET'])
 @require_role('teacher')
 def get_my_requests():

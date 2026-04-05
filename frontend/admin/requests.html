@@ -21,7 +21,7 @@
 
         .term-item {
             display: grid;
-            grid-template-columns: 1.5fr 1.5fr 1fr 1fr;
+            grid-template-columns: 1.2fr 1.2fr 1.2fr 0.8fr 1fr;
             padding: 24px 32px;
             border-bottom: 1px solid var(--border);
             align-items: center;
@@ -65,6 +65,37 @@
             color: var(--text-muted);
         }
 
+        .req-type {
+            font-family: 'DM Mono';
+            font-size: 0.6em;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 4px;
+            display: inline-block;
+            font-weight: 600;
+        }
+
+        .req-type-access {
+            color: var(--blue);
+            border: 1px solid var(--blue);
+            background: var(--blue-dim);
+        }
+
+        .req-type-new {
+            color: #8b5cf6;
+            border: 1px solid #8b5cf6;
+            background: #f5f3ff;
+        }
+
+        .topics-preview {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.65em;
+            color: var(--text-muted);
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+
         .btn-group {
             display: flex;
             gap: 12px;
@@ -101,6 +132,11 @@
 
         .btn-reject:hover {
             background: #fff1f2;
+        }
+
+        .btn-action:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         @keyframes fadeIn {
@@ -178,6 +214,7 @@
                 <div class="term-item term-head">
                     <div>Requester</div>
                     <div>Target Domain</div>
+                    <div>Type / Topics</div>
                     <div>Timestamp</div>
                     <div style="text-align:right">Action</div>
                 </div>
@@ -212,28 +249,75 @@
                     return;
                 }
 
-                el.innerHTML = reqs.map(r => `
-                    <div class="term-item">
-                        <div class="teacher-name">${r.username}</div>
-                        <div class="subj-name">${r.subject_name} <em style="color:var(--text-muted); font-style:normal;">(${r.subject_code})</em></div>
-                        <div class="req-date">${new Date(r.created_at).toLocaleDateString().toUpperCase()}</div>
-                        <div class="btn-group">
-                            <button class="btn-action btn-approve" onclick="handleReq(${r.id}, 'approve')">Authorize</button>
-                            <button class="btn-action btn-reject" onclick="handleReq(${r.id}, 'reject')">Deny</button>
+                el.innerHTML = reqs.map(r => {
+                    const isNew = r.request_type === 'new_subject';
+                    const typeBadge = isNew
+                        ? '<span class="req-type req-type-new">New Subject</span>'
+                        : '<span class="req-type req-type-access">Access</span>';
+
+                    const topicsLine = r.topics
+                        ? `<div class="topics-preview">📋 ${r.topics.substring(0, 60)}${r.topics.length > 60 ? '…' : ''}</div>`
+                        : '';
+
+                    const subjDisplay = isNew
+                        ? `<div class="subj-name">${r.subject_name} <em style="color:var(--text-muted); font-style:normal;">(${r.subject_code})</em></div>`
+                        : `<div class="subj-name">${r.subject_name || '—'} <em style="color:var(--text-muted); font-style:normal;">(${r.subject_code || '—'})</em></div>`;
+
+                    const confirmMsg = isNew
+                        ? `Approve new subject "${r.subject_name}" (${r.subject_code})? AI will generate 20 starter questions from the provided topics.`
+                        : `Confirm authorize for access protocol ${r.id}?`;
+
+                    return `
+                        <div class="term-item" id="req-${r.id}">
+                            <div class="teacher-name">${r.username}</div>
+                            ${subjDisplay}
+                            <div>${typeBadge}${topicsLine}</div>
+                            <div class="req-date">${new Date(r.created_at).toLocaleDateString().toUpperCase()}</div>
+                            <div class="btn-group">
+                                <button class="btn-action btn-approve" id="appr-${r.id}" onclick="handleReq(${r.id}, 'approve', '${confirmMsg.replace(/'/g, "\\'")}')">Authorize</button>
+                                <button class="btn-action btn-reject" id="rej-${r.id}" onclick="handleReq(${r.id}, 'reject', 'Confirm deny for request ${r.id}?')">Deny</button>
+                            </div>
                         </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
             } catch (e) { console.error(e); }
         }
 
-        async function handleReq(id, action) {
-            if (!confirm(`Confirm ${action} for access protocol ${id}?`)) return;
+        async function handleReq(id, action, confirmMsg) {
+            if (!confirm(confirmMsg)) return;
+
+            const apprBtn = document.getElementById(`appr-${id}`);
+            const rejBtn = document.getElementById(`rej-${id}`);
+
+            if (action === 'approve' && apprBtn) {
+                apprBtn.textContent = 'PROCESSING...';
+                apprBtn.disabled = true;
+                if (rejBtn) rejBtn.disabled = true;
+            }
+
             try {
                 const res = await fetch(`${API}/admin/subject-requests/${id}/action`, {
                     method: 'POST', headers, body: JSON.stringify({ action })
                 });
-                if (res.ok) loadRequests(); else alert('Update Failed');
-            } catch (e) { alert('System Link Failure'); }
+                const d = await res.json();
+                if (res.ok) {
+                    // Show success briefly then reload
+                    const row = document.getElementById(`req-${id}`);
+                    if (row) {
+                        row.style.background = action === 'approve' ? '#ecfdf5' : '#fff1f2';
+                        row.style.opacity = '0.6';
+                    }
+                    setTimeout(() => loadRequests(), 1000);
+                } else {
+                    alert(d.message || 'Update Failed');
+                    if (apprBtn) { apprBtn.textContent = 'Authorize'; apprBtn.disabled = false; }
+                    if (rejBtn) rejBtn.disabled = false;
+                }
+            } catch (e) {
+                alert('System Link Failure');
+                if (apprBtn) { apprBtn.textContent = 'Authorize'; apprBtn.disabled = false; }
+                if (rejBtn) rejBtn.disabled = false;
+            }
         }
 
         function logout() { localStorage.clear(); window.location.href = '../index.html'; }

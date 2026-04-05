@@ -143,7 +143,7 @@ def get_subject_requests():
 @require_role('admin')
 @require_permission('users.assign_subjects')
 def handle_subject_request(request_id):
-    """Approve or reject a subject request."""
+    """Approve or reject a subject request (access or new_subject)."""
     from app.models.subject_request import SubjectRequest
     data = request.get_json()
     action = data.get('action') # 'approve' or 'reject'
@@ -158,21 +158,88 @@ def handle_subject_request(request_id):
 
     if action == 'approve':
         req.status = 'approved'
-        # Add to teacher_subjects association if not already there
-        if req.subject not in req.user.subjects:
-            req.user.subjects.append(req.subject)
+        ai_note = ''
+
+        if req.request_type == 'new_subject':
+            # ── Create the brand-new subject ──
+            new_subject = Subject(
+                name=req.subject_name,
+                code=req.subject_code,
+                description=req.subject_description or ''
+            )
+            db.session.add(new_subject)
+            db.session.flush()  # get new_subject.id
+
+            # Link the request to the created subject
+            req.subject_id = new_subject.id
+
+            # Assign subject to the requesting teacher
+            if new_subject not in req.user.subjects:
+                req.user.subjects.append(new_subject)
+
+            # ── AI-generate 20 starter questions from the topics ──
+            try:
+                import os
+                from app.services.ai_service import AIService
+                from app.models.question import Question
+
+                api_key = os.getenv('GOOGLE_API_KEY')
+                if api_key:
+                    ai_service = AIService(api_key=api_key)
+                    topics = req.topics or req.subject_name
+
+                    # Use batch generation: 10 x 1-mark, 5 x 3-mark, 3 x 5-mark, 2 x 10-mark = 20 questions
+                    distribution = {"1": 10, "3": 5, "5": 3, "10": 2}
+                    generated = ai_service.generate_questions_batch(
+                        subject_name=req.subject_name,
+                        topic=topics,
+                        distribution=distribution
+                    )
+
+                    saved_count = 0
+                    for g in generated:
+                        q = Question(
+                            text=g.get('text', ''),
+                            question_type=g.get('question_type', 'short'),
+                            blooms_level=g.get('blooms_level', 'understand'),
+                            difficulty=g.get('difficulty', 'medium'),
+                            marks=int(g.get('marks', 1)),
+                            option_a=g.get('option_a'),
+                            option_b=g.get('option_b'),
+                            option_c=g.get('option_c'),
+                            option_d=g.get('option_d'),
+                            correct_answer=g.get('correct_answer'),
+                            subject_id=new_subject.id,
+                            created_by=req.user_id,
+                        )
+                        db.session.add(q)
+                        saved_count += 1
+
+                    ai_note = f' | AI generated {saved_count} starter questions.'
+                else:
+                    ai_note = ' | AI skipped: No GOOGLE_API_KEY configured.'
+            except Exception as e:
+                ai_note = f' | AI generation failed: {str(e)}'
+                print(f"AI seeding error for request {request_id}: {e}")
+
+        else:
+            # Existing flow: grant access to an existing subject
+            if req.subject and req.subject not in req.user.subjects:
+                req.user.subjects.append(req.subject)
+
+        req.admin_notes = (notes + ai_note).strip()
     else:
         req.status = 'rejected'
-    
-    req.admin_notes = notes
+        req.admin_notes = notes
+
     db.session.commit()
 
     log_action('admin.subject_request_action', resource_type='subject_request', resource_id=req.id,
-               details={'action': action, 'user_id': req.user_id, 'subject_id': req.subject_id})
+               details={'action': action, 'user_id': req.user_id, 'request_type': req.request_type})
 
     return jsonify({
         'success': True,
-        'message': f'Request {action}ed successfully'
+        'message': f'Request {action}d successfully' + (ai_note if action == 'approve' else '')
     }), 200
   
 

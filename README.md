@@ -2,7 +2,15 @@
 
 **QPGen** is a modern, AI-powered question bank and paper generation studio designed for educators to easily manage their question repositories and generate balanced exam papers based on Bloom's Taxonomy.
 
-![QPGen Dashboard](https://raw.githubusercontent.com/Nitesh2005-cell/Sem6_Miniproject/main/frontend/assets/dashboard_preview.png)
+<p align="center">
+  <img src="frontend/assets/hero_preview.png" width="800" alt="QPGen Hero Section">
+  <br>
+  <img src="frontend/assets/stats_preview.png" width="800" alt="QPGen Stats and Workflow">
+  <br>
+  <img src="frontend/assets/features_preview.png" width="800" alt="QPGen Features">
+  <br>
+  <img src="frontend/assets/cta_preview.png" width="800" alt="QPGen CTA">
+</p>
 
 ## ✨ Core Features
 

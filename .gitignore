@@ -7,6 +7,8 @@ venv/
 .DS_Store
 .venv/
 CLAUDE.md
+.claude/
+.agents/
 .vercel
 .env*.local
 server.log

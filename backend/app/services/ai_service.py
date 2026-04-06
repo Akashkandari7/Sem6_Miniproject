@@ -13,12 +13,12 @@ class AIService:
         
         genai.configure(api_key=self.api_key)
         
-        # Prefer gemini-1.5-flash for speed and cost, fallback to gemini-pro
+        # Prefer gemini-2.5-flash for speed and cost, fallback to gemini-2.5-pro
         try:
-            self.model = genai.GenerativeModel('gemini-1.5-flash')
+            self.model = genai.GenerativeModel('gemini-2.5-flash')
         except Exception as e:
-            print(f"Warning: gemini-1.5-flash initialization failed, falling back to gemini-pro: {e}")
-            self.model = genai.GenerativeModel('gemini-pro')
+            print(f"Warning: gemini-2.5-flash initialization failed, falling back to gemini-2.5-pro: {e}")
+            self.model = genai.GenerativeModel('gemini-2.5-pro')
 
     def generate_question(self, subject_name, topic, question_type, difficulty, marks):
         """

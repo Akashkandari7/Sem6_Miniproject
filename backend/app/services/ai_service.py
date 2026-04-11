@@ -20,6 +20,73 @@ class AIService:
             print(f"Warning: gemini-2.5-flash initialization failed, falling back to gemini-2.5-pro: {e}")
             self.model = genai.GenerativeModel('gemini-2.5-pro')
 
+    # -------------------------------------------------------------------------
+    # NEW HELPERS — added for retry logic, temperature control, and validation.
+    # Existing functions below are NOT modified; they only delegate to these.
+    # -------------------------------------------------------------------------
+
+    def _get_temperature(self, difficulty):
+        """Maps difficulty level to a Gemini generation temperature."""
+        temp_map = {'easy': 0.3, 'medium': 0.5, 'hard': 0.8}
+        return temp_map.get(difficulty, 0.5)  # Default: medium
+
+    def validate_response(self, data):
+        """
+        Validates an AI-generated response for required fields and non-emptiness.
+        Returns (True, None) on success, (False, error_message) on failure.
+        Checks single-question dicts and batch question arrays.
+        """
+        if not data:
+            return False, "Response is empty"
+
+        if isinstance(data, dict):
+            required_fields = ['text', 'correct_answer']
+            missing = [f for f in required_fields if not data.get(f)]
+            if missing:
+                return False, f"Missing required fields: {missing}"
+
+        elif isinstance(data, list):
+            if len(data) == 0:
+                return False, "Response array is empty"
+            for i, item in enumerate(data):
+                required_fields = ['text', 'correct_answer']
+                missing = [f for f in required_fields if not item.get(f)]
+                if missing:
+                    return False, f"Item {i} missing required fields: {missing}"
+
+        return True, None
+
+    def _call_with_retry(self, prompt, difficulty='medium', max_attempts=3):
+        """
+        Wraps self.model.generate_content() with retry logic and temperature
+        control.  Uses the SAME prompt passed in — no modification.
+        Raises the last encountered exception if all attempts are exhausted.
+        """
+        temperature = self._get_temperature(difficulty)
+        generation_config = genai.types.GenerationConfig(temperature=temperature)
+
+        last_error = None
+        for attempt in range(1, max_attempts + 1):
+            try:
+                response = self.model.generate_content(
+                    prompt,
+                    generation_config=generation_config
+                )
+                if response and response.text:
+                    return response  # Valid response — stop retrying
+                last_error = ValueError("Empty response from Gemini AI.")
+                print(f"AI call attempt {attempt}/{max_attempts} returned empty response, retrying...")
+            except Exception as e:
+                last_error = e
+                print(f"AI call attempt {attempt}/{max_attempts} failed: {e}")
+
+        # All retries exhausted — surface a clear structured error
+        raise ValueError(
+            f"AI generation failed after {max_attempts} attempts. "
+            f"Last error: {last_error}"
+        )
+
+
     def generate_question(self, subject_name, topic, question_type, difficulty, marks):
         """
         Generates a question using Gemini AI and returns it as a dictionary.
@@ -62,7 +129,7 @@ class AIService:
         """
 
         try:
-            response = self.model.generate_content(prompt)
+            response = self._call_with_retry(prompt, difficulty)  # retry + temperature control
             if not response or not response.text:
                 raise ValueError("Empty response from Gemini AI.")
             
@@ -82,7 +149,11 @@ class AIService:
                 else:
                     json_str = content # Try raw content if no braces found (unlikely for valid JSON)
 
-            return json.loads(json_str)
+            parsed = json.loads(json_str)
+            is_valid, error_msg = self.validate_response(parsed)  # output validation
+            if not is_valid:
+                raise ValueError(f"AI response validation failed: {error_msg}")
+            return parsed
         except json.JSONDecodeError as je:
             print(f"AI JSON Parse Error: {str(je)} | Content: {content}")
             raise ValueError(f"AI returned invalid JSON format: {str(je)}")
@@ -135,7 +206,7 @@ class AIService:
         """
 
         try:
-            response = self.model.generate_content(prompt)
+            response = self._call_with_retry(prompt)  # retry + temperature control (medium default)
             if not response or not response.text:
                 raise ValueError("Empty response from Gemini AI.")
             
@@ -155,7 +226,9 @@ class AIService:
             questions = json.loads(json_str)
             if not isinstance(questions, list):
                 raise ValueError("AI did not return a JSON array.")
-            
+            is_valid, error_msg = self.validate_response(questions)  # output validation
+            if not is_valid:
+                raise ValueError(f"AI batch response validation failed: {error_msg}")
             return questions
         except Exception as e:
             print(f"AI Batch Generation Error: {str(e)}")

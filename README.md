@@ -16,6 +16,9 @@
 
 - **Dynamic Question Bank**: Categorize questions by Subject, Bloom's Level (Remember, Understand, Apply, Analyze, Evaluate, Create), and Difficulty.
 - **AI Question Generation**: Automatically generate new questions using Google Gemini AI, tailored to your subject, difficulty, and Bloom's level.
+  - **Auto-Retry & Validation**: Built-in 3-attempt validation loop ensures AI always returns correctly structured, non-empty JSON.
+  - **Dynamic Temperature Control**: AI creativity maps to target difficulty (Easy=0.3, Medium=0.5, Hard=0.8).
+  - **Robust Error Handling**: Structured error bubbling if generation constraints fail.
 - **AI Paper Generation**: Generate comprehensive exam papers by specifying distributions for Bloom's levels and difficulty levels.
 - **Advanced Dashboard**: Real-time statistics on question availability, subjects, and cognitive domain distribution.
 - **Premium UI**: Sleek, dark-mode professional interface with smooth micro-animations and responsive design.

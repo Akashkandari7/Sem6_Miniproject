@@ -18,11 +18,11 @@ class Question(db.Model):
     marks = db.Column(db.Integer, nullable=False, default=1)
     
     # For MCQ questions
-    option_a = db.Column(db.String(255), nullable=True)
-    option_b = db.Column(db.String(255), nullable=True)
-    option_c = db.Column(db.String(255), nullable=True)
-    option_d = db.Column(db.String(255), nullable=True)
-    correct_answer = db.Column(db.String(255), nullable=True)
+    option_a = db.Column(db.Text, nullable=True)
+    option_b = db.Column(db.Text, nullable=True)
+    option_c = db.Column(db.Text, nullable=True)
+    option_d = db.Column(db.Text, nullable=True)
+    correct_answer = db.Column(db.Text, nullable=True)
     
     # Topic for categorization
     topic = db.Column(db.String(200), nullable=True)

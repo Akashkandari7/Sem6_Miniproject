@@ -39,20 +39,26 @@ class AIService:
         if not data:
             return False, "Response is empty"
 
+        def has_valid_answer(item):
+            # If AI omits answer for short/long subjective questions, permit it
+            if item.get('question_type') in ['short', 'long']:
+                return True
+            return 'correct_answer' in item or 'answer' in item
+
         if isinstance(data, dict):
-            required_fields = ['text', 'correct_answer']
-            missing = [f for f in required_fields if not data.get(f)]
-            if missing:
-                return False, f"Missing required fields: {missing}"
+            if 'text' not in data:
+                return False, "Missing required field: text (question)"
+            if not has_valid_answer(data):
+                return False, "Missing required field: correct_answer for MCQ"
 
         elif isinstance(data, list):
             if len(data) == 0:
                 return False, "Response array is empty"
             for i, item in enumerate(data):
-                required_fields = ['text', 'correct_answer']
-                missing = [f for f in required_fields if not item.get(f)]
-                if missing:
-                    return False, f"Item {i} missing required fields: {missing}"
+                if 'text' not in item:
+                    return False, f"Item {i} missing required field: text"
+                if not has_valid_answer(item):
+                    return False, f"Item {i} missing required fields: ['correct_answer'] for MCQ"
 
         return True, None
 
